@@ -15,14 +15,27 @@ ___ENDOF___ERROR___TRACE___(){
 	fi
 	# trace
 	printf "\033[1;91m%s\n" "========  BEGIN ERROR TRACE  ========"
-	printf "\033[1;34m%s\033[0m%s\n" "[  \$_  ] " "${TRACE_CMD_NUM}: $TRACE_CMD"
-	printf "\033[1;32m%s\033[0m%s\n" "[ func ] " "${TRACE_FUNC}: ${FUNCNAME[1]}()"
-	printf "\033[1;37m%s\033[0m%s\n" "[ file ] " "${BASH_SOURCE[-1]}"
-	printf "\033[1;31m%s\033[0m%s\n" "[ code ] " "$TRACE_CODE"
-	printf "\033[1;35m%s\033[0m%s\n" "[ pipe ] " "${TRACE_PIPE[@]}"
-	printf "\033[1;92m%s\033[0m%s\n" "[ bash ] " "$BASH_VERSION"
-	printf "\033[1;96m%s\033[0m%s\n" "[ unix ] " "$EPOCHSECONDS"
-	printf "\033[1;93m%s\033[0m%s\n" "[  wd  ] " "$PWD"
+	printf "\033[1;94m%s\033[0m%s\n" "[ \$_ ] " "${TRACE_CMD_NUM}: $TRACE_CMD"
+	printf "\033[1;92m%s\033[0m%s\n" "[func] " "${TRACE_FUNC}: ${FUNCNAME[1]}()"
+	printf "\033[1;97m%s\033[0m%s\n" "[file] " "${BASH_SOURCE[-1]}"
+	printf "\033[1;91m%s\033[0m%s\n" "[code] " "$TRACE_CODE"
+	printf "\033[1;95m%s\033[0m%s\n" "[pipe] " "${TRACE_PIPE[@]}"
+	printf "\033[1;92m%s\033[0m%s\n" "[bash] " "$BASH_VERSION"
+	printf "\033[1;96m%s\033[0m%s\n" "[unix] " "$EPOCHSECONDS"
+	printf "\033[1;93m%s\033[0m%s\n" "[ wd ] " "$PWD"
+	# prevent negative integer for sed
+	if [[ $TRACE_CMD_NUM -lt 5 ]]; then
+		printf "\033[1;90m%s\n\033[1;97m%s\n\033[1;90m%s\033[0;m\n" \
+			"$(sed -n "1,$((TRACE_CMD_NUM-1)) p" $0 | nl -s' ' -ba -v 1)" \
+			"$(sed -n "$TRACE_CMD_NUM p" $0 | nl -s' ' -ba -v $TRACE_CMD_NUM)" \
+			"$(sed -n "$((TRACE_CMD_NUM+1)),$((TRACE_CMD_NUM+4)) p" $0 | nl -s' ' -ba -v $((TRACE_CMD_NUM+1)))"
+	else
+	# print code lines
+		printf "\033[1;90m%s\n\033[1;97m%s\n\033[1;90m%s\033[0;m\n" \
+			"$(sed -n "$((TRACE_CMD_NUM-4)),$((TRACE_CMD_NUM-1)) p" $0 | nl -s' ' -ba -v $((TRACE_CMD_NUM-4)))" \
+			"$(sed -n "$TRACE_CMD_NUM p" $0 | nl -s' ' -ba -v $TRACE_CMD_NUM)" \
+			"$(sed -n "$((TRACE_CMD_NUM+1)),$((TRACE_CMD_NUM+4)) p" $0 | nl -s' ' -ba -v $((TRACE_CMD_NUM+1)))"
+	fi
 	printf "\033[1;91m%s\n" "========  ENDOF ERROR TRACE  ========"
 	# exit
 	unset TRACE_CMD TRACE_FUNC_NUM TRACE_CMD_NUM TRACE_CODE TRACE_PIPE || exit 66
