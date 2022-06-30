@@ -1,4 +1,4 @@
-#git <stdlib/log.sh/d257147>
+#git <stdlib/log.sh/0937471>
 log::dot(){ printf "\033[1;37m[ \033[0m....\033[1;37m ]\033[0m %s\n" "$@" ;}
 log::prog(){ printf "\033[1;37m[ \033[0m....\033[1;37m ]\033[0m %s\r" "$@" ;}
 log::tab(){ printf "\033[0m         %s\n" "$@" ;}
