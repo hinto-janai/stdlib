@@ -1,4 +1,4 @@
-#git <stdlib/date.sh/e3af68e>
+#git <stdlib/date.sh/413896f>
 date::unix::translate(){
 	if [[ -p /dev/stdin ]]; then
 		local i || return 44

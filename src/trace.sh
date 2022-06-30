@@ -1,4 +1,4 @@
-#git <stdlib/trace.sh/e3af68e>
+#git <stdlib/trace.sh/413896f>
 ___BEGIN___ERROR___TRACE___(){
 	trap 'TRACE_CMD="$BASH_COMMAND" TRACE_FUNC="$BASH_LINENO" TRACE_CMD_NUM="$LINENO" TRACE_CODE="$?" TRACE_PIPE="${PIPESTATUS[@]}"; ___ENDOF___ERROR___TRACE___ || exit 100' ERR || exit 11
 	unset TRACE_CMD TRACE_FUNC_NUM TRACE_CMD_NUM TRACE_CODE TRACE_PIPE || exit 22
@@ -40,6 +40,6 @@ ___ENDOF___ERROR___TRACE___(){
 	# exit
 	unset TRACE_CMD TRACE_FUNC_NUM TRACE_CMD_NUM TRACE_CODE TRACE_PIPE || exit 66
 	set +e +o pipefail || exit 77
-	trap - EXIT || exit 88
+	trap - ERR || exit 88
 	exit 99
 }

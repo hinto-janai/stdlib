@@ -1,4 +1,4 @@
-#git <stdlib/crypto.sh/e3af68e>
+#git <stdlib/crypto.sh/413896f>
 crypto::bytes(){
 	[[ $# = 0 || $# -gt 1 ]] && return 1
 	head -c $1 /dev/random

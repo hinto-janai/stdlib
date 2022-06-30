@@ -1,4 +1,4 @@
-#git <stdlib/panic.sh/e3af68e>
+#git <stdlib/panic.sh/413896f>
 panic() {
 	local PANIC_EXIT_CODE="$?" || exit 98
 	printf "\033[1;91m%s\n"\
