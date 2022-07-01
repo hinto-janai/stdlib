@@ -1,10 +1,10 @@
 #git <stdlib/crypto.sh/0937471>
-crypto::bytes(){
+crypto::bytes() {
 	[[ $# = 0 || $# -gt 1 ]] && return 1
 	head -c $1 /dev/random
 }
 
-crypto::num(){
+crypto::num() {
 	[[ $# = 0 || $# -gt 1 ]] && return 1
 	shuf -i 0-$1 -n 1
 }

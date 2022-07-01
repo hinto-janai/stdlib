@@ -1,12 +1,12 @@
 #git <stdlib/trace.sh/0937471>
-___BEGIN___ERROR___TRACE___(){
+___BEGIN___ERROR___TRACE___() {
 	trap 'TRACE_CMD="$BASH_COMMAND" TRACE_FUNC="${BASH_LINENO[@]}" TRACE_CMD_NUM="$LINENO" TRACE_CODE="$?" TRACE_PIPE="${PIPESTATUS[@]}"; ___ENDOF___ERROR___TRACE___ || exit 100' ERR || exit 11
 	unset TRACE_CMD TRACE_FUNC_NUM TRACE_CMD_NUM TRACE_CODE TRACE_PIPE || exit 22
 	set -E -e -o pipefail || exit 33
 	return 0
 }
 
-___ENDOF___ERROR___TRACE___(){
+___ENDOF___ERROR___TRACE___() {
 	# disarm if no trap
 	if [[ -z $TRACE_CODE ]]; then
 		set +E +eo pipefail || exit 44

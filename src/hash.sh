@@ -1,5 +1,5 @@
 #git <stdlib/hash.sh/0937471>
-hash::md5(){
+hash::md5() {
 	set -o pipefail || return 44
 	if [[ -p /dev/stdin ]]; then
 		local i || return 44
@@ -19,7 +19,7 @@ hash::md5(){
 	set +o pipefail && return 0 || return 44
 }
 
-hash::sha1(){
+hash::sha1() {
 	set -o pipefail || return 44
 	if [[ -p /dev/stdin ]]; then
 		local i || return 44
@@ -39,7 +39,7 @@ hash::sha1(){
 	set +o pipefail && return 0 || return 44
 }
 
-hash::sha256(){
+hash::sha256() {
 	set -o pipefail || return 44
 	if [[ -p /dev/stdin ]]; then
 		local i || return 44
@@ -59,7 +59,7 @@ hash::sha256(){
 	set +o pipefail && return 0 || return 44
 }
 
-hash::sha512(){
+hash::sha512() {
 	set -o pipefail || return 44
 	if [[ -p /dev/stdin ]]; then
 		local i || return 44

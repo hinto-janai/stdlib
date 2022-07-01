@@ -1,5 +1,5 @@
 #git <stdlib/ask.sh/0937471>
-ask::yes(){
+ask::yes() {
 	local ASK_FUNC_RESPONSE || return 44
 	read -r ASK_FUNC_RESPONSE
 	case $ASK_FUNC_RESPONSE in
@@ -8,7 +8,7 @@ ask::yes(){
 	esac
 }
 
-ask::no(){
+ask::no() {
 	local ASK_FUNC_RESPONSE || return 44
 	read -r ASK_FUNC_RESPONSE
 	case $ASK_FUNC_RESPONSE in
@@ -17,7 +17,6 @@ ask::no(){
 	esac
 }
 
-ask::sudo(){
+ask::sudo() {
 	sudo -v
-	return
 }
