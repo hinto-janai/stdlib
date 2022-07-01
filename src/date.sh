@@ -1,17 +1,17 @@
 #git <stdlib/date.sh/0937471>
-date::unix::translate() {
+date::unix_translate() {
+	# stdin
 	if [[ -p /dev/stdin ]]; then
-		local i || return 44
+		local i || return 11
 		for i in $(</dev/stdin); do
-			date -d @"$i" || return 2
+			date -d @"$i" || return 22
 		done
 		return 0
-	elif [[ $# = 0 ]]; then
-		return 1
 	fi
-
+	# normal input
+	[[ $# = 0 ]] && return 33
 	while [[ $# != 0 ]]; do
-		date -d @"$1" || return 2
+		date -d @"$1" || return 44
 		shift
 	done
 	return 0
