@@ -1,4 +1,4 @@
-#git <stdlib/date.sh/76f0927>
+#git <stdlib/date.sh/7be5004>
 date::unix_translate() {
 	# stdin
 	if [[ -p /dev/stdin ]]; then
