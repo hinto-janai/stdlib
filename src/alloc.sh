@@ -1,46 +1,31 @@
-#git <stdlib/alloc.sh/e37073d>
-# malloc:
-# 1. read input (stdin, arguments)
-# 2. make sure $input is an UNSET variable
-# 3. initiate input as a global variable(s)
+#git <stdlib/alloc.sh/6cf3ad6>
+# malloc && free
+# ------------------------------------
+# INITIALIZE global variables only if
+# they are completely unset. ASSIGNING
+# a value to variables with malloc is
+# forbidden, only initialization.
+# Null-but-initialized variables count
+# as already set variables, and will
+# cause malloc to return error:
+# e.g. local VAR; malloc VAR
+
 malloc() {
-	# stdin
-	local i || return 11
-	if [[ -p /dev/stdin ]]; then
-		for i in $(</dev/stdin); do
-			declare -p $i &>/dev/null && return 22
-			declare -g $i || return 33
-		done
-		return 0
-	fi
-	# args
-	[[ $# = 0 ]] && return
+	[[ $# = 0 ]] && return 11
 	for i in $@; do
-		declare -p $i &>/dev/null && return 44
-		declare -g $i || return 55
+		[[ $i = *=* ]] && return 22
+		declare -p $i &>/dev/null && return 33
+		declare -g $i || return 44
 	done
 	return 0
 }
 
-# free:
-# 1. read input (stdin, arguments)
-# 2. make sure $input is a SET variable
-# 3. unset input as variables
 free() {
-	# stdin
-	local i || return 11
-	if [[ -p /dev/stdin ]]; then
-		for i in $(</dev/stdin); do
-			declare -p $i &>/dev/null || return 22
-			unset -v $i || return 33
-		done
-		return 0
-	fi
-	# args
-	[[ $# = 0 ]] && return
+	[[ $# = 0 ]] && return 11
 	for i in $@; do
-		declare -p $i &>/dev/null || return 44
-		unset -v $i || return 55
+		[[ $i = *=* ]] && return 22
+		declare -p $i &>/dev/null || return 33
+		unset -v $i || return 44
 	done
 	return 0
 }

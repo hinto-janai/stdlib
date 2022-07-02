@@ -1,4 +1,4 @@
-#git <stdlib/lock.sh/e37073d>
+#git <stdlib/lock.sh/6cf3ad6>
 lock::alloc() {
 	exec 200<"$0" || return 2
 	flock -n 200 || return 66

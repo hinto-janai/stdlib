@@ -1,4 +1,4 @@
-#git <stdlib/panic.sh/e37073d>
+#git <stdlib/panic.sh/6cf3ad6>
 panic() {
 	local PANIC_EXIT_CODE="$?" TRACE_FUNC=("${BASH_LINENO[@]}") || exit 98
 	printf "\033[1;91m%s\n"\
