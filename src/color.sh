@@ -1,4 +1,4 @@
-#git <stdlib/color.sh/7be5004>
+#git <stdlib/color.sh/e37073d>
 # REGULAR
 color::black() { printf "\033[0;30m" ;}
 color::red() { printf "\033[0;31m" ;}

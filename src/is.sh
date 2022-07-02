@@ -1,4 +1,4 @@
-#git <stdlib/is.sh/7be5004>
+#git <stdlib/is.sh/e37073d>
 is::int() {
 	# stdin
 	if [[ -p /dev/stdin ]]; then
