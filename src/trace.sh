@@ -17,10 +17,10 @@
 
 ___BEGIN___ERROR___TRACE___() {
 	# ultra paranoid safety measures (unset bash builtins)
-	POSIXLY_CORRECT= || exit 8
-	\unset -f trap set return exit printf echo unset local return read unalias mapfile || exit 9
-	\unalias -a || exit 10
-	unset POSIXLY_CORRECT || exit 11
+#	POSIXLY_CORRECT= || exit 8
+#	\unset -f trap set return exit printf echo unset local return read unalias mapfile || exit 9
+#	\unalias -a || exit 10
+#	unset POSIXLY_CORRECT || exit 11
 	# set trap to catch error data
 	trap 'TRACE_CMD="$BASH_COMMAND" TRACE_FUNC="${BASH_LINENO[@]}" TRACE_CMD_NUM="$LINENO" TRACE_PIPE="${PIPESTATUS[@]}"; ___ENDOF___ERROR___TRACE___ || exit 100' ERR || exit 12
 	unset -v TRACE_CMD TRACE_FUNC_NUM TRACE_CMD_NUM TRACE_PIPE || exit 13

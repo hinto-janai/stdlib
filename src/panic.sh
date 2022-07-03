@@ -15,7 +15,7 @@ panic() {
 	\unset -f trap set return exit printf echo local unalias unset || exit 22
 	\unalias -a || exit 33
 	unset POSIXLY_CORRECT || exit 44
-	printf "\033[0;m%s\n" "@@@@@@     panic    @@@@@@"
+	printf "\033[0;m%s\n" "@@@@@@     panic     @@@@@@"
 	local TRACE_CMD_NUM
 	TRACE_CMD_NUM="${BASH_LINENO[0]}"
 	local PANIC_CMD
