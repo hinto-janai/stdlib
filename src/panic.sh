@@ -1,6 +1,12 @@
 #git <stdlib/panic.sh/6cf3ad6>
 panic() {
+	# get error info
 	local PANIC_EXIT_CODE="$?" TRACE_FUNC=("${BASH_LINENO[@]}") || exit 98
+	# ultra paranoid safety measures (unset bash builtins)
+	POSIXLY_CORRECT= || exit 11
+	\unset -f trap set return exit printf echo local unalias unset || exit 22
+	\unalias -a || exit 33
+	unset POSIXLY_CORRECT || exit 44
 	printf "\033[1;91m%s\n"\
 		":::::::::::::::::"\
 		":     panic     :"\
