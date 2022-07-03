@@ -3,7 +3,7 @@
 # -----
 # this function pair catches errors between them,
 # traces them, prints useful info, then exits.
-# system/script debug info are printed along
+# system/script debug info is printed along
 # with an inline view of which command failed
 # in the script with color-coded context.
 #
@@ -13,14 +13,17 @@
 # execute properly, or at the very least, exit.
 #
 # 100% written with bash builtins, 0 external
-# programs called, which makes trace quite fast.
+# programs called, which makes trace fast and
+# quite portable, as long as the shell is bash 4.4+
+# for context, current old_old_debian (debian 9 stretch)
+# has bash v4.4-5, released in 2016.
 
 ___BEGIN___ERROR___TRACE___() {
 	# ultra paranoid safety measures (unset bash builtins)
-#	POSIXLY_CORRECT= || exit 8
-#	\unset -f trap set return exit printf echo unset local return read unalias mapfile || exit 9
-#	\unalias -a || exit 10
-#	unset POSIXLY_CORRECT || exit 11
+	POSIXLY_CORRECT= || exit 8
+	\unset -f trap set return exit printf echo unset local return read unalias mapfile || exit 9
+	\unalias -a || exit 10
+	unset POSIXLY_CORRECT || exit 11
 	# set trap to catch error data
 	trap 'TRACE_CMD="$BASH_COMMAND" TRACE_FUNC="${BASH_LINENO[@]}" TRACE_CMD_NUM="$LINENO" TRACE_PIPE="${PIPESTATUS[@]}"; ___ENDOF___ERROR___TRACE___ || exit 100' ERR || exit 12
 	unset -v TRACE_CMD TRACE_FUNC_NUM TRACE_CMD_NUM TRACE_PIPE || exit 13

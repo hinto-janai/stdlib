@@ -74,6 +74,7 @@ panic() {
 		fi
 		((TRACE_CMD_NUM++))
 	done
+	printf "\033[0;m%s\r" "@@@@@@     panic     @@@@@@"
 	# endless loop
 	while :; do read -s -r; done
 	# just in case
