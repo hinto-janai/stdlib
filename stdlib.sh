@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-#git <stdlib.sh/76f0927>
-#nix <1656689310>
-#hbc <0f3609d>
+#git <stdlib.sh/06d98f9>
+#nix <1656816051>
+#hbc <6dfe9a3>
+#src <alloc.sh>
 #src <ask.sh>
 #src <color.sh>
 #src <crypto.sh>
@@ -16,6 +17,22 @@
 #src <var.sh>
 
 #-------------------------------------------------------------------------------- BEGIN SRC CODE
+malloc() {
+	[[ $# = 0 ]] && return 11
+	for i in $@; do
+		declare -p ${i/=*/} &>/dev/null && return 22
+		declare -g $i || return 33
+	done
+	return 0
+}
+free() {
+	[[ $# = 0 ]] && return 11
+	for i in $@; do
+		declare -p ${i/=*/} &>/dev/null || return 22
+		unset -v $i || return 33
+	done
+	return 0
+}
 ask::yes() {
 	local ASK_FUNC_RESPONSE || return 44
 	read -r ASK_FUNC_RESPONSE
@@ -229,17 +246,19 @@ log::fail() { printf "\033[1;31m[ FAIL ]\033[0m %s\n" "$@" ;}
 log::danger() { printf "\033[1;31m[DANGER]\033[0m %s\n" "$@" ;}
 panic() {
 	local PANIC_EXIT_CODE="$?" TRACE_FUNC=("${BASH_LINENO[@]}") || exit 98
-	printf "\033[1;91m%s\n"\
-		":::::::::::::::::"\
-		":     panic     :"\
-		":::::::::::::::::"
+	POSIXLY_CORRECT= || exit 11
+	\unset -f trap set return exit printf echo local unalias unset || exit 22
+	\unalias -a || exit 33
+	unset POSIXLY_CORRECT || exit 44
+	printf "\033[0;m%s\n" "@@@@@@     panic    @@@@@@"
 	local TRACE_CMD_NUM
 	TRACE_CMD_NUM="${BASH_LINENO[0]}"
 	local PANIC_CMD
 	PANIC_CMD="$(sed -n "$TRACE_CMD_NUM p" $0)"
+	printf "\033[1;95m%s\033[0m%s\n" "[bash] " "$BASH_VERSION"
+	printf "\033[1;96m%s\033[0m%s\n" "[unix] " "$EPOCHSECONDS"
 	printf "\033[1;97m%s\033[0m%s\n" "[file] " "${BASH_SOURCE[-1]}"
 	printf "\033[1;91m%s\033[0m%s\n" "[code] " "$PANIC_EXIT_CODE"
-	printf "\033[1;96m%s\033[0m%s\n" "[unix] " "$EPOCHSECONDS"
 	printf "\033[1;93m%s\033[0m%s\n" "[ wd ] " "$PWD"
 	printf "\033[1;94m%s\033[0m%s%s\n" "[ \$_ ] " "$TRACE_CMD_NUM: " "$(printf "%s" "$PANIC_CMD" | tr -d '\t')"
 	local f
@@ -250,38 +269,68 @@ panic() {
 		printf "\033[1;92m%s\033[0m%s\n" "[func] " "${f}: ${FUNCNAME[${i}]}()"
 		((i++))
 	done
+	local TRACE_LINE_ARRAY
+	local ORIGINAL_LINE="$TRACE_CMD_NUM"
 	if [[ $TRACE_CMD_NUM -lt 5 ]]; then
-		printf "\033[1;90m%s\n\033[1;97m%s\n\033[1;90m%s\033[0;m\n" \
-		"$(sed -n "1,$((TRACE_CMD_NUM-1)) p" $0 | nl -s' ' -ba -v 1)" \
-		"$(echo "$PANIC_CMD" | nl -s' ' -ba -v $TRACE_CMD_NUM)" \
-		"$(sed -n "$((TRACE_CMD_NUM+1)),$((TRACE_CMD_NUM+4)) p" $0 | nl -s' ' -ba -v $((TRACE_CMD_NUM+1)))"
+		local TRACE_CMD_NUM=1
+		mapfile -n 9 TRACE_LINE_ARRAY < $0
 	else
-		printf "\033[1;90m%s\n\033[1;97m%s\n\033[1;90m%s\033[0;m\n" \
-		"$(sed -n "$((TRACE_CMD_NUM-4)),$((TRACE_CMD_NUM-1)) p" $0 | nl -s' ' -ba -v $((TRACE_CMD_NUM-4)))" \
-		"$(echo "$PANIC_CMD" | nl -s' ' -ba -v $TRACE_CMD_NUM)" \
-		"$(sed -n "$((TRACE_CMD_NUM+1)),$((TRACE_CMD_NUM+4)) p" $0 | nl -s' ' -ba -v $((TRACE_CMD_NUM+1)))"
+		local TRACE_CMD_NUM=$((TRACE_CMD_NUM-4))
+		mapfile -s $((TRACE_CMD_NUM-1)) -n 9 TRACE_LINE_ARRAY < $0
 	fi
+	for i in {0..8}; do
+		[[ ${TRACE_LINE_ARRAY[$i]} ]] || break
+		if [[ $TRACE_CMD_NUM = $ORIGINAL_LINE ]]; then
+			case ${#TRACE_CMD_NUM} in
+				1) printf "\033[1;97m%s" "     $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
+				2) printf "\033[1;97m%s" "    $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
+				3) printf "\033[1;97m%s" "   $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
+				4) printf "\033[1;97m%s" "  $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
+				5) printf "\033[1;97m%s" " $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
+				*) printf "\033[1;97m%s" "$TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
+			esac
+		else
+			case ${#TRACE_CMD_NUM} in
+				1) printf "\033[1;90m%s" "     $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
+				2) printf "\033[1;90m%s" "    $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
+				3) printf "\033[1;90m%s" "   $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
+				4) printf "\033[1;90m%s" "  $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
+				5) printf "\033[1;90m%s" " $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
+				*) printf "\033[1;90m%s" "$TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
+			esac
+		fi
+		((TRACE_CMD_NUM++))
+	done
+	while :; do read -s -r; done
 	[[ $1 =~ ^[0-9]+$ ]] && exit $1 || exit 99
 }
 safety::bash() { [[ ${BASH_VERSINFO[0]} -ge 5 ]] ;}
 safety::gnu_linux() { [[ $OSTYPE = linux-gnu* ]] ;}
 ___BEGIN___ERROR___TRACE___() {
-	trap 'TRACE_CMD="$BASH_COMMAND" TRACE_FUNC="${BASH_LINENO[@]}" TRACE_CMD_NUM="$LINENO" TRACE_CODE="$?" TRACE_PIPE="${PIPESTATUS[@]}"; ___ENDOF___ERROR___TRACE___ || exit 100' ERR || exit 11
-	unset TRACE_CMD TRACE_FUNC_NUM TRACE_CMD_NUM TRACE_CODE TRACE_PIPE || exit 22
-	set -E -e -o pipefail || exit 33
+	POSIXLY_CORRECT= || exit 8
+	\unset -f trap set return exit printf echo unset local return read unalias mapfile || exit 9
+	\unalias -a || exit 10
+	unset POSIXLY_CORRECT || exit 11
+	trap 'TRACE_CMD="$BASH_COMMAND" TRACE_FUNC="${BASH_LINENO[@]}" TRACE_CMD_NUM="$LINENO" TRACE_PIPE="${PIPESTATUS[@]}"; ___ENDOF___ERROR___TRACE___ || exit 100' ERR || exit 12
+	unset -v TRACE_CMD TRACE_FUNC_NUM TRACE_CMD_NUM TRACE_PIPE || exit 13
+	set -E -e -o pipefail || exit 14
 	return 0
 }
 ___ENDOF___ERROR___TRACE___() {
-	if [[ -z $TRACE_CODE ]]; then
-		set +E +eo pipefail || exit 44
-		trap - ERR || exit 55
+	if [[ -z $TRACE_PIPE ]]; then
+		POSIXLY_CORRECT= || exit 15
+		\unset -f trap set return exit return || exit 16
+		\unalias -a || exit 17
+		unset POSIXLY_CORRECT || exit 18
+		unset -v TRACE_CMD TRACE_FUNC_NUM TRACE_CMD_NUM TRACE_PIPE || exit 19
+		set +E +eo pipefail || exit 20
+		trap - ERR || exit 21
 		return 0
 	fi
 	printf "\033[1;91m%s\n" "========  BEGIN ERROR TRACE  ========"
-	printf "\033[1;92m%s\033[0m%s\n" "[bash] " "$BASH_VERSION"
+	printf "\033[1;95m%s\033[0m%s\n" "[bash] " "$BASH_VERSION"
 	printf "\033[1;96m%s\033[0m%s\n" "[unix] " "$EPOCHSECONDS"
-	printf "\033[1;91m%s\033[0m%s\n" "[code] " "$TRACE_CODE"
-	printf "\033[1;95m%s\033[0m%s\n" "[pipe] " "${TRACE_PIPE[@]}"
+	printf "\033[1;91m%s\033[0m%s\n" "[code] " "${TRACE_PIPE[@]}"
 	printf "\033[1;97m%s\033[0m%s\n" "[file] " "${BASH_SOURCE[-1]}"
 	printf "\033[1;93m%s\033[0m%s\n" "[ wd ] " "$PWD"
 	printf "\033[1;94m%s\033[0m%s\n" "[ \$_ ] " "${TRACE_CMD_NUM}: $TRACE_CMD"
@@ -292,21 +341,42 @@ ___ENDOF___ERROR___TRACE___() {
 		printf "\033[1;92m%s\033[0m%s\n" "[func] " "${f}: ${FUNCNAME[${i}]}()"
 		((i++))
 	done
+	local TRACE_LINE_ARRAY
+	local ORIGINAL_LINE="$TRACE_CMD_NUM"
 	if [[ $TRACE_CMD_NUM -lt 5 ]]; then
-		printf "\033[1;90m%s\n\033[1;97m%s\n\033[1;90m%s\033[0;m\n" \
-			"$(sed -n "1,$((TRACE_CMD_NUM-1)) p" $0 | nl -s' ' -ba -v 1)" \
-			"$(sed -n "$TRACE_CMD_NUM p" $0 | nl -s' ' -ba -v $TRACE_CMD_NUM)" \
-			"$(sed -n "$((TRACE_CMD_NUM+1)),$((TRACE_CMD_NUM+4)) p" $0 | nl -s' ' -ba -v $((TRACE_CMD_NUM+1)))"
+		local TRACE_CMD_NUM=1
+		mapfile -n 9 TRACE_LINE_ARRAY < $0
 	else
-		printf "\033[1;90m%s\n\033[1;97m%s\n\033[1;90m%s\033[0;m\n" \
-			"$(sed -n "$((TRACE_CMD_NUM-4)),$((TRACE_CMD_NUM-1)) p" $0 | nl -s' ' -ba -v $((TRACE_CMD_NUM-4)))" \
-			"$(sed -n "$TRACE_CMD_NUM p" $0 | nl -s' ' -ba -v $TRACE_CMD_NUM)" \
-			"$(sed -n "$((TRACE_CMD_NUM+1)),$((TRACE_CMD_NUM+4)) p" $0 | nl -s' ' -ba -v $((TRACE_CMD_NUM+1)))"
+		local TRACE_CMD_NUM=$((TRACE_CMD_NUM-4))
+		mapfile -s $((TRACE_CMD_NUM-1)) -n 9 TRACE_LINE_ARRAY < $0
 	fi
-	printf "\033[1;91m%s\n" "========  ENDOF ERROR TRACE  ========"
-	unset TRACE_CMD TRACE_FUNC_NUM TRACE_CMD_NUM TRACE_CODE TRACE_PIPE || exit 66
-	set +E +eo pipefail || exit 77
-	trap - ERR || exit 88
+	for i in {0..8}; do
+		[[ ${TRACE_LINE_ARRAY[$i]} ]] || break
+		if [[ $TRACE_CMD_NUM = $ORIGINAL_LINE ]]; then
+			case ${#TRACE_CMD_NUM} in
+				1) printf "\033[1;97m%s" "     $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
+				2) printf "\033[1;97m%s" "    $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
+				3) printf "\033[1;97m%s" "   $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
+				4) printf "\033[1;97m%s" "  $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
+				5) printf "\033[1;97m%s" " $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
+				*) printf "\033[1;97m%s" "$TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
+			esac
+		else
+			case ${#TRACE_CMD_NUM} in
+				1) printf "\033[1;90m%s" "     $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
+				2) printf "\033[1;90m%s" "    $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
+				3) printf "\033[1;90m%s" "   $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
+				4) printf "\033[1;90m%s" "  $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
+				5) printf "\033[1;90m%s" " $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
+				*) printf "\033[1;90m%s" "$TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
+			esac
+		fi
+		((TRACE_CMD_NUM++))
+	done
+	printf "\033[1;91m%s\033[0m\n" "========  ENDOF ERROR TRACE  ========"
+	unset -v TRACE_CMD TRACE_FUNC_NUM TRACE_CMD_NUM TRACE_PIPE || exit 22
+	set +E +eo pipefail || exit 23
+	trap - ERR || exit 24
 	exit 99
 }
 readonly BLACK="\033[0;30m"

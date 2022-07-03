@@ -52,7 +52,7 @@ panic() {
 		# if no lines left, break
 		[[ ${TRACE_LINE_ARRAY[$i]} ]] || break
 		# if error line, print bold white
-		if [[ $TRACE_CMD_NUM = $ORIGINAL_LINE ]]; then
+		if [[ $TRACE_CMD_NUM = "$ORIGINAL_LINE" ]]; then
 			case ${#TRACE_CMD_NUM} in
 				1) printf "\033[1;97m%s" "     $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
 				2) printf "\033[1;97m%s" "    $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
