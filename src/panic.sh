@@ -1,4 +1,12 @@
 #git <stdlib/panic.sh/6cf3ad6>
+# panic
+# -----
+# print error information and
+# enter endless loop to prevent
+# futher code execution. must
+# be called manually, does not
+# catch errors like trace.
+
 panic() {
 	# get error info
 	local PANIC_EXIT_CODE="$?" TRACE_FUNC=("${BASH_LINENO[@]}") || exit 98
@@ -7,17 +15,15 @@ panic() {
 	\unset -f trap set return exit printf echo local unalias unset || exit 22
 	\unalias -a || exit 33
 	unset POSIXLY_CORRECT || exit 44
-	printf "\033[1;91m%s\n"\
-		":::::::::::::::::"\
-		":     panic     :"\
-		":::::::::::::::::"
+	printf "\033[0;m%s\n" "@@@@@@     panic    @@@@@@"
 	local TRACE_CMD_NUM
 	TRACE_CMD_NUM="${BASH_LINENO[0]}"
 	local PANIC_CMD
 	PANIC_CMD="$(sed -n "$TRACE_CMD_NUM p" $0)"
+	printf "\033[1;95m%s\033[0m%s\n" "[bash] " "$BASH_VERSION"
+	printf "\033[1;96m%s\033[0m%s\n" "[unix] " "$EPOCHSECONDS"
 	printf "\033[1;97m%s\033[0m%s\n" "[file] " "${BASH_SOURCE[-1]}"
 	printf "\033[1;91m%s\033[0m%s\n" "[code] " "$PANIC_EXIT_CODE"
-	printf "\033[1;96m%s\033[0m%s\n" "[unix] " "$EPOCHSECONDS"
 	printf "\033[1;93m%s\033[0m%s\n" "[ wd ] " "$PWD"
 	printf "\033[1;94m%s\033[0m%s%s\n" "[ \$_ ] " "$TRACE_CMD_NUM: " "$(printf "%s" "$PANIC_CMD" | tr -d '\t')"
 	local f
@@ -28,20 +34,49 @@ panic() {
 		printf "\033[1;92m%s\033[0m%s\n" "[func] " "${f}: ${FUNCNAME[${i}]}()"
 		((i++))
 	done
-	#
-	# prevent negative integer for sed
+	# put trace lines into array, error line in middle, 9 lines total
+	local TRACE_LINE_ARRAY
+	local ORIGINAL_LINE="$TRACE_CMD_NUM"
+	# prevent negative starting line
 	if [[ $TRACE_CMD_NUM -lt 5 ]]; then
-		printf "\033[1;90m%s\n\033[1;97m%s\n\033[1;90m%s\033[0;m\n" \
-		"$(sed -n "1,$((TRACE_CMD_NUM-1)) p" $0 | nl -s' ' -ba -v 1)" \
-		"$(echo "$PANIC_CMD" | nl -s' ' -ba -v $TRACE_CMD_NUM)" \
-		"$(sed -n "$((TRACE_CMD_NUM+1)),$((TRACE_CMD_NUM+4)) p" $0 | nl -s' ' -ba -v $((TRACE_CMD_NUM+1)))"
+		local TRACE_CMD_NUM=1
+		mapfile -n 9 TRACE_LINE_ARRAY < $0
 	else
-		# print code lines
-		printf "\033[1;90m%s\n\033[1;97m%s\n\033[1;90m%s\033[0;m\n" \
-		"$(sed -n "$((TRACE_CMD_NUM-4)),$((TRACE_CMD_NUM-1)) p" $0 | nl -s' ' -ba -v $((TRACE_CMD_NUM-4)))" \
-		"$(echo "$PANIC_CMD" | nl -s' ' -ba -v $TRACE_CMD_NUM)" \
-		"$(sed -n "$((TRACE_CMD_NUM+1)),$((TRACE_CMD_NUM+4)) p" $0 | nl -s' ' -ba -v $((TRACE_CMD_NUM+1)))"
+		local TRACE_CMD_NUM=$((TRACE_CMD_NUM-4))
+		mapfile -s $((TRACE_CMD_NUM-1)) -n 9 TRACE_LINE_ARRAY < $0
 	fi
+	# print lines with numbers (with manual spacing)
+	# i don't know why, but the array elements already
+	# have newlines, so none are added with printf.
+	for i in {0..8}; do
+		# if no lines left, break
+		[[ ${TRACE_LINE_ARRAY[$i]} ]] || break
+		# if error line, print bold white
+		if [[ $TRACE_CMD_NUM = $ORIGINAL_LINE ]]; then
+			case ${#TRACE_CMD_NUM} in
+				1) printf "\033[1;97m%s" "     $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
+				2) printf "\033[1;97m%s" "    $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
+				3) printf "\033[1;97m%s" "   $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
+				4) printf "\033[1;97m%s" "  $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
+				5) printf "\033[1;97m%s" " $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
+				*) printf "\033[1;97m%s" "$TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
+			esac
+		# else print grey
+		else
+			case ${#TRACE_CMD_NUM} in
+				1) printf "\033[1;90m%s" "     $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
+				2) printf "\033[1;90m%s" "    $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
+				3) printf "\033[1;90m%s" "   $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
+				4) printf "\033[1;90m%s" "  $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
+				5) printf "\033[1;90m%s" " $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
+				*) printf "\033[1;90m%s" "$TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
+			esac
+		fi
+		((TRACE_CMD_NUM++))
+	done
+	# endless loop
+	while :; do read -s -r; done
+	# just in case
 	[[ $1 =~ ^[0-9]+$ ]] && exit $1 || exit 99
 }
 

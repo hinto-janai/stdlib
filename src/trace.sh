@@ -98,7 +98,7 @@ ___ENDOF___ERROR___TRACE___() {
 		fi
 		((TRACE_CMD_NUM++))
 	done
-	printf "\033[1;91m%s\n" "========  ENDOF ERROR TRACE  ========"
+	printf "\033[1;91m%s\033[0m\n" "========  ENDOF ERROR TRACE  ========"
 	# disarm and exit
 	unset -v TRACE_CMD TRACE_FUNC_NUM TRACE_CMD_NUM TRACE_PIPE || exit 22
 	set +E +eo pipefail || exit 23
