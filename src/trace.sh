@@ -21,7 +21,7 @@
 ___BEGIN___ERROR___TRACE___() {
 	# ultra paranoid safety measures (unset bash builtins)
 	POSIXLY_CORRECT= || exit 8
-	\unset -f trap set return exit printf echo unset local return read unalias mapfile || exit 9
+	\unset -f trap set return exit printf unset local return read unalias mapfile || exit 9
 	\unalias -a || exit 10
 	unset POSIXLY_CORRECT || exit 11
 	# set trap to catch error data
@@ -32,17 +32,22 @@ ___BEGIN___ERROR___TRACE___() {
 }
 
 ___ENDOF___ERROR___TRACE___() {
+	# ultra paranoid safety measures (unset bash builtins)
+	POSIXLY_CORRECT= || exit 15
+	\unset -f trap set return exit printf unset local return read unalias mapfile || exit 16
+	\unalias -a || exit 17
+	unset POSIXLY_CORRECT || exit 18
 	# disarm if no trap
 	if [[ -z $TRACE_PIPE ]]; then
 		# paranoid safety
-		POSIXLY_CORRECT= || exit 15
-		\unset -f trap set return exit return || exit 16
-		\unalias -a || exit 17
-		unset POSIXLY_CORRECT || exit 18
+		POSIXLY_CORRECT= || exit 19
+		\unset -f trap set return exit return || exit 20
+		\unalias -a || exit 21
+		unset POSIXLY_CORRECT || exit 22
 		# disarm
-		unset -v TRACE_CMD TRACE_FUNC_NUM TRACE_CMD_NUM TRACE_PIPE || exit 19
-		set +E +eo pipefail || exit 20
-		trap - ERR || exit 21
+		unset -v TRACE_CMD TRACE_FUNC_NUM TRACE_CMD_NUM TRACE_PIPE || exit 23
+		set +E +eo pipefail || exit 24
+		trap - ERR || exit 25
 		return 0
 	fi
 	# print trace info
@@ -103,8 +108,8 @@ ___ENDOF___ERROR___TRACE___() {
 	done
 	printf "\033[1;91m%s\033[0m\n" "========  ENDOF ERROR TRACE  ========"
 	# disarm and exit
-	unset -v TRACE_CMD TRACE_FUNC_NUM TRACE_CMD_NUM TRACE_PIPE || exit 22
-	set +E +eo pipefail || exit 23
-	trap - ERR || exit 24
+	unset -v TRACE_CMD TRACE_FUNC_NUM TRACE_CMD_NUM TRACE_PIPE || exit 26
+	set +E +eo pipefail || exit 27
+	trap - ERR || exit 28
 	exit 99
 }
