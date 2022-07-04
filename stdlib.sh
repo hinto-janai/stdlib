@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
-#git <stdlib.sh/8b98768>
-#nix <1656895153>
-#hbc <2f32310>
-#src <alloc.sh>
+#git <stdlib.sh/ec5fe99>
+#nix <1656961346>
+#hbc <4e4a312>
 #src <ask.sh>
 #src <color.sh>
 #src <crypto.sh>
@@ -11,28 +10,13 @@
 #src <is.sh>
 #src <lock.sh>
 #src <log.sh>
+#src <malloc.sh>
 #src <panic.sh>
 #src <safety.sh>
 #src <trace.sh>
 #src <var.sh>
 
 #-------------------------------------------------------------------------------- BEGIN SRC CODE
-malloc() {
-	[[ $# = 0 ]] && return 11
-	for i in $@; do
-		declare -p ${i/=*/} &>/dev/null && return 22
-		declare -g $i || return 33
-	done
-	return 0
-}
-free() {
-	[[ $# = 0 ]] && return 11
-	for i in $@; do
-		declare -p ${i/=*/} &>/dev/null || return 22
-		unset -v $i || return 33
-	done
-	return 0
-}
 ask::yes() {
 	local ASK_FUNC_RESPONSE || return 44
 	read -r ASK_FUNC_RESPONSE
@@ -244,10 +228,58 @@ log::info() { printf "\033[1;37m[ INFO ]\033[0m %s\n" "$@" ;}
 log::warn() { printf "\033[1;33m[ WARN ]\033[0m %s\n" "$@" ;}
 log::fail() { printf "\033[1;31m[ FAIL ]\033[0m %s\n" "$@" ;}
 log::danger() { printf "\033[1;31m[DANGER]\033[0m %s\n" "$@" ;}
+malloc::var() {
+	[[ $# = 0 ]] && return 11
+	for i in $@; do
+		declare -p ${i/=*/} &>/dev/null && return 22
+		declare -g $i || return 33
+	done
+	return 0
+}
+malloc::arr() {
+	[[ $# = 0 ]] && return 11
+	for i in $@; do
+		declare -p ${i/=*/} &>/dev/null && return 22
+		declare -a $i || return 33
+	done
+	return 0
+}
+malloc::ass() {
+	[[ $# = 0 ]] && return 11
+	for i in $@; do
+		declare -p ${i/=*/} &>/dev/null && return 22
+		declare -A $i || return 33
+	done
+	return 0
+}
+malloc::int() {
+	[[ $# = 0 ]] && return 11
+	for i in $@; do
+		declare -p ${i/=*/} &>/dev/null && return 22
+		declare -i $i || return 33
+	done
+	return 0
+}
+free::var() {
+	[[ $# = 0 ]] && return 11
+	for i in $@; do
+		declare -p ${i/=*/} &>/dev/null || return 22
+		unset -v $i || return 33
+	done
+	return 0
+}
+free::func() {
+	[[ $# = 0 ]] && return 11
+	for i in $@; do
+		declare -F $i &>/dev/null || return 22
+		unset -f $i || return 33
+	done
+	return 0
+}
 panic() {
 	local PANIC_EXIT_CODE="$?" TRACE_FUNC=("${BASH_LINENO[@]}") TRACE_CMD_NUM=${BASH_LINENO[0]}|| exit 98
 	POSIXLY_CORRECT= || exit 11
-	\unset -f trap set return exit printf echo local unalias unset || exit 22
+	\unset -f trap set return exit printf echo local unalias unset builtin kill || exit 22
 	\unalias -a || exit 33
 	unset POSIXLY_CORRECT || exit 44
 	printf "\033[0;m%s\n" "@@@@@@@@  panic  @@@@@@@@"
@@ -257,8 +289,8 @@ panic() {
 	printf "\033[1;96m%s\033[0m%s\n" "[unix] " "$EPOCHSECONDS"
 	printf "\033[1;97m%s\033[0m%s\n" "[file] " "${BASH_SOURCE[-1]}"
 	printf "\033[1;91m%s\033[0m%s\n" "[code] " "$PANIC_EXIT_CODE"
-	printf "\033[1;93m%s\033[0m%s\n" "[ wd ] " "$PWD"
-	printf "\033[1;94m%s\033[0m%s" "[ \$_ ] " "$TRACE_CMD_NUM: ${PANIC_CMD//$'\t'/}"
+	printf "\033[1;94m%s\033[0m%s\n" "[ wd ] " "$PWD"
+	printf "\033[1;93m%s\033[0m%s" "[ \$_ ] " "$TRACE_CMD_NUM: ${PANIC_CMD//$'\t'/}"
 	local f
 	local i=1
 	TRACE_FUNC=("${TRACE_FUNC[@]:1}")
@@ -301,23 +333,25 @@ panic() {
 	done
 	printf "\033[0;m%s\n" "@@@@@@@@  panic  @@@@@@@@"
 	while :; do read -s -r; done
+	printf "\033[0;m%s\n" "@ loop fail, killing \$$ @"
+	builtin kill $$ &
 	[[ $1 =~ ^[0-9]+$ ]] && exit $1 || exit 99
 }
 safety::bash() { [[ ${BASH_VERSINFO[0]} -ge 5 ]] ;}
 safety::gnu_linux() { [[ $OSTYPE = linux-gnu* ]] ;}
 ___BEGIN___ERROR___TRACE___() {
 	POSIXLY_CORRECT= || exit 8
-	\unset -f trap set return exit printf unset local return read unalias mapfile || exit 9
+	\unset -f trap set return exit printf unset local return read unalias mapfile kill builtin || exit 9
 	\unalias -a || exit 10
 	unset POSIXLY_CORRECT || exit 11
-	trap 'TRACE_CMD="$BASH_COMMAND" TRACE_FUNC="${BASH_LINENO[@]}" TRACE_CMD_NUM="$LINENO" TRACE_PIPE="${PIPESTATUS[@]}"; ___ENDOF___ERROR___TRACE___ || exit 100' ERR || exit 12
+	trap 'TRACE_CMD="$BASH_COMMAND" TRACE_FUNC=(${BASH_LINENO[@]}) TRACE_CMD_NUM="$LINENO" TRACE_PIPE=(${PIPESTATUS[@]}); ___ENDOF___ERROR___TRACE___ || exit 100' ERR || exit 12
 	unset -v TRACE_CMD TRACE_FUNC_NUM TRACE_CMD_NUM TRACE_PIPE || exit 13
 	set -E -e -o pipefail || exit 14
 	return 0
 }
 ___ENDOF___ERROR___TRACE___() {
 	POSIXLY_CORRECT= || exit 15
-	\unset -f trap set return exit printf unset local return read unalias mapfile || exit 16
+	\unset -f trap set return exit printf unset local return read unalias mapfile kill builtin || exit 16
 	\unalias -a || exit 17
 	unset POSIXLY_CORRECT || exit 18
 	if [[ -z $TRACE_PIPE ]]; then
@@ -335,8 +369,8 @@ ___ENDOF___ERROR___TRACE___() {
 	printf "\033[1;96m%s\033[0m%s\n" "[unix] " "$EPOCHSECONDS"
 	printf "\033[1;91m%s\033[0m%s\n" "[code] " "${TRACE_PIPE[@]}"
 	printf "\033[1;97m%s\033[0m%s\n" "[file] " "${BASH_SOURCE[-1]}"
-	printf "\033[1;93m%s\033[0m%s\n" "[ wd ] " "$PWD"
-	printf "\033[1;94m%s\033[0m%s\n" "[ \$_ ] " "${TRACE_CMD_NUM}: $TRACE_CMD"
+	printf "\033[1;94m%s\033[0m%s\n" "[ wd ] " "$PWD"
+	printf "\033[1;93m%s\033[0m%s\n" "[ \$_ ] " "${TRACE_CMD_NUM}: $TRACE_CMD"
 	local f
 	local i=1
 	for f in ${TRACE_FUNC[@]}; do
@@ -377,10 +411,13 @@ ___ENDOF___ERROR___TRACE___() {
 		((TRACE_CMD_NUM++))
 	done
 	printf "\033[1;91m%s\033[0m\n" "========  ENDOF ERROR TRACE  ========"
+	[[ $TRACE_CMD =~ ^\(.*\)$ ]] && printf "\033[1;93m%s\033[0m\n" "========  SUB-SHELLS KILLED  ========"
 	unset -v TRACE_CMD TRACE_FUNC_NUM TRACE_CMD_NUM TRACE_PIPE || exit 26
 	set +E +eo pipefail || exit 27
 	trap - ERR || exit 28
-	exit 99
+	builtin kill -s SIGKILL $$ & exit 99
+	printf "\033[1;97m%s\033[0m\n" "= KILL FAIL, ENTERING INFINITE LOOP ="
+	while :; do read -s -r; done
 }
 readonly BLACK="\033[0;30m"
 readonly RED="\033[0;31m"
