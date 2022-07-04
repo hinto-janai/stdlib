@@ -15,7 +15,7 @@ panic() {
 	\unset -f trap set return exit printf echo local unalias unset || exit 22
 	\unalias -a || exit 33
 	unset POSIXLY_CORRECT || exit 44
-	printf "\033[0;m%s\n" "@@@@@@     panic     @@@@@@"
+	printf "\033[0;m%s\n" "@@@@@@@@  panic  @@@@@@@@"
 	# get command based off line number from $TRACE_CMD_NUM
 	local PANIC_CMD
 	mapfile -s $((TRACE_CMD_NUM-1)) -n 1 PANIC_CMD < $0
@@ -75,11 +75,9 @@ panic() {
 		fi
 		((TRACE_CMD_NUM++))
 	done
-	printf "\033[0;m%s\r" "@@@@@@     panic     @@@@@@"
+	printf "\033[0;m%s\n" "@@@@@@@@  panic  @@@@@@@@"
 	# endless loop
 	while :; do read -s -r; done
 	# just in case, exit
 	[[ $1 =~ ^[0-9]+$ ]] && exit $1 || exit 99
 }
-
-
