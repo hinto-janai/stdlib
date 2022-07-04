@@ -21,7 +21,7 @@
 ___BEGIN___ERROR___TRACE___() {
 	# ultra paranoid safety measures (unset bash builtins)
 	POSIXLY_CORRECT= || exit 8
-	\unset -f trap set return exit printf unset local return read unalias mapfile || exit 9
+	\unset -f trap set return exit printf unset local return read unalias mapfile kill builtin || exit 9
 	\unalias -a || exit 10
 	unset POSIXLY_CORRECT || exit 11
 	# set trap to catch error data
@@ -34,7 +34,7 @@ ___BEGIN___ERROR___TRACE___() {
 ___ENDOF___ERROR___TRACE___() {
 	# ultra paranoid safety measures (unset bash builtins)
 	POSIXLY_CORRECT= || exit 15
-	\unset -f trap set return exit printf unset local return read unalias mapfile || exit 16
+	\unset -f trap set return exit printf unset local return read unalias mapfile kill builtin || exit 16
 	\unalias -a || exit 17
 	unset POSIXLY_CORRECT || exit 18
 	# disarm if no trap
@@ -49,6 +49,15 @@ ___ENDOF___ERROR___TRACE___() {
 		set +E +eo pipefail || exit 24
 		trap - ERR || exit 25
 		return 0
+	fi
+	# if this is a subshell we're tracing,
+	# just kill the original shell instead
+	# of printing the trace info for every
+	# single sub-shell that was called.
+	# (the trap is inherited by each one)
+	if [[ $TRACE_CMD =~ ^\(.*\)$ ]]; then
+		printf "\033[1;93m%s\n" "========    SHELLS KILLED    ========"
+		builtin kill $$ || exit 101
 	fi
 	# print trace info
 	printf "\033[1;91m%s\n" "========  BEGIN ERROR TRACE  ========"
