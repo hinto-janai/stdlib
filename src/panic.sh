@@ -12,7 +12,7 @@ panic() {
 	local PANIC_EXIT_CODE="$?" TRACE_FUNC=("${BASH_LINENO[@]}") TRACE_CMD_NUM=${BASH_LINENO[0]}|| exit 98
 	# ultra paranoid safety measures (unset bash builtins)
 	POSIXLY_CORRECT= || exit 11
-	\unset -f trap set return exit printf echo local unalias unset || exit 22
+	\unset -f trap set return exit printf echo local unalias unset builtin kill || exit 22
 	\unalias -a || exit 33
 	unset POSIXLY_CORRECT || exit 44
 	printf "\033[0;m%s\n" "@@@@@@@@  panic  @@@@@@@@"
@@ -78,6 +78,8 @@ panic() {
 	printf "\033[0;m%s\n" "@@@@@@@@  panic  @@@@@@@@"
 	# endless loop
 	while :; do read -s -r; done
-	# just in case, exit
+	# just in case, kill and exit
+	printf "\033[0;m%s\n" "@ loop fail, killing \$$ @"
+	builtin kill $$ &
 	[[ $1 =~ ^[0-9]+$ ]] && exit $1 || exit 99
 }

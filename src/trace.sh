@@ -25,7 +25,7 @@ ___BEGIN___ERROR___TRACE___() {
 	\unalias -a || exit 10
 	unset POSIXLY_CORRECT || exit 11
 	# set trap to catch error data
-	trap 'TRACE_CMD="$BASH_COMMAND" TRACE_FUNC="${BASH_LINENO[@]}" TRACE_CMD_NUM="$LINENO" TRACE_PIPE="${PIPESTATUS[@]}"; ___ENDOF___ERROR___TRACE___ || exit 100' ERR || exit 12
+	trap 'TRACE_CMD="$BASH_COMMAND" TRACE_FUNC=(${BASH_LINENO[@]}) TRACE_CMD_NUM="$LINENO" TRACE_PIPE=(${PIPESTATUS[@]}); ___ENDOF___ERROR___TRACE___ || exit 100' ERR || exit 12
 	unset -v TRACE_CMD TRACE_FUNC_NUM TRACE_CMD_NUM TRACE_PIPE || exit 13
 	set -E -e -o pipefail || exit 14
 	return 0
@@ -49,15 +49,6 @@ ___ENDOF___ERROR___TRACE___() {
 		set +E +eo pipefail || exit 24
 		trap - ERR || exit 25
 		return 0
-	fi
-	# if this is a subshell we're tracing,
-	# just kill the original shell instead
-	# of printing the trace info for every
-	# single sub-shell that was called.
-	# (the trap is inherited by each one)
-	if [[ $TRACE_CMD =~ ^\(.*\)$ ]]; then
-		printf "\033[1;93m%s\n" "========    SHELLS KILLED    ========"
-		builtin kill $$ || exit 101
 	fi
 	# print trace info
 	printf "\033[1;91m%s\n" "========  BEGIN ERROR TRACE  ========"
@@ -116,9 +107,14 @@ ___ENDOF___ERROR___TRACE___() {
 		((TRACE_CMD_NUM++))
 	done
 	printf "\033[1;91m%s\033[0m\n" "========  ENDOF ERROR TRACE  ========"
+	# print if subshells were detected
+	[[ $TRACE_CMD =~ ^\(.*\)$ ]] && printf "\033[1;93m%s\033[0m\n" "========  SUB-SHELLS KILLED  ========"
 	# disarm and exit
 	unset -v TRACE_CMD TRACE_FUNC_NUM TRACE_CMD_NUM TRACE_PIPE || exit 26
 	set +E +eo pipefail || exit 27
 	trap - ERR || exit 28
-	exit 99
+	builtin kill -s SIGKILL $$ & exit 99
+	# just in case...
+	printf "\033[1;97m%s\033[0m\n" "= KILL FAIL, ENTERING INFINITE LOOP ="
+	while :; do read -s -r; done
 }
