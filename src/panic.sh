@@ -24,8 +24,8 @@ panic() {
 	printf "\033[1;96m%s\033[0m%s\n" "[unix] " "$EPOCHSECONDS"
 	printf "\033[1;97m%s\033[0m%s\n" "[file] " "${BASH_SOURCE[-1]}"
 	printf "\033[1;91m%s\033[0m%s\n" "[code] " "$PANIC_EXIT_CODE"
-	printf "\033[1;93m%s\033[0m%s\n" "[ wd ] " "$PWD"
-	printf "\033[1;94m%s\033[0m%s" "[ \$_ ] " "$TRACE_CMD_NUM: ${PANIC_CMD//$'\t'/}"
+	printf "\033[1;94m%s\033[0m%s\n" "[ wd ] " "$PWD"
+	printf "\033[1;93m%s\033[0m%s" "[ \$_ ] " "$TRACE_CMD_NUM: ${PANIC_CMD//$'\t'/}"
 	# print function stack
 	local f
 	local i=1
