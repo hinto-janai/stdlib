@@ -9,23 +9,24 @@
 
 panic() {
 	# get error info
-	local PANIC_EXIT_CODE="$?" TRACE_FUNC=("${BASH_LINENO[@]}") || exit 98
+	local PANIC_EXIT_CODE="$?" TRACE_FUNC=("${BASH_LINENO[@]}") TRACE_CMD_NUM=${BASH_LINENO[0]}|| exit 98
 	# ultra paranoid safety measures (unset bash builtins)
 	POSIXLY_CORRECT= || exit 11
 	\unset -f trap set return exit printf echo local unalias unset || exit 22
 	\unalias -a || exit 33
 	unset POSIXLY_CORRECT || exit 44
 	printf "\033[0;m%s\n" "@@@@@@     panic     @@@@@@"
-	local TRACE_CMD_NUM
-	TRACE_CMD_NUM="${BASH_LINENO[0]}"
+	# get command based off line number from $TRACE_CMD_NUM
 	local PANIC_CMD
-	PANIC_CMD="$(sed -n "$TRACE_CMD_NUM p" $0)"
+	mapfile -s $((TRACE_CMD_NUM-1)) -n 1 PANIC_CMD < $0
+	# print info
 	printf "\033[1;95m%s\033[0m%s\n" "[bash] " "$BASH_VERSION"
 	printf "\033[1;96m%s\033[0m%s\n" "[unix] " "$EPOCHSECONDS"
 	printf "\033[1;97m%s\033[0m%s\n" "[file] " "${BASH_SOURCE[-1]}"
 	printf "\033[1;91m%s\033[0m%s\n" "[code] " "$PANIC_EXIT_CODE"
 	printf "\033[1;93m%s\033[0m%s\n" "[ wd ] " "$PWD"
-	printf "\033[1;94m%s\033[0m%s%s\n" "[ \$_ ] " "$TRACE_CMD_NUM: " "$(printf "%s" "$PANIC_CMD" | tr -d '\t')"
+	printf "\033[1;94m%s\033[0m%s" "[ \$_ ] " "$TRACE_CMD_NUM: ${PANIC_CMD//$'\t'/}"
+	# print function stack
 	local f
 	local i=1
 	TRACE_FUNC=("${TRACE_FUNC[@]:1}")
@@ -77,7 +78,7 @@ panic() {
 	printf "\033[0;m%s\r" "@@@@@@     panic     @@@@@@"
 	# endless loop
 	while :; do read -s -r; done
-	# just in case
+	# just in case, exit
 	[[ $1 =~ ^[0-9]+$ ]] && exit $1 || exit 99
 }
 
