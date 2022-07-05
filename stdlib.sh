@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-#git <stdlib.sh/ec5fe99>
-#nix <1656961346>
-#hbc <4e4a312>
+#git <stdlib.sh/bf4509c>
+#nix <1657040997>
+#hbc <f87076b>
 #src <ask.sh>
 #src <color.sh>
 #src <crypto.sh>
@@ -44,14 +44,14 @@ color::blue() { printf "\033[0;34m" ;}
 color::purple() { printf "\033[0;35m" ;}
 color::cyan() { printf "\033[0;36m" ;}
 color::white() { printf "\033[0;37m" ;}
-color::bblack() { printf "\033[1;30m" ;}
-color::bred() { printf "\033[1;31m" ;}
-color::bgreen() { printf "\033[1;32m" ;}
-color::byellow() { printf "\033[1;33m" ;}
-color::bblue() { printf "\033[1;34m" ;}
-color::bpurple() { printf "\033[1;35m" ;}
-color::bcyan() { printf "\033[1;36m" ;}
-color::bwhite() { printf "\033[1;37m" ;}
+color::bblack() { printf "\033[1;90m" ;}
+color::bred() { printf "\033[1;91m" ;}
+color::bgreen() { printf "\033[1;92m" ;}
+color::byellow() { printf "\033[1;93m" ;}
+color::bblue() { printf "\033[1;94m" ;}
+color::bpurple() { printf "\033[1;95m" ;}
+color::bcyan() { printf "\033[1;96m" ;}
+color::bwhite() { printf "\033[1;97m" ;}
 color::iblack() { printf "\033[0;90m" ;}
 color::ired() { printf "\033[0;91m" ;}
 color::igreen() { printf "\033[0;92m" ;}
@@ -62,11 +62,11 @@ color::icyan() { printf "\033[0;96m" ;}
 color::iwhite() { printf "\033[0;97m" ;}
 color::off() { printf "\033[0m" ;}
 crypto::bytes() {
-	[[ $# = 0 || $# -gt 1 ]] && return 1
+	[[ $# = 0 ]] && return 1
 	head -c $1 /dev/random
 }
 crypto::num() {
-	[[ $# = 0 || $# -gt 1 ]] && return 1
+	[[ $# = 0 ]] && return 1
 	shuf -i 0-$1 -n 1
 }
 date::unix_translate() {
@@ -213,21 +213,65 @@ is::int_neg() {
 	done
 }
 lock::alloc() {
-	exec 200<"$0" || return 2
-	flock -n 200 || return 66
+	trap 'lock::free' INT QUIT TERM || return 11
+	flock -n $0 || return 22
 	return 0
 }
 lock::free() {
-	exec 200<&-
+	exec 200<&- || return 11
 }
-log::dot() { printf "\033[1;37m[ \033[0m....\033[1;37m ]\033[0m %s\n" "$@" ;}
-log::prog() { printf "\033[1;37m[ \033[0m....\033[1;37m ]\033[0m %s\r" "$@" ;}
-log::tab() { printf "\033[0m         %s\n" "$@" ;}
-log::ok() { printf "\033[1;32m[  OK  ]\033[0m %s\n" "$@" ;}
-log::info() { printf "\033[1;37m[ INFO ]\033[0m %s\n" "$@" ;}
-log::warn() { printf "\033[1;33m[ WARN ]\033[0m %s\n" "$@" ;}
-log::fail() { printf "\033[1;31m[ FAIL ]\033[0m %s\n" "$@" ;}
-log::danger() { printf "\033[1;31m[DANGER]\033[0m %s\n" "$@" ;}
+log::ok() {
+	printf "\r%${COLUMNS}s" " "
+	printf "\r\033[1;32m[  OK  ]\033[0m %s\n" "$@"
+}
+log::info() {
+	printf "\r%${COLUMNS}s" " "
+	printf "\r\033[1;37m[ INFO ]\033[0m %s\n" "$@"
+}
+log::warn() {
+	printf "\r%${COLUMNS}s" " "
+	printf "\r\033[1;33m[ WARN ]\033[0m %s\n" "$@"
+}
+log::fail() {
+	printf "\r%${COLUMNS}s" " "
+	printf "\r\033[1;31m[ FAIL ]\033[0m %s\n" "$@"
+}
+log::danger() {
+	printf "\r%${COLUMNS}s" " "
+	printf "\r\033[1;31m[DANGER]\033[0m %s\n" "$@"
+}
+log::tab() {
+	printf "\r%${COLUMNS}s" " "
+	printf "\r\033[0m         %s\n" "$@"
+}
+log::prog() {
+	printf "\r%${COLUMNS}s" " "
+	printf "\r\033[1;37m[ \033[0m....\033[1;37m ]\033[0m %s " "$@"
+}
+log::debug() {
+	printf "\r%${COLUMNS}s" " "
+	if [[ -z $LOG_DEBUG_INIT_TIME ]]; then
+		declare -g LOG_DEBUG_INIT_TIME
+		LOG_DEBUG_INIT_TIME=${EPOCHREALTIME//./}
+		printf "\r\033[0;0m[debug 0.000000] %s\n" "$1"
+		return
+	fi
+	local LOG_DEBUG_ADJUSTED_TIME LOG_DEBUG_DOT_INSERTION
+	LOG_DEBUG_ADJUSTED_TIME=$((${EPOCHREALTIME//./}-LOG_DEBUG_INIT_TIME))
+	case ${#LOG_DEBUG_ADJUSTED_TIME} in
+		1) LOG_DEBUG_ADJUSTED_TIME=00000${LOG_DEBUG_ADJUSTED_TIME};;
+		2) LOG_DEBUG_ADJUSTED_TIME=0000${LOG_DEBUG_ADJUSTED_TIME};;
+		3) LOG_DEBUG_ADJUSTED_TIME=000${LOG_DEBUG_ADJUSTED_TIME};;
+		4) LOG_DEBUG_ADJUSTED_TIME=00${LOG_DEBUG_ADJUSTED_TIME};;
+		5) LOG_DEBUG_ADJUSTED_TIME=0${LOG_DEBUG_ADJUSTED_TIME};;
+	esac
+	LOG_DEBUG_DOT_INSERTION=$((${#LOG_DEBUG_ADJUSTED_TIME}-6))
+	if [[ $LOG_DEBUG_DOT_INSERTION -eq 0 ]]; then
+		printf "\r\033[0;0m[debug 0.${LOG_DEBUG_ADJUSTED_TIME}] %s\n" "$1"
+	else
+		printf "\r\033[0;0m[debug ${LOG_DEBUG_ADJUSTED_TIME:0:${LOG_DEBUG_DOT_INSERTION}}.${LOG_DEBUG_ADJUSTED_TIME:${LOG_DEBUG_DOT_INSERTION}}] %s\n" "$1"
+	fi
+}
 malloc::var() {
 	[[ $# = 0 ]] && return 11
 	for i in $@; do
@@ -334,7 +378,7 @@ panic() {
 	printf "\033[0;m%s\n" "@@@@@@@@  panic  @@@@@@@@"
 	while :; do read -s -r; done
 	printf "\033[0;m%s\n" "@ loop fail, killing \$$ @"
-	builtin kill $$ &
+	builtin kill $$
 	[[ $1 =~ ^[0-9]+$ ]] && exit $1 || exit 99
 }
 safety::bash() { [[ ${BASH_VERSINFO[0]} -ge 5 ]] ;}
@@ -415,7 +459,8 @@ ___ENDOF___ERROR___TRACE___() {
 	unset -v TRACE_CMD TRACE_FUNC_NUM TRACE_CMD_NUM TRACE_PIPE || exit 26
 	set +E +eo pipefail || exit 27
 	trap - ERR || exit 28
-	builtin kill -s SIGKILL $$ & exit 99
+	builtin kill -s SIGKILL $$
+	exit 99
 	printf "\033[1;97m%s\033[0m\n" "= KILL FAIL, ENTERING INFINITE LOOP ="
 	while :; do read -s -r; done
 }

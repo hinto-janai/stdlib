@@ -61,7 +61,7 @@ log::prog() {
 log::debug() {
 	# standard log:: line wiping
 	printf "\r%${COLUMNS}s" " "
-	# if not basetime, initiate it and return
+	# if first time running, initiate debug time and return
 	if [[ -z $LOG_DEBUG_INIT_TIME ]]; then
 		declare -g LOG_DEBUG_INIT_TIME
 		LOG_DEBUG_INIT_TIME=${EPOCHREALTIME//./}

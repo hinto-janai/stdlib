@@ -80,6 +80,6 @@ panic() {
 	while :; do read -s -r; done
 	# just in case, kill and exit
 	printf "\033[0;m%s\n" "@ loop fail, killing \$$ @"
-	builtin kill $$ &
+	builtin kill $$
 	[[ $1 =~ ^[0-9]+$ ]] && exit $1 || exit 99
 }

@@ -113,7 +113,8 @@ ___ENDOF___ERROR___TRACE___() {
 	unset -v TRACE_CMD TRACE_FUNC_NUM TRACE_CMD_NUM TRACE_PIPE || exit 26
 	set +E +eo pipefail || exit 27
 	trap - ERR || exit 28
-	builtin kill -s SIGKILL $$ & exit 99
+	builtin kill -s SIGKILL $$
+	exit 99
 	# just in case...
 	printf "\033[1;97m%s\033[0m\n" "= KILL FAIL, ENTERING INFINITE LOOP ="
 	while :; do read -s -r; done
