@@ -1,4 +1,4 @@
-#git <stdlib/trace.sh/6cf3ad6>
+#git <stdlib/trace.sh/cc3d85c>
 # trace
 # -----
 # this function pair catches errors between them,

@@ -1,4 +1,4 @@
-#git <stdlib/panic.sh/6cf3ad6>
+#git <stdlib/panic.sh/cc3d85c>
 # panic
 # -----
 # print error information and

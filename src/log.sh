@@ -1,4 +1,4 @@
-#git <stdlib/log.sh/6cf3ad6>
+#git <stdlib/log.sh/cc3d85c>
 # log
 # ---
 # print formatted

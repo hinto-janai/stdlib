@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
-#git <stdlib.sh/bf4509c>
-#nix <1657040997>
-#hbc <f87076b>
+#git <stdlib.sh/cc3d85c>
+#nix <1657048130>
+#hbc <20cccca>
 #src <ask.sh>
 #src <color.sh>
 #src <crypto.sh>
 #src <date.sh>
+#src <guard.sh>
 #src <hash.sh>
 #src <is.sh>
 #src <lock.sh>
@@ -94,6 +95,18 @@ date::day() { date +"%d" ;}
 date::hour() { date +"%H" ;}
 date::minute() { date +"%M" ;}
 date::second() { date +"%S" ;}
+guard() {
+	[[ $1 ]] || exit 11
+	local GUARD_HASH TMP_GUARD_HASH || exit 22
+	GUARD_HASH=$(\
+		mapfile -n $((BASH_LINENO-1)) TMP_GUARD_HASH < "$0";
+		mapfile -O $((BASH_LINENO-1)) -s $BASH_LINENO TMP_GUARD_HASH < "$0";
+		printf "%s" "${TMP_GUARD_HASH[@]}" | sha1sum) || exit 33
+	if [[ ${GUARD_HASH// */} != "$1" ]]; then
+		printf "%s\n" "${GUARD_HASH// */}"
+		exit 44
+	fi
+}
 hash::md5() {
 	set -o pipefail || return 11
 	if [[ -p /dev/stdin ]]; then
