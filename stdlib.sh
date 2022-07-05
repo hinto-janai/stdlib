@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-#git <stdlib.sh/cc3d85c>
-#nix <1657048130>
+#git <stdlib.sh/bcc7072>
+#nix <1657062428>
 #hbc <20cccca>
 #src <ask.sh>
 #src <color.sh>
@@ -96,15 +96,15 @@ date::hour() { date +"%H" ;}
 date::minute() { date +"%M" ;}
 date::second() { date +"%S" ;}
 guard() {
-	[[ $1 ]] || exit 11
-	local GUARD_HASH TMP_GUARD_HASH || exit 22
+	[[ $1 ]] || return 11
+	local GUARD_HASH TMP_GUARD_HASH || return 22
 	GUARD_HASH=$(\
 		mapfile -n $((BASH_LINENO-1)) TMP_GUARD_HASH < "$0";
 		mapfile -O $((BASH_LINENO-1)) -s $BASH_LINENO TMP_GUARD_HASH < "$0";
-		printf "%s" "${TMP_GUARD_HASH[@]}" | sha1sum) || exit 33
+		printf "%s" "${TMP_GUARD_HASH[@]}" | sha1sum) || return 33
 	if [[ ${GUARD_HASH// */} != "$1" ]]; then
 		printf "%s\n" "${GUARD_HASH// */}"
-		exit 44
+		return 44
 	fi
 }
 hash::md5() {
