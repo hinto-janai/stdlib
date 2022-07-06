@@ -1,17 +1,17 @@
-#git <stdlib/ask.sh/cc3d85c>
+#git <stdlib/ask.sh/e8cd1fa>
 ask::yes() {
-	local ASK_FUNC_RESPONSE || return 44
-	read -r ASK_FUNC_RESPONSE
-	case $ASK_FUNC_RESPONSE in
+	local STD_ASK_REPONSE || return 44
+	read -r STD_ASK_REPONSE
+	case $STD_ASK_REPONSE in
 		""|y|Y|yes|Yes|YES) return 0 ;;
 		*) return 2 ;;
 	esac
 }
 
 ask::no() {
-	local ASK_FUNC_RESPONSE || return 44
-	read -r ASK_FUNC_RESPONSE
-	case $ASK_FUNC_RESPONSE in
+	local STD_ASK_RESPONSE || return 44
+	read -r STD_ASK_RESPONSE
+	case $STD_ASK_RESPONSE in
 		y|Y|yes|Yes|YES) return 2 ;;
 		*) return 0 ;;
 	esac

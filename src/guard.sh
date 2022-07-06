@@ -1,4 +1,4 @@
-#git <stdlib/guard.sh/cc3d85c>
+#git <stdlib/guard.sh/e8cd1fa>
 # guard
 # -----
 # read $0 excluding the line where guard()
@@ -18,13 +18,13 @@
 # any modification above or below that guard()
 # will trigger guard to return error.
 guard() {
-	local GUARD_HASH TMP_GUARD_HASH || return 11
-	GUARD_HASH=$(\
-		mapfile -n $((BASH_LINENO-1)) TMP_GUARD_HASH < "$0";
-		mapfile -O $((BASH_LINENO-1)) -s $BASH_LINENO TMP_GUARD_HASH < "$0";
-		printf "%s" "${TMP_GUARD_HASH[@]}" | sha1sum) || return 22
-	if [[ ${GUARD_HASH// */} != "$1" ]]; then
-		printf "%s\n" "${GUARD_HASH// */}"
+	local STD_GUARD_HASH STD_TMP_GUARD_HASH || return 11
+	STD_GUARD_HASH=$(\
+		mapfile -n $((BASH_LINENO-1)) STD_TMP_GUARD_HASH < "$0";
+		mapfile -O $((BASH_LINENO-1)) -s $BASH_LINENO STD_TMP_GUARD_HASH < "$0";
+		printf "%s" "${STD_TMP_GUARD_HASH[@]}" | sha1sum) || return 22
+	if [[ ${STD_GUARD_HASH// */} != "$1" ]]; then
+		printf "%s\n" "${STD_GUARD_HASH// */}"
 		return 33
 	fi
 }

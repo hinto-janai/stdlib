@@ -1,4 +1,4 @@
-#git <stdlib/hash.sh/cc3d85c>
+#git <stdlib/hash.sh/e8cd1fa>
 hash::md5() {
 	set -o pipefail || return 11
 	# stdin

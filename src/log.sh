@@ -1,4 +1,4 @@
-#git <stdlib/log.sh/cc3d85c>
+#git <stdlib/log.sh/e8cd1fa>
 # log
 # ---
 # print formatted
@@ -49,13 +49,13 @@ log::prog() {
 # this uses the $EPOCHREALTIME variable to
 # calculate the seconds that have passed.
 # the first call of log::debug() initiates
-# the $LOG_DEBUG_INIT_TIME and starts
+# the $STD_LOG_DEBUG_INIT and starts
 # counting from there.
 #
 # ENVIRONMENT VARIABLES:
-# $LOG_DEBUG_INIT_TIME - the unix time used as a baseline reference
-# $LOG_DEBUG_ENABLED - "true" will enable debug to printed
-# $LOG_DEBUG_VERBOSE - "true" will show line + function stack
+# $STD_LOG_DEBUG_INIT - the unix time used as a baseline reference
+# $STD_LOG_DEBUG - "true" will enable debug to printed
+# $STD_LOG_DEBUG_VERBOSE - "true" will show line + function stack
 #
 # EXAMPLE OUTPUT:
 # [debug 0.000000] init debug message
@@ -66,17 +66,17 @@ log::prog() {
 # 100% Bash builtins, no external programs.
 log::debug() {
 	# to enable debug to show up, make sure
-	# LOG_DEBUG_ENABLED gets set "true" somewhere
-	[[ $LOG_DEBUG_ENABLED != true ]] && return 0
+	# STD_LOG_DEBUG gets set "true" somewhere
+	[[ $STD_LOG_DEBUG != true ]] && return 0
 	# standard log:: line wiping
 	printf "\r%${COLUMNS}s" " "
 	# if first time running, initiate debug time and return
-	if [[ -z $LOG_DEBUG_INIT_TIME ]]; then
-		declare -g LOG_DEBUG_INIT_TIME
-		LOG_DEBUG_INIT_TIME=${EPOCHREALTIME//./}
+	if [[ -z $STD_LOG_DEBUG_INIT ]]; then
+		declare -g STD_LOG_DEBUG_INIT
+		STD_LOG_DEBUG_INIT=${EPOCHREALTIME//./}
 		printf "\r\033[1;90m%s\033[0m" "[debug 0.000000] "
 		# print line + function stack
-		if [[ $LOG_DEBUG_VERBOSE = true ]]; then
+		if [[ $STD_LOG_DEBUG_VERBOSE = true ]]; then
 			local f i
 			i=1
 			for f in ${BASH_LINENO[@]}; do
@@ -90,11 +90,11 @@ log::debug() {
 		return
 	fi
 	# local variable init
-	local LOG_DEBUG_ADJUSTED_TIME LOG_DEBUG_DOT_INSERTION
+	local STD_LOG_DEBUG_ADJUSTED STD_LOG_DEBUG_DOT
 	# current unix time - init unix time = current time in seconds
 	# 1656979999.949650 - 1656979988.549640 = 11.400010
 	# remove the '.' so the math works
-	LOG_DEBUG_ADJUSTED_TIME=$((${EPOCHREALTIME//./}-LOG_DEBUG_INIT_TIME))
+	STD_LOG_DEBUG_ADJUSTED=$((${EPOCHREALTIME//./}-STD_LOG_DEBUG_INIT))
 	# during init cases, the difference
 	# can be as low as 0.000002 which
 	# renders as just 2. this is a problem
@@ -102,22 +102,22 @@ log::debug() {
 	# greater than 6 digits long. this
 	# case statement adds leading 0's
 	# so that 2 becomes 000002
-	case ${#LOG_DEBUG_ADJUSTED_TIME} in
-		1) LOG_DEBUG_ADJUSTED_TIME=00000${LOG_DEBUG_ADJUSTED_TIME};;
-		2) LOG_DEBUG_ADJUSTED_TIME=0000${LOG_DEBUG_ADJUSTED_TIME};;
-		3) LOG_DEBUG_ADJUSTED_TIME=000${LOG_DEBUG_ADJUSTED_TIME};;
-		4) LOG_DEBUG_ADJUSTED_TIME=00${LOG_DEBUG_ADJUSTED_TIME};;
-		5) LOG_DEBUG_ADJUSTED_TIME=0${LOG_DEBUG_ADJUSTED_TIME};;
+	case ${#STD_LOG_DEBUG_ADJUSTED} in
+		1) STD_LOG_DEBUG_ADJUSTED=00000${STD_LOG_DEBUG_ADJUSTED};;
+		2) STD_LOG_DEBUG_ADJUSTED=0000${STD_LOG_DEBUG_ADJUSTED};;
+		3) STD_LOG_DEBUG_ADJUSTED=000${STD_LOG_DEBUG_ADJUSTED};;
+		4) STD_LOG_DEBUG_ADJUSTED=00${STD_LOG_DEBUG_ADJUSTED};;
+		5) STD_LOG_DEBUG_ADJUSTED=0${STD_LOG_DEBUG_ADJUSTED};;
 	esac
 	# this is to add back the '.', currently the number
 	# is something like 000002 or 1000543
-	LOG_DEBUG_DOT_INSERTION=$((${#LOG_DEBUG_ADJUSTED_TIME}-6))
+	STD_LOG_DEBUG_DOT=$((${#STD_LOG_DEBUG_ADJUSTED}-6))
 	# if 6 digits long, that means one second
 	# hasn't even passed, so just print 0.$the_number
-	if [[ $LOG_DEBUG_DOT_INSERTION -eq 0 ]]; then
-		printf "\r\033[1;90m%s\033[0m" "[debug 0.${LOG_DEBUG_ADJUSTED_TIME}] "
+	if [[ $STD_LOG_DEBUG_DOT -eq 0 ]]; then
+		printf "\r\033[1;90m%s\033[0m" "[debug 0.${STD_LOG_DEBUG_ADJUSTED}] "
 		# print line + function stack
-		if [[ $LOG_DEBUG_VERBOSE = true ]]; then
+		if [[ $STD_LOG_DEBUG_VERBOSE = true ]]; then
 			local f i
 			i=1
 			for f in ${BASH_LINENO[@]}; do
@@ -130,9 +130,9 @@ log::debug() {
 		printf "| %s\n" "$@"
 	else
 	# else print the integer, '.', then decimals
-		printf "\r\033[1;90m%s\033[0m" "[debug ${LOG_DEBUG_ADJUSTED_TIME:0:${LOG_DEBUG_DOT_INSERTION}}.${LOG_DEBUG_ADJUSTED_TIME:${LOG_DEBUG_DOT_INSERTION}}] "
+		printf "\r\033[1;90m%s\033[0m" "[debug ${STD_LOG_DEBUG_ADJUSTED:0:${STD_LOG_DEBUG_DOT}}.${STD_LOG_DEBUG_ADJUSTED:${STD_LOG_DEBUG_DOT}}] "
 		# print line + function stack
-		if [[ $LOG_DEBUG_VERBOSE = true ]]; then
+		if [[ $STD_LOG_DEBUG_VERBOSE = true ]]; then
 			local f i
 			i=1
 			for f in ${BASH_LINENO[@]}; do

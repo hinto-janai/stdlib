@@ -1,4 +1,4 @@
-#git <stdlib/malloc.sh/cc3d85c>
+#git <stdlib/malloc.sh/e8cd1fa>
 # a note on how Bash uses memory
 # ------------------------------
 # there is no "C free()" in Bash, there is only a "C malloc()".
