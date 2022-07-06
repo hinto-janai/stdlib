@@ -1,4 +1,4 @@
-#git <stdlib/ask.sh/e8cd1fa>
+#git <stdlib/ask.sh/83ca8ba>
 ask::yes() {
 	local STD_ASK_REPONSE || return 44
 	read -r STD_ASK_REPONSE

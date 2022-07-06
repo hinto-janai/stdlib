@@ -1,4 +1,4 @@
-#git <stdlib/lock.sh/e8cd1fa>
+#git <stdlib/lock.sh/83ca8ba>
 lock::alloc() {
 	# remove lock on exit
 	trap 'lock::free' EXIT || return 11

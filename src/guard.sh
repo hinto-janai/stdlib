@@ -1,4 +1,4 @@
-#git <stdlib/guard.sh/e8cd1fa>
+#git <stdlib/guard.sh/83ca8ba>
 # guard
 # -----
 # read $0 excluding the line where guard()

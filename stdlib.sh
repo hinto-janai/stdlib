@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-#git <stdlib.sh/642985b>
-#nix <1657068798>
-#hbc <20cccca>
+#git <stdlib.sh/83ca8ba>
+#nix <1657144947>
+#hbc <dcfcab2>
 #src <ask.sh>
 #src <color.sh>
 #src <crypto.sh>
@@ -17,19 +17,29 @@
 #src <trace.sh>
 #src <var.sh>
 
-#-------------------------------------------------------------------------------- BEGIN SRC CODE
+#-------------------------------------------------------------------------------- BEGIN SAFETY
+POSIXLY_CORRECT= || exit 90
+	# bash builtins
+\unset -f . : [ alias bg bind break builtin caller cd command compgen complete compopt continue declare dirs disown echo enable eval exec exit export false fc fg getopts hash help history jobs kill let local logout mapfile popd printf pushd pwd read readarray readonly return set shift shopt source suspend test times trap true type typeset ulimit umask unalias unset wait || exit 91
+	# gnu core-utils
+\unset -f arch base64 basename cat chcon chgrp chmod chown chroot cksum comm cp csplit cut date dd df dir dircolors dirname du echo env expand expr factor false fmt fold groups head hostid hostname id install join kill link ln logname ls md5sum mkdir mkfifo mknod mktemp mv nice nl nohup nproc numfmt od paste pathchk pinky pr printenv printf ptx pwd readlink realpath rm rmdir runcon seq shred shuf sleep sort split stat stdbuf stty sum tac tail tee test timeout touch tr true truncate tsort tty uname unexpand uniq unlink uptime users vdir wc who whoami yes || exit 92
+\unalias -a || exit 93
+unset POSIXLY_CORRECT || exit 94
+set -eo pipefail || exit 95
+
+#-------------------------------------------------------------------------------- BEGIN SRC
 ask::yes() {
-	local ASK_FUNC_RESPONSE || return 44
-	read -r ASK_FUNC_RESPONSE
-	case $ASK_FUNC_RESPONSE in
+	local STD_ASK_REPONSE || return 44
+	read -r STD_ASK_REPONSE
+	case $STD_ASK_REPONSE in
 		""|y|Y|yes|Yes|YES) return 0 ;;
 		*) return 2 ;;
 	esac
 }
 ask::no() {
-	local ASK_FUNC_RESPONSE || return 44
-	read -r ASK_FUNC_RESPONSE
-	case $ASK_FUNC_RESPONSE in
+	local STD_ASK_RESPONSE || return 44
+	read -r STD_ASK_RESPONSE
+	case $STD_ASK_RESPONSE in
 		y|Y|yes|Yes|YES) return 2 ;;
 		*) return 0 ;;
 	esac
@@ -96,13 +106,13 @@ date::hour() { date +"%H" ;}
 date::minute() { date +"%M" ;}
 date::second() { date +"%S" ;}
 guard() {
-	local GUARD_HASH TMP_GUARD_HASH || return 11
-	GUARD_HASH=$(\
-		mapfile -n $((BASH_LINENO-1)) TMP_GUARD_HASH < "$0";
-		mapfile -O $((BASH_LINENO-1)) -s $BASH_LINENO TMP_GUARD_HASH < "$0";
-		printf "%s" "${TMP_GUARD_HASH[@]}" | sha1sum) || return 22
-	if [[ ${GUARD_HASH// */} != "$1" ]]; then
-		printf "%s\n" "${GUARD_HASH// */}"
+	local STD_GUARD_HASH STD_TMP_GUARD_HASH || return 11
+	STD_GUARD_HASH=$(\
+		mapfile -n $((BASH_LINENO-1)) STD_TMP_GUARD_HASH < "$0";
+		mapfile -O $((BASH_LINENO-1)) -s $BASH_LINENO STD_TMP_GUARD_HASH < "$0";
+		printf "%s" "${STD_TMP_GUARD_HASH[@]}" | sha1sum) || return 22
+	if [[ ${STD_GUARD_HASH// */} != "$1" ]]; then
+		printf "%s\n" "${STD_GUARD_HASH// */}"
 		return 33
 	fi
 }
@@ -225,13 +235,26 @@ is::int_neg() {
 	done
 }
 lock::alloc() {
-	trap 'lock::free' INT QUIT TERM || return 11
-	flock -n $0 || return 22
+	trap 'lock::free' EXIT || return 11
+	declare -g STD_LOCK_FILE || return 22
+	if [[ $1 ]]; then
+		STD_LOCK_FILE="$1" || return 33
+	else
+		STD_LOCK_FILE="$0" || return 44
+	fi
+	local STD_LOCK_UUID || return 55
+	mapfile -n 1 STD_LOCK_UUID < /proc/sys/kernel/random/uuid || return 66
+	STD_LOCK_UUID=${STD_LOCK_UUID[0]//$'\n'/}
+	STD_LOCK_UUID=${STD_LOCK_UUID//-/}
+	STD_LOCK_FILE="${STD_LOCK_FILE}_${STD_LOCK_UUID}"
+	local STD_DEFAULT_UMASK
+	STD_DEFAULT_UMASK=$(umask)
+	umask 177
+	echo "" > /tmp/"$STD_LOCK_FILE" || return 77
+	umask $STD_DEFAULT_UMASK
 	return 0
 }
-lock::free() {
-	exec 200<&- || return 11
-}
+lock::free() { command rm /tmp/"$STD_LOCK_FILE"; }
 log::ok() {
 	printf "\r%${COLUMNS}s" " "
 	printf "\r\033[1;32m[  OK  ]\033[0m %s\n" "$@"
@@ -261,13 +284,13 @@ log::prog() {
 	printf "\r\033[1;37m[ \033[0m....\033[1;37m ]\033[0m %s " "$@"
 }
 log::debug() {
-	[[ $LOG_DEBUG_ENABLED != true ]] && return 0
+	[[ $STD_LOG_DEBUG != true ]] && return 0
 	printf "\r%${COLUMNS}s" " "
-	if [[ -z $LOG_DEBUG_INIT_TIME ]]; then
-		declare -g LOG_DEBUG_INIT_TIME
-		LOG_DEBUG_INIT_TIME=${EPOCHREALTIME//./}
+	if [[ -z $STD_LOG_DEBUG_INIT ]]; then
+		declare -g STD_LOG_DEBUG_INIT
+		STD_LOG_DEBUG_INIT=${EPOCHREALTIME//./}
 		printf "\r\033[1;90m%s\033[0m" "[debug 0.000000] "
-		if [[ $LOG_DEBUG_VERBOSE = true ]]; then
+		if [[ $STD_LOG_DEBUG_VERBOSE = true ]]; then
 			local f i
 			i=1
 			for f in ${BASH_LINENO[@]}; do
@@ -279,19 +302,19 @@ log::debug() {
 		printf "| %s\n" "$@"
 		return
 	fi
-	local LOG_DEBUG_ADJUSTED_TIME LOG_DEBUG_DOT_INSERTION
-	LOG_DEBUG_ADJUSTED_TIME=$((${EPOCHREALTIME//./}-LOG_DEBUG_INIT_TIME))
-	case ${#LOG_DEBUG_ADJUSTED_TIME} in
-		1) LOG_DEBUG_ADJUSTED_TIME=00000${LOG_DEBUG_ADJUSTED_TIME};;
-		2) LOG_DEBUG_ADJUSTED_TIME=0000${LOG_DEBUG_ADJUSTED_TIME};;
-		3) LOG_DEBUG_ADJUSTED_TIME=000${LOG_DEBUG_ADJUSTED_TIME};;
-		4) LOG_DEBUG_ADJUSTED_TIME=00${LOG_DEBUG_ADJUSTED_TIME};;
-		5) LOG_DEBUG_ADJUSTED_TIME=0${LOG_DEBUG_ADJUSTED_TIME};;
+	local STD_LOG_DEBUG_ADJUSTED STD_LOG_DEBUG_DOT
+	STD_LOG_DEBUG_ADJUSTED=$((${EPOCHREALTIME//./}-STD_LOG_DEBUG_INIT))
+	case ${#STD_LOG_DEBUG_ADJUSTED} in
+		1) STD_LOG_DEBUG_ADJUSTED=00000${STD_LOG_DEBUG_ADJUSTED};;
+		2) STD_LOG_DEBUG_ADJUSTED=0000${STD_LOG_DEBUG_ADJUSTED};;
+		3) STD_LOG_DEBUG_ADJUSTED=000${STD_LOG_DEBUG_ADJUSTED};;
+		4) STD_LOG_DEBUG_ADJUSTED=00${STD_LOG_DEBUG_ADJUSTED};;
+		5) STD_LOG_DEBUG_ADJUSTED=0${STD_LOG_DEBUG_ADJUSTED};;
 	esac
-	LOG_DEBUG_DOT_INSERTION=$((${#LOG_DEBUG_ADJUSTED_TIME}-6))
-	if [[ $LOG_DEBUG_DOT_INSERTION -eq 0 ]]; then
-		printf "\r\033[1;90m%s\033[0m" "[debug 0.${LOG_DEBUG_ADJUSTED_TIME}] "
-		if [[ $LOG_DEBUG_VERBOSE = true ]]; then
+	STD_LOG_DEBUG_DOT=$((${#STD_LOG_DEBUG_ADJUSTED}-6))
+	if [[ $STD_LOG_DEBUG_DOT -eq 0 ]]; then
+		printf "\r\033[1;90m%s\033[0m" "[debug 0.${STD_LOG_DEBUG_ADJUSTED}] "
+		if [[ $STD_LOG_DEBUG_VERBOSE = true ]]; then
 			local f i
 			i=1
 			for f in ${BASH_LINENO[@]}; do
@@ -302,8 +325,8 @@ log::debug() {
 		fi
 		printf "| %s\n" "$@"
 	else
-		printf "\r\033[1;90m%s\033[0m" "[debug ${LOG_DEBUG_ADJUSTED_TIME:0:${LOG_DEBUG_DOT_INSERTION}}.${LOG_DEBUG_ADJUSTED_TIME:${LOG_DEBUG_DOT_INSERTION}}] "
-		if [[ $LOG_DEBUG_VERBOSE = true ]]; then
+		printf "\r\033[1;90m%s\033[0m" "[debug ${STD_LOG_DEBUG_ADJUSTED:0:${STD_LOG_DEBUG_DOT}}.${STD_LOG_DEBUG_ADJUSTED:${STD_LOG_DEBUG_DOT}}] "
+		if [[ $STD_LOG_DEBUG_VERBOSE = true ]]; then
 			local f i
 			i=1
 			for f in ${BASH_LINENO[@]}; do
@@ -364,65 +387,71 @@ free::func() {
 	return 0
 }
 panic() {
-	local PANIC_EXIT_CODE="$?" TRACE_FUNC=("${BASH_LINENO[@]}") TRACE_CMD_NUM=${BASH_LINENO[0]}|| exit 98
+	local STD_PANIC_CODE="$?" STD_TRACE_FUNC=("${BASH_LINENO[@]}") STD_TRACE_CMD_NUM=${BASH_LINENO[0]}|| exit 98
 	POSIXLY_CORRECT= || exit 11
 	\unset -f trap set return exit printf echo local unalias unset builtin kill || exit 22
 	\unalias -a || exit 33
 	unset POSIXLY_CORRECT || exit 44
 	printf "\033[0;m%s\n" "@@@@@@@@  panic  @@@@@@@@"
-	local PANIC_CMD
-	mapfile -s $((TRACE_CMD_NUM-1)) -n 1 PANIC_CMD < $0
+	local STD_PANIC_CMD
+	mapfile -s $((STD_TRACE_CMD_NUM-1)) -n 1 STD_PANIC_CMD < $0
 	printf "\033[1;95m%s\033[0m%s\n" "[bash] " "$BASH_VERSION"
 	printf "\033[1;96m%s\033[0m%s\n" "[unix] " "$EPOCHSECONDS"
 	printf "\033[1;97m%s\033[0m%s\n" "[file] " "${BASH_SOURCE[-1]}"
-	printf "\033[1;91m%s\033[0m%s\n" "[code] " "$PANIC_EXIT_CODE"
+	printf "\033[1;91m%s\033[0m%s\n" "[code] " "$STD_PANIC_CODE"
 	printf "\033[1;94m%s\033[0m%s\n" "[ wd ] " "$PWD"
-	printf "\033[1;93m%s\033[0m%s" "[ \$_ ] " "$TRACE_CMD_NUM: ${PANIC_CMD//$'\t'/}"
+	printf "\033[1;93m%s\033[0m%s" "[ \$_ ] " "$STD_TRACE_CMD_NUM: ${STD_PANIC_CMD//$'\t'/}"
 	local f
 	local i=1
-	TRACE_FUNC=("${TRACE_FUNC[@]:1}")
-	for f in ${TRACE_FUNC[@]}; do
+	STD_TRACE_FUNC=("${STD_TRACE_FUNC[@]:1}")
+	for f in ${STD_TRACE_FUNC[@]}; do
 		[[ $f = 0 ]] && break
 		printf "\033[1;92m%s\033[0m%s\n" "[func] " "${f}: ${FUNCNAME[${i}]}()"
 		((i++))
 	done
-	local TRACE_LINE_ARRAY
-	local ORIGINAL_LINE="$TRACE_CMD_NUM"
-	if [[ $TRACE_CMD_NUM -lt 5 ]]; then
-		local TRACE_CMD_NUM=1
-		mapfile -n 9 TRACE_LINE_ARRAY < $0
+	local STD_TRACE_LINE_ARRAY
+	local STD_ORIGINAL_LINE="$STD_TRACE_CMD_NUM"
+	if [[ $STD_TRACE_CMD_NUM -lt 5 ]]; then
+		local STD_TRACE_CMD_NUM=1
+		mapfile -n 9 STD_TRACE_LINE_ARRAY < $0
 	else
-		local TRACE_CMD_NUM=$((TRACE_CMD_NUM-4))
-		mapfile -s $((TRACE_CMD_NUM-1)) -n 9 TRACE_LINE_ARRAY < $0
+		local STD_TRACE_CMD_NUM=$((STD_TRACE_CMD_NUM-4))
+		mapfile -s $((STD_TRACE_CMD_NUM-1)) -n 9 STD_TRACE_LINE_ARRAY < $0
 	fi
 	for i in {0..8}; do
-		[[ ${TRACE_LINE_ARRAY[$i]} ]] || break
-		if [[ $TRACE_CMD_NUM = "$ORIGINAL_LINE" ]]; then
-			case ${#TRACE_CMD_NUM} in
-				1) printf "\033[1;97m%s" "     $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
-				2) printf "\033[1;97m%s" "    $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
-				3) printf "\033[1;97m%s" "   $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
-				4) printf "\033[1;97m%s" "  $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
-				5) printf "\033[1;97m%s" " $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
-				*) printf "\033[1;97m%s" "$TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
+		[[ ${STD_TRACE_LINE_ARRAY[$i]} ]] || break
+		if [[ $STD_TRACE_CMD_NUM = "$STD_ORIGINAL_LINE" ]]; then
+			case ${#STD_TRACE_CMD_NUM} in
+				1) printf "\033[1;97m%s" "     $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]}" ;;
+				2) printf "\033[1;97m%s" "    $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]}" ;;
+				3) printf "\033[1;97m%s" "   $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]}" ;;
+				4) printf "\033[1;97m%s" "  $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]}" ;;
+				5) printf "\033[1;97m%s" " $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]}" ;;
+				*) printf "\033[1;97m%s" "$STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]}" ;;
 			esac
 		else
-			case ${#TRACE_CMD_NUM} in
-				1) printf "\033[1;90m%s" "     $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
-				2) printf "\033[1;90m%s" "    $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
-				3) printf "\033[1;90m%s" "   $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
-				4) printf "\033[1;90m%s" "  $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
-				5) printf "\033[1;90m%s" " $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
-				*) printf "\033[1;90m%s" "$TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
+			case ${#STD_TRACE_CMD_NUM} in
+				1) printf "\033[1;90m%s" "     $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]}" ;;
+				2) printf "\033[1;90m%s" "    $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]}" ;;
+				3) printf "\033[1;90m%s" "   $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]}" ;;
+				4) printf "\033[1;90m%s" "  $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]}" ;;
+				5) printf "\033[1;90m%s" " $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]}" ;;
+				*) printf "\033[1;90m%s" "$STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]}" ;;
 			esac
 		fi
-		((TRACE_CMD_NUM++))
+		((STD_TRACE_CMD_NUM++))
 	done
 	printf "\033[0;m%s\n" "@@@@@@@@  panic  @@@@@@@@"
 	while :; do read -s -r; done
 	printf "\033[0;m%s\n" "@ loop fail, killing \$$ @"
 	builtin kill $$
 	[[ $1 =~ ^[0-9]+$ ]] && exit $1 || exit 99
+}
+safety::builtin() {
+	POSIXLY_CORRECT= || exit 11
+	\unset -f $@ || exit 22
+	\unalias -a || exit 33
+	unset POSIXLY_CORRECT || exit 44
 }
 safety::bash() { [[ ${BASH_VERSINFO[0]} -ge 5 ]] ;}
 safety::gnu_linux() { [[ $OSTYPE = linux-gnu* ]] ;}
@@ -431,8 +460,8 @@ ___BEGIN___ERROR___TRACE___() {
 	\unset -f trap set return exit printf unset local return read unalias mapfile kill builtin || exit 9
 	\unalias -a || exit 10
 	unset POSIXLY_CORRECT || exit 11
-	trap 'TRACE_CMD="$BASH_COMMAND" TRACE_FUNC=(${BASH_LINENO[@]}) TRACE_CMD_NUM="$LINENO" TRACE_PIPE=(${PIPESTATUS[@]}); ___ENDOF___ERROR___TRACE___ || exit 100' ERR || exit 12
-	unset -v TRACE_CMD TRACE_FUNC_NUM TRACE_CMD_NUM TRACE_PIPE || exit 13
+	trap 'STD_TRACE_CMD="$BASH_COMMAND" STD_TRACE_FUNC=(${BASH_LINENO[@]}) STD_TRACE_CMD_NUM="$LINENO" STD_TRACE_PIPE=(${PIPESTATUS[@]}); ___ENDOF___ERROR___TRACE___ || exit 100' ERR || exit 12
+	unset -v STD_TRACE_CMD STD_TRACE_FUNC_NUM STD_TRACE_CMD_NUM STD_TRACE_PIPE || exit 13
 	set -E -e -o pipefail || exit 14
 	return 0
 }
@@ -446,7 +475,7 @@ ___ENDOF___ERROR___TRACE___() {
 		\unset -f trap set return exit return || exit 20
 		\unalias -a || exit 21
 		unset POSIXLY_CORRECT || exit 22
-		unset -v TRACE_CMD TRACE_FUNC_NUM TRACE_CMD_NUM TRACE_PIPE || exit 23
+		unset -v STD_TRACE_CMD STD_TRACE_FUNC_NUM STD_TRACE_CMD_NUM STD_TRACE_PIPE || exit 23
 		set +E +eo pipefail || exit 24
 		trap - ERR || exit 25
 		return 0
@@ -454,52 +483,55 @@ ___ENDOF___ERROR___TRACE___() {
 	printf "\033[1;91m%s\n" "========  BEGIN ERROR TRACE  ========"
 	printf "\033[1;95m%s\033[0m%s\n" "[bash] " "$BASH_VERSION"
 	printf "\033[1;96m%s\033[0m%s\n" "[unix] " "$EPOCHSECONDS"
-	printf "\033[1;91m%s\033[0m%s\n" "[code] " "${TRACE_PIPE[@]}"
-	printf "\033[1;97m%s\033[0m%s\n" "[file] " "${BASH_SOURCE[-1]}"
+	printf "\033[1;91m%s" "[code] "
+		for i in ${STD_TRACE_PIPE[@]}; do
+			printf "\033[0m%s" "$i "
+		done
+	printf "\n\033[1;97m%s\033[0m%s\n" "[file] " "${BASH_SOURCE[-1]}"
 	printf "\033[1;94m%s\033[0m%s\n" "[ wd ] " "$PWD"
-	printf "\033[1;93m%s\033[0m%s\n" "[ \$_ ] " "${TRACE_CMD_NUM}: $TRACE_CMD"
+	printf "\033[1;93m%s\033[0m%s\n" "[ \$_ ] " "${STD_TRACE_CMD_NUM}: $STD_TRACE_CMD"
 	local f
 	local i=1
-	for f in ${TRACE_FUNC[@]}; do
+	for f in ${STD_TRACE_FUNC[@]}; do
 		[[ $f = 0 ]] && break
 		printf "\033[1;92m%s\033[0m%s\n" "[func] " "${f}: ${FUNCNAME[${i}]}()"
 		((i++))
 	done
-	local TRACE_LINE_ARRAY
-	local ORIGINAL_LINE="$TRACE_CMD_NUM"
-	if [[ $TRACE_CMD_NUM -lt 5 ]]; then
-		local TRACE_CMD_NUM=1
-		mapfile -n 9 TRACE_LINE_ARRAY < $0
+	local STD_TRACE_LINE_ARRAY
+	local STD_ORIGINAL_LINE="$STD_TRACE_CMD_NUM"
+	if [[ $STD_TRACE_CMD_NUM -lt 5 ]]; then
+		local STD_TRACE_CMD_NUM=1
+		mapfile -n 9 STD_TRACE_LINE_ARRAY < $0
 	else
-		local TRACE_CMD_NUM=$((TRACE_CMD_NUM-4))
-		mapfile -s $((TRACE_CMD_NUM-1)) -n 9 TRACE_LINE_ARRAY < $0
+		local STD_TRACE_CMD_NUM=$((STD_TRACE_CMD_NUM-4))
+		mapfile -s $((STD_TRACE_CMD_NUM-1)) -n 9 STD_TRACE_LINE_ARRAY < $0
 	fi
 	for i in {0..8}; do
-		[[ ${TRACE_LINE_ARRAY[$i]} ]] || break
-		if [[ $TRACE_CMD_NUM = "$ORIGINAL_LINE" ]]; then
-			case ${#TRACE_CMD_NUM} in
-				1) printf "\033[1;97m%s" "     $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
-				2) printf "\033[1;97m%s" "    $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
-				3) printf "\033[1;97m%s" "   $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
-				4) printf "\033[1;97m%s" "  $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
-				5) printf "\033[1;97m%s" " $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
-				*) printf "\033[1;97m%s" "$TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
+		[[ ${STD_TRACE_LINE_ARRAY[$i]} ]] || break
+		if [[ $STD_TRACE_CMD_NUM = "$STD_ORIGINAL_LINE" ]]; then
+			case ${#STD_TRACE_CMD_NUM} in
+				1) printf "\033[1;97m%s" "     $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]}" ;;
+				2) printf "\033[1;97m%s" "    $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]}" ;;
+				3) printf "\033[1;97m%s" "   $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]}" ;;
+				4) printf "\033[1;97m%s" "  $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]}" ;;
+				5) printf "\033[1;97m%s" " $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]}" ;;
+				*) printf "\033[1;97m%s" "$STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]}" ;;
 			esac
 		else
-			case ${#TRACE_CMD_NUM} in
-				1) printf "\033[1;90m%s" "     $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
-				2) printf "\033[1;90m%s" "    $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
-				3) printf "\033[1;90m%s" "   $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
-				4) printf "\033[1;90m%s" "  $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
-				5) printf "\033[1;90m%s" " $TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
-				*) printf "\033[1;90m%s" "$TRACE_CMD_NUM ${TRACE_LINE_ARRAY[${i}]}" ;;
+			case ${#STD_TRACE_CMD_NUM} in
+				1) printf "\033[1;90m%s" "     $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]}" ;;
+				2) printf "\033[1;90m%s" "    $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]}" ;;
+				3) printf "\033[1;90m%s" "   $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]}" ;;
+				4) printf "\033[1;90m%s" "  $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]}" ;;
+				5) printf "\033[1;90m%s" " $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]}" ;;
+				*) printf "\033[1;90m%s" "$STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]}" ;;
 			esac
 		fi
-		((TRACE_CMD_NUM++))
+		((STD_TRACE_CMD_NUM++))
 	done
 	printf "\033[1;91m%s\033[0m\n" "========  ENDOF ERROR TRACE  ========"
-	[[ $TRACE_CMD =~ ^\(.*\)$ ]] && printf "\033[1;93m%s\033[0m\n" "========  SUB-SHELLS KILLED  ========"
-	unset -v TRACE_CMD TRACE_FUNC_NUM TRACE_CMD_NUM TRACE_PIPE || exit 26
+	[[ $STD_TRACE_CMD =~ ^\(.*\)$ ]] && printf "\033[1;93m%s\033[0m\n" "========  SUB-SHELLS KILLED  ========"
+	unset -v STD_TRACE_CMD STD_TRACE_FUNC_NUM STD_TRACE_CMD_NUM STD_TRACE_PIPE || exit 26
 	set +E +eo pipefail || exit 27
 	trap - ERR || exit 28
 	builtin kill -s SIGKILL $$

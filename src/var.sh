@@ -1,4 +1,4 @@
-#git <stdlib/var.sh/e8cd1fa>
+#git <stdlib/var.sh/83ca8ba>
 # REGULAR
 readonly BLACK="\033[0;30m"
 readonly RED="\033[0;31m"

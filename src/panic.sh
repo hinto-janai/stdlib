@@ -1,4 +1,4 @@
-#git <stdlib/panic.sh/e8cd1fa>
+#git <stdlib/panic.sh/83ca8ba>
 # panic
 # -----
 # print error information and
@@ -47,8 +47,8 @@ panic() {
 		mapfile -s $((STD_TRACE_CMD_NUM-1)) -n 9 STD_TRACE_LINE_ARRAY < $0
 	fi
 	# print lines with numbers (with manual spacing)
-	# i don't know why, but the array elements already
-	# have newlines, so none are added with printf.
+	# the array elements already have newlines,
+	# so none are added with printf.
 	for i in {0..8}; do
 		# if no lines left, break
 		[[ ${STD_TRACE_LINE_ARRAY[$i]} ]] || break

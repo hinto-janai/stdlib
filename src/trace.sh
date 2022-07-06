@@ -1,4 +1,4 @@
-#git <stdlib/trace.sh/e8cd1fa>
+#git <stdlib/trace.sh/83ca8ba>
 # trace
 # -----
 # this function pair catches errors between them,
@@ -38,7 +38,7 @@ ___ENDOF___ERROR___TRACE___() {
 	\unalias -a || exit 17
 	unset POSIXLY_CORRECT || exit 18
 	# disarm if no trap
-	if [[ -z $TRACE_PIPE ]]; then
+	if [[ -z $STD_TRACE_PIPE ]]; then
 		# paranoid safety
 		POSIXLY_CORRECT= || exit 19
 		\unset -f trap set return exit return || exit 20
@@ -54,8 +54,11 @@ ___ENDOF___ERROR___TRACE___() {
 	printf "\033[1;91m%s\n" "========  BEGIN ERROR TRACE  ========"
 	printf "\033[1;95m%s\033[0m%s\n" "[bash] " "$BASH_VERSION"
 	printf "\033[1;96m%s\033[0m%s\n" "[unix] " "$EPOCHSECONDS"
-	printf "\033[1;91m%s\033[0m%s\n" "[code] " "${STD_TRACE_PIPE[@]}"
-	printf "\033[1;97m%s\033[0m%s\n" "[file] " "${BASH_SOURCE[-1]}"
+	printf "\033[1;91m%s" "[code] "
+	for i in ${STD_TRACE_PIPE[@]}; do
+		printf "\033[0m%s" "$i"
+	done
+	printf "\n\033[1;97m%s\033[0m%s\n" "[file] " "${BASH_SOURCE[-1]}"
 	printf "\033[1;94m%s\033[0m%s\n" "[ wd ] " "$PWD"
 	printf "\033[1;93m%s\033[0m%s\n" "[ \$_ ] " "${STD_TRACE_CMD_NUM}: $STD_TRACE_CMD"
 	# print function stack
@@ -78,8 +81,8 @@ ___ENDOF___ERROR___TRACE___() {
 		mapfile -s $((STD_TRACE_CMD_NUM-1)) -n 9 STD_TRACE_LINE_ARRAY < $0
 	fi
 	# print lines with numbers (with manual spacing)
-	# i don't know why, but the array elements already
-	# have newlines, so none are added with printf.
+	# the array elements already have newlines,
+	# so none are added with printf.
 	for i in {0..8}; do
 		# if no lines left, break
 		[[ ${STD_TRACE_LINE_ARRAY[$i]} ]] || break

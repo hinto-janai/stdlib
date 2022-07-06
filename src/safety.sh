@@ -1,4 +1,4 @@
-#git <stdlib/safety.sh/e8cd1fa>
+#git <stdlib/safety.sh/83ca8ba>
 # safety
 # ------
 # bash's biggest double-edged sword is that,
