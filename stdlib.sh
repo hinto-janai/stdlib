@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-#git <stdlib.sh/bcc7072>
-#nix <1657062428>
+#git <stdlib.sh/642985b>
+#nix <1657068798>
 #hbc <20cccca>
 #src <ask.sh>
 #src <color.sh>
@@ -96,15 +96,14 @@ date::hour() { date +"%H" ;}
 date::minute() { date +"%M" ;}
 date::second() { date +"%S" ;}
 guard() {
-	[[ $1 ]] || return 11
-	local GUARD_HASH TMP_GUARD_HASH || return 22
+	local GUARD_HASH TMP_GUARD_HASH || return 11
 	GUARD_HASH=$(\
 		mapfile -n $((BASH_LINENO-1)) TMP_GUARD_HASH < "$0";
 		mapfile -O $((BASH_LINENO-1)) -s $BASH_LINENO TMP_GUARD_HASH < "$0";
-		printf "%s" "${TMP_GUARD_HASH[@]}" | sha1sum) || return 33
+		printf "%s" "${TMP_GUARD_HASH[@]}" | sha1sum) || return 22
 	if [[ ${GUARD_HASH// */} != "$1" ]]; then
 		printf "%s\n" "${GUARD_HASH// */}"
-		return 44
+		return 33
 	fi
 }
 hash::md5() {
@@ -262,11 +261,22 @@ log::prog() {
 	printf "\r\033[1;37m[ \033[0m....\033[1;37m ]\033[0m %s " "$@"
 }
 log::debug() {
+	[[ $LOG_DEBUG_ENABLED != true ]] && return 0
 	printf "\r%${COLUMNS}s" " "
 	if [[ -z $LOG_DEBUG_INIT_TIME ]]; then
 		declare -g LOG_DEBUG_INIT_TIME
 		LOG_DEBUG_INIT_TIME=${EPOCHREALTIME//./}
-		printf "\r\033[0;0m[debug 0.000000] %s\n" "$1"
+		printf "\r\033[1;90m%s\033[0m" "[debug 0.000000] "
+		if [[ $LOG_DEBUG_VERBOSE = true ]]; then
+			local f i
+			i=1
+			for f in ${BASH_LINENO[@]}; do
+				[[ $f = 0 ]] && break
+				printf "\033[0;91m%s\033[1;92m%s\033[0m" "${f}: " "${FUNCNAME[${i}]}() "
+				((i++))
+			done
+		fi
+		printf "| %s\n" "$@"
 		return
 	fi
 	local LOG_DEBUG_ADJUSTED_TIME LOG_DEBUG_DOT_INSERTION
@@ -280,9 +290,29 @@ log::debug() {
 	esac
 	LOG_DEBUG_DOT_INSERTION=$((${#LOG_DEBUG_ADJUSTED_TIME}-6))
 	if [[ $LOG_DEBUG_DOT_INSERTION -eq 0 ]]; then
-		printf "\r\033[0;0m[debug 0.${LOG_DEBUG_ADJUSTED_TIME}] %s\n" "$1"
+		printf "\r\033[1;90m%s\033[0m" "[debug 0.${LOG_DEBUG_ADJUSTED_TIME}] "
+		if [[ $LOG_DEBUG_VERBOSE = true ]]; then
+			local f i
+			i=1
+			for f in ${BASH_LINENO[@]}; do
+				[[ $f = 0 ]] && break
+				printf "\033[0;91m%s\033[1;92m%s\033[0m" "${f}: " "${FUNCNAME[${i}]}() "
+				((i++))
+			done
+		fi
+		printf "| %s\n" "$@"
 	else
-		printf "\r\033[0;0m[debug ${LOG_DEBUG_ADJUSTED_TIME:0:${LOG_DEBUG_DOT_INSERTION}}.${LOG_DEBUG_ADJUSTED_TIME:${LOG_DEBUG_DOT_INSERTION}}] %s\n" "$1"
+		printf "\r\033[1;90m%s\033[0m" "[debug ${LOG_DEBUG_ADJUSTED_TIME:0:${LOG_DEBUG_DOT_INSERTION}}.${LOG_DEBUG_ADJUSTED_TIME:${LOG_DEBUG_DOT_INSERTION}}] "
+		if [[ $LOG_DEBUG_VERBOSE = true ]]; then
+			local f i
+			i=1
+			for f in ${BASH_LINENO[@]}; do
+				[[ $f = 0 ]] && break
+				printf "\033[0;91m%s\033[1;92m%s\033[0m" "${f}: " "${FUNCNAME[${i}]}() "
+				((i++))
+			done
+		fi
+		printf "| %s\n" "$@"
 	fi
 }
 malloc::var() {

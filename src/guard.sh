@@ -18,14 +18,13 @@
 # any modification above or below that guard()
 # will trigger guard to return error.
 guard() {
-	[[ $1 ]] || return 11
-	local GUARD_HASH TMP_GUARD_HASH || return 22
+	local GUARD_HASH TMP_GUARD_HASH || return 11
 	GUARD_HASH=$(\
 		mapfile -n $((BASH_LINENO-1)) TMP_GUARD_HASH < "$0";
 		mapfile -O $((BASH_LINENO-1)) -s $BASH_LINENO TMP_GUARD_HASH < "$0";
-		printf "%s" "${TMP_GUARD_HASH[@]}" | sha1sum) || return 33
+		printf "%s" "${TMP_GUARD_HASH[@]}" | sha1sum) || return 22
 	if [[ ${GUARD_HASH// */} != "$1" ]]; then
 		printf "%s\n" "${GUARD_HASH// */}"
-		return 44
+		return 33
 	fi
 }
