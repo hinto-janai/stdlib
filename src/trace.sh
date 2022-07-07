@@ -79,11 +79,14 @@
 ___BEGIN___ERROR___TRACE___() {
 	# ultra paranoid safety measures (unset bash builtins)
 	POSIXLY_CORRECT= || exit 8
-	\unset -f trap set return exit printf unset local return read unalias mapfile kill builtin || exit 9
+	\unset -f : true false trap set return exit printf unset local return read unalias mapfile kill builtin wait || exit 9
 	\unalias -a || exit 10
 	unset -v POSIXLY_CORRECT || exit 11
 	# set trap to catch error data
-	trap 'STD_TRACE_CMD="$BASH_COMMAND" STD_TRACE_FUNC=(${BASH_LINENO[@]}) STD_TRACE_CMD_NUM="$LINENO" STD_TRACE_PIPE=(${PIPESTATUS[@]}); ___ENDOF___ERROR___TRACE___ || exit 100' ERR || exit 12
+	trap 'STD_TRACE_CMD="$BASH_COMMAND" STD_TRACE_FUNC=(${BASH_LINENO[@]}) STD_TRACE_CMD_NUM="$LINENO" STD_TRACE_PIPE=(${PIPESTATUS[@]}); ___ENDOF___ERROR___TRACE___ > /dev/tty || exit 100' ERR || exit 12
+	# ^
+	# |_ this is sent to /dev/tty because command=$(substitutions)
+	#    will eat the trace output, sending to /dev/tty overrides this.
 	unset -v STD_TRACE_CMD STD_TRACE_FUNC_NUM STD_TRACE_CMD_NUM STD_TRACE_PIPE || exit 13
 	set -E -e -o pipefail || exit 14
 	return 0
@@ -92,7 +95,7 @@ ___BEGIN___ERROR___TRACE___() {
 ___ENDOF___ERROR___TRACE___() {
 	# ultra paranoid safety measures (unset bash builtins)
 	POSIXLY_CORRECT= || exit 15
-	\unset -f trap set return exit printf unset local return read unalias mapfile kill builtin || exit 16
+	\unset -f : true false trap set return exit printf unset local return read unalias mapfile kill builtin wait || exit 16
 	\unalias -a || exit 17
 	unset -v POSIXLY_CORRECT || exit 18
 	# disarm if no trap
@@ -175,13 +178,14 @@ ___ENDOF___ERROR___TRACE___() {
 	# if we're in a subshell, kill the original shell
 	if [[ $BASH_SUBSHELL != 0 ]]; then
 		printf "\033[1;93m%s\033[0m\n" "========  SUB-SHELLS KILLED  ========"
-		while :; do read -s -r; done
+		builtin kill -s KILL $$ & wait
 		exit 88
-	else
-		exit 99
 	fi
+	exit 99
 	# just in case...
 	printf "\033[1;97m%s\033[0m\n" "=KILL/EXIT FAIL, BEGIN INFINITE LOOP="
 	while :; do read -s -r; done
+	while true; do read -s -r; done
+	while true; do false; done
 	while :; do :; done
 }
