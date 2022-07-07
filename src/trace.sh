@@ -178,8 +178,7 @@ ___ENDOF___ERROR___TRACE___() {
 	# if we're in a subshell, kill the original shell
 	if [[ $BASH_SUBSHELL != 0 ]]; then
 		printf "\033[1;93m%s\033[0m\n" "========  SUB-SHELLS KILLED  ========"
-		builtin kill -s KILL $$ & wait
-		exit 88
+		builtin kill -s KILL 0
 	fi
 	exit 99
 	# just in case...
