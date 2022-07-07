@@ -1,4 +1,16 @@
 #git <stdlib/ask.sh/83ca8ba>
+# ask
+# ---
+# prompt for user's input.
+# ask::yes() expects a yes
+# and returns 0, returning error
+# on anything else. ask::no()
+# returns 0 on everything EXCEPT
+# for a yes.
+#
+# ask::sudo() simply askes
+# for sudo and returns
+
 ask::yes() {
 	local STD_ASK_REPONSE || return 44
 	read -r STD_ASK_REPONSE

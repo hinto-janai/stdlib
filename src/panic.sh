@@ -5,7 +5,7 @@
 # enter endless loop to prevent
 # futher code execution. must
 # be called manually, does not
-# catch errors like trace.
+# catch errors like trace().
 
 panic() {
 	# get error info

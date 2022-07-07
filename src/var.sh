@@ -1,4 +1,9 @@
 #git <stdlib/var.sh/83ca8ba>
+# var
+# ---
+# common variables set as readonly.
+# usage: printf "${BLUE}%s\n" "blue text"
+
 # REGULAR
 readonly BLACK="\033[0;30m"
 readonly RED="\033[0;31m"

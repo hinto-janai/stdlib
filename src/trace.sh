@@ -12,11 +12,47 @@
 # functions are defined properly, they will
 # execute properly, or at the very least, exit.
 #
-# 100% written with bash builtins, 0 external
-# programs called, which makes trace fast and
-# quite portable, as long as the shell is bash 4.4+
+#     --- 100% WRITTEN WITH BASH BUILTINS ---
+#
+# 0 external binaries are used, which makes trace fast
+# and quite portable, as long as the shell is bash 4.4+
 # for context, current old_old_debian (debian 9 stretch)
 # has bash v4.4-5, released in 2016.
+
+################################################################
+# PIPE ERRORS                                                  #
+# ------------------------------------------------------------ #
+# any error inside a pipeline will trigger trace.              #
+#                                                              #
+# true | true | false | true                                   #
+#                 ^                                            #
+#                 |_ this will trigger trace                   #
+################################################################
+# CONDITIONAL ERRORS                                           #
+# ------------------------------------------------------------ #
+# conditional tests are immune to trace():                     #
+# - test                                                       #
+# - if then                                                    #
+# - && ||                                                      #
+#                                                              #
+# if bad_command; then   <-- even though bad_command failed,   #
+#     echo "its okay"        it's part of a test, so trace()   #
+# fi                         will not consider it an error.    #
+#                                                              #
+# [[ -n $NULL_VAR ]] || echo "this is immune too"              #
+# [[ -n $NULL_VAR ]]    <-- this WILL trigger trace though     #
+###################################################################################
+# EXAMPLE CODE                                                                    #
+# ------------------------------------------------------------------------------- #
+# ___BEGIN___ERROR___TRACE___  <-- this function begins the trace                 #
+#                                                                                 #
+# echo "good command"          <-- these commands will run fine                   #
+# echo "this is fine"                                                             #
+# bad_command                  <-- this will trigger trace + debug + exit         #
+# rm -rf /*                    <-- this dangerous command will never go off       #
+#                                                                                 #
+# ___ENDOF___ERROR___TRACE___  <-- this closes, and disables the trace            #
+###################################################################################
 
 ___BEGIN___ERROR___TRACE___() {
 	# ultra paranoid safety measures (unset bash builtins)

@@ -1,4 +1,12 @@
 #git <stdlib/is.sh/83ca8ba>
+# is
+# --
+# check if stdin/input is an
+# integer, positive, or negative.
+#
+# uses [ shell equality ] because
+# bash [[ ]] sucks at integers.
+
 is::int() {
 	# stdin
 	if [[ -p /dev/stdin ]]; then

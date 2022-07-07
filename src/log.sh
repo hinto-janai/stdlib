@@ -10,6 +10,7 @@
 # from leaving traces. can take
 # multiple inputs, each input will
 # be formatted and print a newline.
+
 log::ok() {
 	printf "\r%${COLUMNS}s" " "
 	printf "\r\033[1;32m[  OK  ]\033[0m %s\n" "$@"
@@ -63,7 +64,7 @@ log::prog() {
 # [debug 1.000546] 5.46 milliseconds after
 # [debug 1.043411] 138: func() 155: main() | this one's verbose
 #
-# 100% Bash builtins, no external programs.
+# 100% bash builtins, no external programs.
 log::debug() {
 	# to enable debug to show up, make sure
 	# STD_LOG_DEBUG gets set "true" somewhere

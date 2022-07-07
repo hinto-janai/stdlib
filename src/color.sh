@@ -1,4 +1,23 @@
 #git <stdlib/color.sh/83ca8ba>
+# color
+# -----
+# set terminal text color.
+# 100x-200x~ faster than tput,
+# because printf is a builtin.
+#
+# EXAMPLE
+# ---------------------------
+# color::bred
+# echo "this is bold red text"
+# echo "and it will be until i"
+# color::off
+# echo "this has no color"
+# ---------------------------
+#
+# to manually format color,
+# use <stdlib/var.sh> instead:
+# printf "${BRED}%s\n" "bold red text"
+
 # REGULAR
 color::black() { printf "\033[0;30m" ;}
 color::red() { printf "\033[0;31m" ;}

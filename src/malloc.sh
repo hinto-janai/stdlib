@@ -12,19 +12,19 @@
 # is for the process to exit/die.
 #
 # sub_shells() ( <--------------- note the () instead of {}
-# 	are great workarounds to
-#	temporarily working on
-#	large variables as they,
-#	like all programs, return
-#	all memory on exit. subshells
-#	in particular are great because
-#	they inherit the environment
-#	from the parent shell, but the
-#	system treats it as a different
-#	process.
+#     are great workarounds to
+#     temporarily working on
+#     large variables as they,
+#     like all programs, return
+#     all memory on exit. subshells
+#     in particular are great because
+#     they inherit the environment
+#     from the parent shell, but the
+#     system treats it as a different
+#     process.
 # )
 #
-# var_in_main=$(this_is_a_subshell!)
+# var_in_main=$(this_operation_is_in_a_subshell!)
 
 
 # malloc() && free()

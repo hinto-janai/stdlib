@@ -1,4 +1,15 @@
 #git <stdlib/lock.sh/83ca8ba>
+# lock
+# ----
+# create a lock file. prevents
+# multiple instances of a
+# script/function taking place
+# because a lock will be found
+# by lock::alloc and return error.
+#
+# 99% bash builtin.
+# how is rm not a builtin yet?
+
 lock::alloc() {
 	# remove lock on exit
 	trap 'lock::free' EXIT || return 11

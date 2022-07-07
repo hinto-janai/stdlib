@@ -1,4 +1,12 @@
 #git <stdlib/date.sh/83ca8ba>
+# date
+# ----
+# format the date in useful ways.
+# date::unix() will give unix time,
+# and date::unix_translate() will
+# print the input unix time as a
+# human readable date.
+
 date::unix_translate() {
 	# stdin
 	if [[ -p /dev/stdin ]]; then
