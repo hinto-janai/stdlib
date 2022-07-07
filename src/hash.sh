@@ -21,8 +21,8 @@
 
 #git <stdlib/hash.sh/1611706>
 
-# hash
-# ----
+# hash()
+# ------
 # hash stdin or regular input,
 # takes multiple inputs.
 # md5 - sha1 - sha256 - sha512

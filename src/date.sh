@@ -21,8 +21,8 @@
 
 #git <stdlib/date.sh/1611706>
 
-# date
-# ----
+# date()
+# ------
 # format the date in useful ways.
 # date::unix() will give unix time,
 # and date::unix_translate() will

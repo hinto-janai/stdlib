@@ -21,8 +21,8 @@
 
 #git <stdlib/panic.sh/1611706>
 
-# panic
-# -----
+# panic()
+# ------
 # print error information and
 # enter endless loop to prevent
 # futher code execution. must

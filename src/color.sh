@@ -21,8 +21,8 @@
 
 #git <stdlib/color.sh/1611706>
 
-# color
-# -----
+# color()
+# -------
 # set terminal text color.
 # 100x-200x~ faster than tput,
 # because printf is a builtin.

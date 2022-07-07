@@ -48,26 +48,38 @@
 #
 # var_in_main=$(this_operation_is_in_a_subshell!)
 
-
 # malloc() && free()
 # ------------------
-# INITIALIZE global variables only if
-# they are completely unset. ASSIGNING
-# a value to variables with alloc() is
-# possible, using: alloc VAR=value.
-# Null-but-initialized variables count
-# as already set variables, and will
-# cause alloc() to return error:
-# e.g. local VAR; alloc::var VAR
+# THESE FUNCTIONS ARE ___NOT___ FOR ALLOCATING AND FREEING MEMORY
+#
+# these two functions are for safely INITIALIZING global declarations!
+# they will return ERROR if the declaration already exists, even if null.
+# ---------------------------------------------- #
+# EXAMPLE CODE                                   #
+# ---------------------------------------------- #
+# local VAR                                      #
+# malloc VAR              <-- this will error    #
+#                                                #
+# FUNC() { echo hello; }                         #
+# malloc::func FUNC       <-- this will error    #
+#                                                #
+# free VAR         <-- these will work,          #
+# free::func FUNC      unsetting $VAR and FUNC() #
+# ---------------------------------------------- #
+#
+# ASSIGNING a value to variables with malloc()
+# is possible, using: malloc VAR=value
+#
 # free() will unset any variable,
-# whether set by alloc() or not.
+# whether set by malloc() or not.
 
 # regular variable
-malloc::var() {
+malloc() {
 	[[ $# = 0 ]] && return 11
+	local i || return 22
 	for i in $@; do
-		declare -p ${i/=*/} &>/dev/null && return 22
-		declare -g $i || return 33
+		declare -p ${i/=*/} &>/dev/null && return 33
+		declare -g $i || return 44
 	done
 	return 0
 }
@@ -75,9 +87,10 @@ malloc::var() {
 # indexed array
 malloc::arr() {
 	[[ $# = 0 ]] && return 11
+	local i || return 22
 	for i in $@; do
-		declare -p ${i/=*/} &>/dev/null && return 22
-		declare -a $i || return 33
+		declare -p ${i/=*/} &>/dev/null && return 33
+		declare -a $i || return 44
 	done
 	return 0
 }
@@ -85,9 +98,10 @@ malloc::arr() {
 # associative array (key-value pairs)
 malloc::ass() {
 	[[ $# = 0 ]] && return 11
+	local i || return 22
 	for i in $@; do
-		declare -p ${i/=*/} &>/dev/null && return 22
-		declare -A $i || return 33
+		declare -p ${i/=*/} &>/dev/null && return 33
+		declare -A $i || return 44
 	done
 	return 0
 }
@@ -95,19 +109,21 @@ malloc::ass() {
 # integer variable
 malloc::int() {
 	[[ $# = 0 ]] && return 11
+	local i || return 22
 	for i in $@; do
-		declare -p ${i/=*/} &>/dev/null && return 22
-		declare -i $i || return 33
+		declare -p ${i/=*/} &>/dev/null && return 33
+		declare -i $i || return 44
 	done
 	return 0
 }
 
 # frees all types of variables
-free::var() {
+free() {
 	[[ $# = 0 ]] && return 11
+	local i || return 22
 	for i in $@; do
-		declare -p ${i/=*/} &>/dev/null || return 22
-		unset -v $i || return 33
+		declare -p ${i/=*/} &>/dev/null || return 33
+		unset -v $i || return 44
 	done
 	return 0
 }
@@ -115,9 +131,10 @@ free::var() {
 # free FUNCTIONS
 free::func() {
 	[[ $# = 0 ]] && return 11
+	local i || return 22
 	for i in $@; do
-		declare -F $i &>/dev/null || return 22
-		unset -f $i || return 33
+		declare -F $i &>/dev/null || return 33
+		unset -f $i || return 44
 	done
 	return 0
 }

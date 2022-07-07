@@ -21,8 +21,8 @@
 
 #git <stdlib/ask.sh/1611706>
 
-# ask
-# ---
+# ask()
+# -----
 # prompt for user's input.
 # ask::yes() expects a yes
 # and returns 0, returning error

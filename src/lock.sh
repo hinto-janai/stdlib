@@ -21,8 +21,8 @@
 
 #git <stdlib/lock.sh/1611706>
 
-# lock
-# ----
+# lock()
+# ------
 # create a lock file. prevents
 # multiple instances of a
 # script/function taking place

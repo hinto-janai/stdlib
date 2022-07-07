@@ -21,8 +21,8 @@
 
 #git <stdlib/guard.sh/1611706>
 
-# guard
-# -----
+# guard()
+# -------
 # read $0 excluding the line where guard()
 # was called and send it through sha1sum.
 # return if $1 does not match the hash calculated.

@@ -21,8 +21,8 @@
 
 #git <stdlib/crypto.sh/1611706>
 
-# crypto
-# ------
+# crypto()
+# --------
 # generate crypto.
 
 # fetch $1 bytes of /dev/random

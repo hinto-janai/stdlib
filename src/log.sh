@@ -21,8 +21,8 @@
 
 #git <stdlib/log.sh/1611706>
 
-# log
-# ---
+# log()
+# -----
 # print formatted
 # messages to the terminal.
 # lines are cleared with spaces
@@ -67,8 +67,8 @@ log::prog() {
 	printf "\r\033[1;37m[ \033[0m....\033[1;37m ]\033[0m %s " "$@"
 }
 
-# log::debug
-# ----------
+# log::debug()
+# ------------
 # this uses the $EPOCHREALTIME variable to
 # calculate the seconds that have passed.
 # the first call of log::debug() initiates

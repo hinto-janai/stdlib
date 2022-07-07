@@ -21,8 +21,8 @@
 
 #git <stdlib/safety.sh/1611706>
 
-# safety
-# ------
+# safety()
+# --------
 # bash's biggest double-edged sword is that,
 # by default, it allows you to do _anything_
 # this is amazingly freeing as it doesn't

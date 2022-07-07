@@ -21,8 +21,8 @@
 
 #git <stdlib/is.sh/1611706>
 
-# is
-# --
+# is()
+# ----
 # check if stdin/input is an
 # integer, positive, or negative.
 #

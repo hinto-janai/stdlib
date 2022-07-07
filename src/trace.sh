@@ -21,8 +21,8 @@
 
 #git <stdlib/trace.sh/1611706>
 
-# trace
-# -----
+# trace()
+# -------
 # this function pair catches errors between them,
 # traces them, prints useful info, then exits.
 # system/script debug info is printed along

@@ -21,11 +21,12 @@
 
 #git <stdlib/var.sh/1611706>
 
-# var
-# ---
+# $const
+# ----
 # common variables set as readonly.
-# usage: printf "${BLUE}%s\n" "blue text"
 
+# COLORS
+# usage: printf "${BLUE}%s\n" "blue text"
 # REGULAR
 readonly BLACK="\033[0;30m"
 readonly RED="\033[0;31m"
