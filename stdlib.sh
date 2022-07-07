@@ -1,7 +1,30 @@
 #!/usr/bin/env bash
-#git <stdlib.sh/83ca8ba>
-#nix <1657144947>
-#hbc <dcfcab2>
+#
+# stdlib.sh - a standard library for Bash
+#
+# Copyright (c) 2022 hinto.janaiyo <https://github.com/hinto-janaiyo>
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+#git <stdlib.sh/9c906b1>
+#nix <1657161371>
+#hbc <095c49f>
 #src <ask.sh>
 #src <color.sh>
 #src <crypto.sh>
@@ -16,16 +39,6 @@
 #src <safety.sh>
 #src <trace.sh>
 #src <var.sh>
-
-#-------------------------------------------------------------------------------- BEGIN SAFETY
-POSIXLY_CORRECT= || exit 90
-	# bash builtins
-\unset -f . : [ alias bg bind break builtin caller cd command compgen complete compopt continue declare dirs disown echo enable eval exec exit export false fc fg getopts hash help history jobs kill let local logout mapfile popd printf pushd pwd read readarray readonly return set shift shopt source suspend test times trap true type typeset ulimit umask unalias unset wait || exit 91
-	# gnu core-utils
-\unset -f arch base64 basename cat chcon chgrp chmod chown chroot cksum comm cp csplit cut date dd df dir dircolors dirname du echo env expand expr factor false fmt fold groups head hostid hostname id install join kill link ln logname ls md5sum mkdir mkfifo mknod mktemp mv nice nl nohup nproc numfmt od paste pathchk pinky pr printenv printf ptx pwd readlink realpath rm rmdir runcon seq shred shuf sleep sort split stat stdbuf stty sum tac tail tee test timeout touch tr true truncate tsort tty uname unexpand uniq unlink uptime users vdir wc who whoami yes || exit 92
-\unalias -a || exit 93
-unset POSIXLY_CORRECT || exit 94
-set -eo pipefail || exit 95
 
 #-------------------------------------------------------------------------------- BEGIN SRC
 ask::yes() {
@@ -119,74 +132,82 @@ guard() {
 hash::md5() {
 	set -o pipefail || return 11
 	if [[ -p /dev/stdin ]]; then
-		local i || return 22
+		local i STD_HASH || return 22
 		for i in $(</dev/stdin); do
-			printf "%s" "$i" | md5sum | tr -d ' -' || return 33
+			STD_HASH=$(printf "%s" "$i" | md5sum) || return 33
+			printf "%s\n" "${STD_HASH// *-*/}" || return 44
 		done
-		set +o pipefail && return 0 || return 44
+		set +o pipefail && return 0 || return 55
 	elif [[ $# = 0 ]]; then
-		set +o pipefail || return 55
+		set +o pipefail || return 66
 		return 1
 	fi
 	while [[ $# != 0 ]]; do
-		printf "%s" "$1" | md5sum | tr -d ' -' || return 66
+		STD_HASH=$(printf "%s" "$i" | md5sum) || return 77
+		printf "%s\n" "${STD_HASH// *-*/}"
 		shift
 	done
-	set +o pipefail && return 0 || return 77
+	set +o pipefail && return 0 || return 88
 }
 hash::sha1() {
 	set -o pipefail || return 11
 	if [[ -p /dev/stdin ]]; then
-		local i || return 22
+		local i STD_HASH || return 22
 		for i in $(</dev/stdin); do
-			printf "%s" "$i" | sha256sum | tr -d ' -' || return 33
+			STD_HASH=$(printf "%s" "$i" | sha1sum) || return 33
+			printf "%s\n" "${STD_HASH// *-*/}" || return 44
 		done
-		set +o pipefail && return 0 || return 44
+		set +o pipefail && return 0 || return 55
 	elif [[ $# = 0 ]]; then
-		set +o pipefail || return 55
+		set +o pipefail || return 66
 		return 1
 	fi
 	while [[ $# != 0 ]]; do
-		printf "%s" "$1" | sha256sum | tr -d ' -' || return 66
+		STD_HASH=$(printf "%s" "$i" | sha1sum) || return 77
+		printf "%s\n" "${STD_HASH// *-*/}"
 		shift
 	done
-	set +o pipefail && return 0 || return 77
+	set +o pipefail && return 0 || return 88
 }
 hash::sha256() {
 	set -o pipefail || return 11
 	if [[ -p /dev/stdin ]]; then
-		local i || return 22
+		local i STD_HASH || return 22
 		for i in $(</dev/stdin); do
-			printf "%s" "$i" | sha256sum | tr -d ' -' || return 33
+			STD_HASH=$(printf "%s" "$i" | sha256sum) || return 33
+			printf "%s\n" "${STD_HASH// *-*/}" || return 44
 		done
-		set +o pipefail && return 0 || return 44
+		set +o pipefail && return 0 || return 55
 	elif [[ $# = 0 ]]; then
-		set +o pipefail || return 55
+		set +o pipefail || return 66
 		return 1
 	fi
 	while [[ $# != 0 ]]; do
-		printf "%s" "$1" | sha256sum | tr -d ' -' || return 66
+		STD_HASH=$(printf "%s" "$i" | sha256sum) || return 77
+		printf "%s\n" "${STD_HASH// *-*/}"
 		shift
 	done
-	set +o pipefail && return 0 || return 77
+	set +o pipefail && return 0 || return 88
 }
 hash::sha512() {
 	set -o pipefail || return 11
 	if [[ -p /dev/stdin ]]; then
-		local i || return 22
+		local i STD_HASH || return 22
 		for i in $(</dev/stdin); do
-			printf "%s" "$i" | sha512sum | tr -d ' -' || return 33
+			STD_HASH=$(printf "%s" "$i" | sha512sum) || return 33
+			printf "%s\n" "${STD_HASH// *-*/}" || return 44
 		done
-		set +o pipefail && return 0 || return 44
+		set +o pipefail && return 0 || return 55
 	elif [[ $# = 0 ]]; then
-		set +o pipefail || return 55
+		set +o pipefail || return 66
 		return 1
 	fi
 	while [[ $# != 0 ]]; do
-		printf "%s" "$1" | sha512sum | tr -d ' -' || return 66
+		STD_HASH=$(printf "%s" "$i" | sha512sum) || return 77
+		printf "%s\n" "${STD_HASH// *-*/}"
 		shift
 	done
-	set +o pipefail && return 0 || return 77
+	set +o pipefail && return 0 || return 88
 }
 is::int() {
 	if [[ -p /dev/stdin ]]; then
@@ -470,7 +491,7 @@ ___ENDOF___ERROR___TRACE___() {
 	\unset -f trap set return exit printf unset local return read unalias mapfile kill builtin || exit 16
 	\unalias -a || exit 17
 	unset POSIXLY_CORRECT || exit 18
-	if [[ -z $TRACE_PIPE ]]; then
+	if [[ -z $STD_TRACE_PIPE ]]; then
 		POSIXLY_CORRECT= || exit 19
 		\unset -f trap set return exit return || exit 20
 		\unalias -a || exit 21
@@ -484,9 +505,9 @@ ___ENDOF___ERROR___TRACE___() {
 	printf "\033[1;95m%s\033[0m%s\n" "[bash] " "$BASH_VERSION"
 	printf "\033[1;96m%s\033[0m%s\n" "[unix] " "$EPOCHSECONDS"
 	printf "\033[1;91m%s" "[code] "
-		for i in ${STD_TRACE_PIPE[@]}; do
-			printf "\033[0m%s" "$i "
-		done
+	for i in ${STD_TRACE_PIPE[@]}; do
+		printf "\033[0m%s" "$i"
+	done
 	printf "\n\033[1;97m%s\033[0m%s\n" "[file] " "${BASH_SOURCE[-1]}"
 	printf "\033[1;94m%s\033[0m%s\n" "[ wd ] " "$PWD"
 	printf "\033[1;93m%s\033[0m%s\n" "[ \$_ ] " "${STD_TRACE_CMD_NUM}: $STD_TRACE_CMD"
