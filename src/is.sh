@@ -27,7 +27,7 @@
 # integer, positive, or negative.
 #
 # uses [ shell equality ] because
-# bash [[ ]] sucks at integers.
+# [[ bash ]] -eq is weird.
 
 is::int() {
 	# stdin

@@ -81,7 +81,7 @@ ___BEGIN___ERROR___TRACE___() {
 	POSIXLY_CORRECT= || exit 8
 	\unset -f trap set return exit printf unset local return read unalias mapfile kill builtin || exit 9
 	\unalias -a || exit 10
-	unset POSIXLY_CORRECT || exit 11
+	unset -v POSIXLY_CORRECT || exit 11
 	# set trap to catch error data
 	trap 'STD_TRACE_CMD="$BASH_COMMAND" STD_TRACE_FUNC=(${BASH_LINENO[@]}) STD_TRACE_CMD_NUM="$LINENO" STD_TRACE_PIPE=(${PIPESTATUS[@]}); ___ENDOF___ERROR___TRACE___ || exit 100' ERR || exit 12
 	unset -v STD_TRACE_CMD STD_TRACE_FUNC_NUM STD_TRACE_CMD_NUM STD_TRACE_PIPE || exit 13
@@ -94,7 +94,7 @@ ___ENDOF___ERROR___TRACE___() {
 	POSIXLY_CORRECT= || exit 15
 	\unset -f trap set return exit printf unset local return read unalias mapfile kill builtin || exit 16
 	\unalias -a || exit 17
-	unset POSIXLY_CORRECT || exit 18
+	unset -v POSIXLY_CORRECT || exit 18
 	# disarm if no trap
 	if [[ -z $STD_TRACE_PIPE ]]; then
 		# paranoid safety
@@ -168,15 +168,20 @@ ___ENDOF___ERROR___TRACE___() {
 		((STD_TRACE_CMD_NUM++))
 	done
 	printf "\033[1;91m%s\033[0m\n" "========  ENDOF ERROR TRACE  ========"
-	# print if subshells were detected
-	[[ $STD_TRACE_CMD =~ ^\(.*\)$ ]] && printf "\033[1;93m%s\033[0m\n" "========  SUB-SHELLS KILLED  ========"
 	# disarm and exit
 	unset -v STD_TRACE_CMD STD_TRACE_FUNC_NUM STD_TRACE_CMD_NUM STD_TRACE_PIPE || exit 26
 	set +E +eo pipefail || exit 27
 	trap - ERR || exit 28
-	builtin kill -s SIGKILL $$
-	exit 99
+	# if we're in a subshell, kill the original shell
+	if [[ $BASH_SUBSHELL != 0 ]]; then
+		printf "\033[1;93m%s\033[0m\n" "========  SUB-SHELLS KILLED  ========"
+		while :; do read -s -r; done
+		exit 88
+	else
+		exit 99
+	fi
 	# just in case...
-	printf "\033[1;97m%s\033[0m\n" "= KILL FAIL, ENTERING INFINITE LOOP ="
+	printf "\033[1;97m%s\033[0m\n" "=KILL/EXIT FAIL, BEGIN INFINITE LOOP="
 	while :; do read -s -r; done
+	while :; do :; done
 }

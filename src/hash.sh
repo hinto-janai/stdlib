@@ -23,14 +23,9 @@
 
 # hash
 # ----
-# hash stdin or regular input
+# hash stdin or regular input,
+# takes multiple inputs.
 # md5 - sha1 - sha256 - sha512
-#
-# implementing a 100% bash builtin
-# version of the *sums might actually
-# be faster than calling the binary
-# for large loops of hashing, but
-# that sounds like a pain to write.
 
 hash::md5() {
 	set -o pipefail || return 11
