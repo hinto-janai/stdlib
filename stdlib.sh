@@ -22,8 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib.sh/47f56ea>
-#nix <1657301230>
+#git <stdlib.sh/35457d9>
+#nix <1657312391>
 #hbc <7a8caa0>
 #src <ask.sh>
 #src <color.sh>
@@ -351,24 +351,27 @@ lock::alloc() {
 	unset -v POSIXLY_CORRECT || return 10
 	[[ $# = 0 ]] && return 11
 	declare -g -A STD_LOCK_FILE || return 12
-	local i || return 13
+	set +f || return 13
+	local i f || return 14
 	for i in $@; do
-		[[ ${STD_LOCK_FILE[$i]} ]] && return 14
+		for f in /tmp/std_lock_${i}_*; do
+			[[ -e "$f" ]] && return 15
+		done
 	done
-	trap 'lock::free $@' EXIT || return 15
 	local STD_LOCK_UUID || return 22
-	for i in $@; do
+	until [[ $# = 0 ]]; do
+		debug
 		mapfile STD_LOCK_UUID < /proc/sys/kernel/random/uuid || return 23
 		STD_LOCK_UUID=${STD_LOCK_UUID[0]//$'\n'/}
 		STD_LOCK_UUID=${STD_LOCK_UUID//-/}
-		STD_LOCK_FILE[$i]="${i}_${STD_LOCK_UUID}" || return 33
+		STD_LOCK_FILE[$1]="/tmp/std_lock_${1}_${STD_LOCK_UUID}" || return 33
 		local STD_DEFAULT_UMASK
 		STD_DEFAULT_UMASK=$(umask)
 		umask 177
-		echo "" > /tmp/"${STD_LOCK_FILE[$i]}" || return 44
+		echo > "${STD_LOCK_FILE[$1]}" || return 44
 		umask $STD_DEFAULT_UMASK
+		shift || return 45
 	done
-	return 0
 }
 lock::free() {
 	POSIXLY_CORRECT= || return 7
@@ -378,11 +381,9 @@ lock::free() {
 	[[ $# = 0 ]] && return 11
 	local i || return 20
 	for i in $@; do
-		[[ ${STD_LOCK_FILE[$i]} ]] || return 21
-		command rm /tmp/"${STD_LOCK_FILE[$i]}" || return 22
-		unset -v "${STD_LOCK_FILE[$i]}" || return 23
+		command rm "${STD_LOCK_FILE[${i}]}" || return 22
+		unset -v STD_LOCK_FILE[$i] || return 23
 	done
-	return 0
 }
 log::ok() {
 	printf "\r\e[2K"

@@ -19,7 +19,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib/lock.sh/47f56ea>
+#git <stdlib/lock.sh/35457d9>
 
 # lock()
 # ------
@@ -27,7 +27,10 @@
 # multiple instances of a
 # script/function taking place
 # because a lock will be found
-# by lock::alloc and return error.
+# by lock::alloc() and return error.
+#
+# GLOBAL ARRAY HOLDING ALL LOCK PATHS:
+# $STD_LOCK_FILE
 #
 # 99% bash builtins.
 # how is rm not a builtin yet?
@@ -37,25 +40,47 @@
 # lock::alloc hello      <-- this makes an associative key-pair in the
 #                            $STD_LOCK_FILE array. the key = your input,
 #                            and the actual array value (and lock file name)
-#                            is your input + a random UUID from the kernel.
+#                            will be: std_lock_hello_randomUUID
 #                            ${STD_LOCK_FILE[hello]}'s value will look something like:
-#                            hello_5c11f6dda7e84e55a9fe1f6bc6ae612b
-#                            which will be stored in /tmp/, as in /tmp/hello_5c1...
+#                            std_lock_hello_5c11f6dda7e84e55a9fe1f6bc6ae612b
+#                            which will be stored in /tmp/, as in /tmp/std_lock_hello_5c1...
 #
-# exit 0                 <-- lock::alloc sets a trap to remove the lock
-#                            automatically on exit, or you can manually
-#                            unlock a lock by doing:
+# exit 0                 <-- INCORRECT USAGE
+#                            ---------------
+#                            in order to not override user programmed traps,
+#                            lock::alloc, on purpose, does not include an
+#                            auto-delete-on-exit trap, you must create
+#                            your own trap with a removal or manually free
+#                            the lock like so:
 #
 # lock::free hello       <-- the lock with key "hello" will now be unlocked,
-#                            /tmp/hello_5c1... will be deleted, and
+#                            /tmp/std_lock_hello_5c1... will be deleted, and
 #                            ${STD_LOCK_FILE[hello]} will be unset
 #
 # lock::alloc one two    <-- multiple locks can be made at the same time
 #
 # echo "doing stuff..."
-# echo "we're good."
+# echo "ok we're good."
 #
 # lock::free one two     <-- and freed at the same time
+
+# MAKING AUTO-DELETE TRAP
+# -----------------------
+# $STD_LOCK_FILE is the global associative array
+# that holds all the full paths to the locks created
+# by lock::alloc(). you can include it
+# in an exit trap to automatically delete the locks
+# on exit, or any other signal.
+#
+# EXAMPLES
+# -------
+# trap 'command rm ${STD_LOCK_FILE[@]}' EXIT       <-- this will delete every single lock file
+#                                                      on script exit. be aware that setting
+#                                                      a trap overrides the previous one if set,
+#                                                      which is why this is not on by default.
+#
+# trap 'command rm ${STD_LOCK_FILE[sync]}' EXIT    <-- this will only delete the lock with the
+#                                                      keyname "sync", on exit.
 
 lock::alloc() {
 	# ultra paranoid safety measures (unset bash builtins)
@@ -68,30 +93,40 @@ lock::alloc() {
 	[[ $# = 0 ]] && return 11
 	# make lock file var global
 	declare -g -A STD_LOCK_FILE || return 12
-	# lock already found, return error
-	local i || return 13
-	for i in $@; do
-		[[ ${STD_LOCK_FILE[$i]} ]] && return 14
-	done
-	# remove lock on exit
-	trap 'lock::free $@' EXIT || return 15
 
-	# get lock UUID
-	local STD_LOCK_UUID || return 22
+	# the set below makes sure globbing is ENABLED for below
+	set +f || return 13
+	local i f || return 14
 	for i in $@; do
+		# the * below will NOT expand and become a literal '*'
+		# instead of globbing ONLY IF there are no files found.
+		# if files were found, the -e will confirm they already
+		# exist, so we return error.
+		for f in /tmp/std_lock_${i}_*; do
+			[[ -e "$f" ]] && return 15
+		done
+	done
+
+	# create lock
+	local STD_LOCK_UUID || return 22
+	until [[ $# = 0 ]]; do
+		debug
+		# create UUID
 		mapfile STD_LOCK_UUID < /proc/sys/kernel/random/uuid || return 23
 		STD_LOCK_UUID=${STD_LOCK_UUID[0]//$'\n'/}
 		STD_LOCK_UUID=${STD_LOCK_UUID//-/}
-		# locks name = i_UUID
-		STD_LOCK_FILE[$i]="${i}_${STD_LOCK_UUID}" || return 33
+		# create lock name and keypair
+		STD_LOCK_FILE[$1]="/tmp/std_lock_${1}_${STD_LOCK_UUID}" || return 33
 		# create file in /tmp with 600 perms
 		local STD_DEFAULT_UMASK
 		STD_DEFAULT_UMASK=$(umask)
 		umask 177
-		echo "" > /tmp/"${STD_LOCK_FILE[$i]}" || return 44
+		echo > "${STD_LOCK_FILE[$1]}" || return 44
 		umask $STD_DEFAULT_UMASK
+		shift || return 45
 	done
-	return 0
+	# READ USAGE ABOVE IF YOU WANT TO USE THIS
+	#trap 'command rm ${STD_LOCK_TRAP[@]}' EXIT || return 46
 }
 
 lock::free() {
@@ -105,9 +140,7 @@ lock::free() {
 	# free lock
 	local i || return 20
 	for i in $@; do
-		[[ ${STD_LOCK_FILE[$i]} ]] || return 21
-		command rm /tmp/"${STD_LOCK_FILE[$i]}" || return 22
-		unset -v "${STD_LOCK_FILE[$i]}" || return 23
+		command rm "${STD_LOCK_FILE[${i}]}" || return 22
+		unset -v STD_LOCK_FILE[$i] || return 23
 	done
-	return 0
 }
