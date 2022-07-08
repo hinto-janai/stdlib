@@ -22,8 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib.sh/87969b4>
-#nix <1657285066>
+#git <stdlib.sh/524ddb2>
+#nix <1657285208>
 #hbc <7a8caa0>
 #src <ask.sh>
 #src <color.sh>
@@ -184,7 +184,7 @@ debug::trap() {
 				printf "\033[1;91m%s\033[1;92m%s" "${f}: " "${FUNCNAME[${i}]}() "
 				((i++))
 			done
-			printf "\n"
+			printf "\033[0m\n"
 	else
 		printf "\r\033[1;90m%s\033[1;93m%s\033[0m%s\033[1;93m%s" \
 			"[debug ${STD_DEBUG_ADJUSTED:0:${STD_DEBUG_DOT}}.${STD_DEBUG_ADJUSTED:${STD_DEBUG_DOT}}] " \
@@ -196,7 +196,7 @@ debug::trap() {
 				printf "\033[1;91m%s\033[1;92m%s" "${f}: " "${FUNCNAME[${i}]}() "
 				((i++))
 			done
-			printf "\n"
+			printf "\033[0m\n"
 	fi
 }
 guard() {
@@ -421,11 +421,11 @@ log::debug() {
 			i=1
 			for f in ${BASH_LINENO[@]}; do
 				[[ $f = 0 ]] && break
-				printf "\033[1;91m%s\033[1;92m%s\033[0m" "${f}: " "${FUNCNAME[${i}]}() "
+				printf "\033[1;91m%s\033[1;92m%s" "${f}: " "${FUNCNAME[${i}]}() "
 				((i++))
 			done
 		fi
-		printf "| %s\n" "$@"
+		printf "\033[0m| %s\n" "$@"
 	else
 		printf "\r\033[1;90m%s\033[0m" "[log::debug ${STD_LOG_DEBUG_ADJUSTED:0:${STD_LOG_DEBUG_DOT}}.${STD_LOG_DEBUG_ADJUSTED:${STD_LOG_DEBUG_DOT}}] "
 		if [[ $STD_LOG_DEBUG_VERBOSE = true ]]; then
@@ -433,11 +433,11 @@ log::debug() {
 			i=1
 			for f in ${BASH_LINENO[@]}; do
 				[[ $f = 0 ]] && break
-				printf "\033[1;91m%s\033[1;92m%s\033[0m" "${f}: " "${FUNCNAME[${i}]}() "
+				printf "\033[1;91m%s\033[1;92m%s" "${f}: " "${FUNCNAME[${i}]}() "
 				((i++))
 			done
 		fi
-		printf "| %s\n" "$@"
+		printf "\033[0m| %s\n" "$@"
 	fi
 }
 malloc() {

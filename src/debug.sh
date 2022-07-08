@@ -19,7 +19,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib/debug.sh/59ba0e7>
+#git <stdlib/debug.sh/524ddb2>
 
 # debug()
 # -------
@@ -102,7 +102,7 @@ debug::trap() {
 				printf "\033[1;91m%s\033[1;92m%s" "${f}: " "${FUNCNAME[${i}]}() "
 				((i++))
 			done
-			printf "\n"
+			printf "\033[0m\n"
 	else
 		printf "\r\033[1;90m%s\033[1;93m%s\033[0m%s\033[1;93m%s" \
 			"[debug ${STD_DEBUG_ADJUSTED:0:${STD_DEBUG_DOT}}.${STD_DEBUG_ADJUSTED:${STD_DEBUG_DOT}}] " \
@@ -114,6 +114,6 @@ debug::trap() {
 				printf "\033[1;91m%s\033[1;92m%s" "${f}: " "${FUNCNAME[${i}]}() "
 				((i++))
 			done
-			printf "\n"
+			printf "\033[0m\n"
 	fi
 }

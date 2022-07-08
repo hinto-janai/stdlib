@@ -19,7 +19,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib/log.sh/59ba0e7>
+#git <stdlib/log.sh/524ddb2>
 
 # log()
 # -----
@@ -144,12 +144,12 @@ log::debug() {
 			i=1
 			for f in ${BASH_LINENO[@]}; do
 				[[ $f = 0 ]] && break
-				printf "\033[1;91m%s\033[1;92m%s\033[0m" "${f}: " "${FUNCNAME[${i}]}() "
+				printf "\033[1;91m%s\033[1;92m%s" "${f}: " "${FUNCNAME[${i}]}() "
 				((i++))
 			done
 		fi
 		# print arguments
-		printf "| %s\n" "$@"
+		printf "\033[0m| %s\n" "$@"
 	else
 	# else print the integer, '.', then decimals
 		printf "\r\033[1;90m%s\033[0m" "[log::debug ${STD_LOG_DEBUG_ADJUSTED:0:${STD_LOG_DEBUG_DOT}}.${STD_LOG_DEBUG_ADJUSTED:${STD_LOG_DEBUG_DOT}}] "
@@ -159,11 +159,11 @@ log::debug() {
 			i=1
 			for f in ${BASH_LINENO[@]}; do
 				[[ $f = 0 ]] && break
-				printf "\033[1;91m%s\033[1;92m%s\033[0m" "${f}: " "${FUNCNAME[${i}]}() "
+				printf "\033[1;91m%s\033[1;92m%s" "${f}: " "${FUNCNAME[${i}]}() "
 				((i++))
 			done
 		fi
 		# print arguments
-		printf "| %s\n" "$@"
+		printf "\033[0m| %s\n" "$@"
 	fi
 }
