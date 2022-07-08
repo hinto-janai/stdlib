@@ -19,7 +19,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib/log.sh/33f74e2>
+#git <stdlib/log.sh/28d9c9b>
 
 # log()
 # -----

@@ -19,7 +19,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib/lock.sh/33f74e2>
+#git <stdlib/lock.sh/28d9c9b>
 
 # lock()
 # ------
@@ -38,8 +38,8 @@
 #                            $STD_LOCK_FILE array. the key = your input,
 #                            and the actual array value (and lock file name)
 #                            is your input + a random UUID from the kernel.
-#                            ${STD_LOCK_FILE[my_lock]}'s value will look something like:
-#                            hello_5c11f6dd-a7e8-4e55-a9fe-1f6bc6ae612b
+#                            ${STD_LOCK_FILE[hello]}'s value will look something like:
+#                            hello_5c11f6dda7e84e55a9fe1f6bc6ae612b
 #                            which will be stored in /tmp/, as in /tmp/hello_5c1...
 #
 # exit 0                 <-- lock::alloc sets a trap to remove the lock
@@ -47,7 +47,8 @@
 #                            unlock a lock by doing:
 #
 # lock::free hello       <-- the lock with key "hello" will now be unlocked,
-#                            a.k.a, /tmp/hello_5c1... will be deleted.
+#                            a.k.a, /tmp/hello_5c1... will be deleted, and
+#                            ${STD_LOCK_FILE[hello]} will be unset
 
 lock::alloc() {
 	# ultra paranoid safety measures (unset bash builtins)
@@ -92,6 +93,7 @@ lock::free() {
 	[[ -z $1 ]] && return 11
 
 	# free lock
-	unset -v "${STD_LOCK_FILE[$1]}" || return 22
-	command rm /tmp/"${STD_LOCK_FILE[$1]}" || return 23
+	[[ ${STD_LOCK_FILE[$1]} ]] || return 21
+	command rm /tmp/"${STD_LOCK_FILE[$1]}" || return 22
+	unset -v "${STD_LOCK_FILE[$1]}" || return 23
 }

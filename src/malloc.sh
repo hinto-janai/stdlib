@@ -19,7 +19,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib/malloc.sh/33f74e2>
+#git <stdlib/malloc.sh/28d9c9b>
 
 # a note on how Bash uses memory
 # ------------------------------

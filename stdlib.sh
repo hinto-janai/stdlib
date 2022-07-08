@@ -22,8 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib.sh/33f74e2>
-#nix <1657288252>
+#git <stdlib.sh/28d9c9b>
+#nix <1657299718>
 #hbc <7a8caa0>
 #src <ask.sh>
 #src <color.sh>
@@ -124,8 +124,16 @@ crypto::bytes() {
 	head -c $1 /dev/random
 }
 crypto::num() {
-	[[ $# = 0 ]] && return 1
-	shuf -i 0-$1 -n 1
+	case $# in
+		1) shuf -i 0-$1 -n 1; return;;
+		2) shuf -i $1-$2 -n 1; return;;
+		*) return 1;;
+	esac
+}
+crypto::uuid() {
+	local STD_CRYPTO_UUID || return 1
+	mapfile STD_CRYPTO_UUID < /proc/sys/kernel/random/uuid
+	printf "%s" ${STD_CRYPTO_UUID//$'\n'}
 }
 date::unix_translate() {
 	if [[ -p /dev/stdin ]]; then
@@ -337,26 +345,36 @@ is::int_neg() {
 	done
 }
 lock::alloc() {
-	trap 'lock::free' EXIT || return 11
-	declare -g STD_LOCK_FILE || return 22
-	if [[ $1 ]]; then
-		STD_LOCK_FILE="$1" || return 33
-	else
-		STD_LOCK_FILE="$0" || return 44
-	fi
-	local STD_LOCK_UUID || return 55
-	mapfile -n 1 STD_LOCK_UUID < /proc/sys/kernel/random/uuid || return 66
+	POSIXLY_CORRECT= || return 7
+	\unset -f umask trap set return echo unset local return unalias mapfile command || return 8
+	\unalias -a || return 9
+	unset -v POSIXLY_CORRECT || return 10
+	[[ -z $1 ]] && return 11
+	declare -g -A STD_LOCK_FILE || return 12
+	[[ ${STD_LOCK_FILE[$1]} ]] && return 13
+	trap 'lock::free "$1"' EXIT || return 14
+	local STD_LOCK_UUID || return 22
+	mapfile STD_LOCK_UUID < /proc/sys/kernel/random/uuid || return 23
 	STD_LOCK_UUID=${STD_LOCK_UUID[0]//$'\n'/}
 	STD_LOCK_UUID=${STD_LOCK_UUID//-/}
-	STD_LOCK_FILE="${STD_LOCK_FILE}_${STD_LOCK_UUID}"
+	STD_LOCK_FILE[$1]="${1}_${STD_LOCK_UUID}" || return 33
 	local STD_DEFAULT_UMASK
 	STD_DEFAULT_UMASK=$(umask)
 	umask 177
-	echo "" > /tmp/"$STD_LOCK_FILE" || return 77
+	echo "" > /tmp/"${STD_LOCK_FILE[$1]}" || return 44
 	umask $STD_DEFAULT_UMASK
 	return 0
 }
-lock::free() { command rm /tmp/"$STD_LOCK_FILE"; }
+lock::free() {
+	POSIXLY_CORRECT= || return 7
+	\unset -f unset return rm command || return 8
+	\unalias -a || return 9
+	unset -v POSIXLY_CORRECT || return 10
+	[[ -z $1 ]] && return 11
+	[[ ${STD_LOCK_FILE[$1]} ]] || return 21
+	command rm /tmp/"${STD_LOCK_FILE[$1]}" || return 22
+	unset -v "${STD_LOCK_FILE[$1]}" || return 23
+}
 log::ok() {
 	printf "\r\e[2K"
 	printf "\r\033[1;32m[  OK  ]\033[0m %s\n" "$@"
