@@ -22,8 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib.sh/35457d9>
-#nix <1657312391>
+#git <stdlib.sh/df0c198>
+#nix <1657314974>
 #hbc <7a8caa0>
 #src <ask.sh>
 #src <color.sh>
@@ -375,14 +375,20 @@ lock::alloc() {
 }
 lock::free() {
 	POSIXLY_CORRECT= || return 7
-	\unset -f unset return rm command || return 8
+	\unset -f : unset return rm command || return 8
 	\unalias -a || return 9
 	unset -v POSIXLY_CORRECT || return 10
 	[[ $# = 0 ]] && return 11
-	local i || return 20
-	for i in $@; do
-		command rm "${STD_LOCK_FILE[${i}]}" || return 22
-		unset -v STD_LOCK_FILE[$i] || return 23
+	until [[ $# = 0 ]]; do
+		if [[ $1 = '@' ]]; then
+			command rm "${STD_LOCK_FILE[@]}" || :
+			unset -v STD_LOCK_FILE || :
+			return 0
+		else
+			command rm "${STD_LOCK_FILE[${i}]}" || return 22
+			unset -v STD_LOCK_FILE[$i] || return 23
+		fi
+		shift
 	done
 }
 log::ok() {
