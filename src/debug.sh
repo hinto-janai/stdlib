@@ -19,7 +19,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib/debug.sh/524ddb2>
+#git <stdlib/debug.sh/33f74e2>
 
 # debug()
 # -------
@@ -35,7 +35,7 @@
 # be printed to stdout.
 #
 # debug() has a toggle environment variable
-# similar to log::debug(): [ $STD_DEBUG=<true/false> ]
+# similar to log::debug(): $STD_DEBUG=<true/false>
 #
 # my_func() {
 #     debug                 <------ this means debug will only
@@ -75,11 +75,19 @@ debug() {
 # log::debug() and trace() with renamed variables.
 
 debug::trap() {
-	printf "\r\e[2K"
 	if [[ -z $STD_DEBUG_INIT ]]; then
 		declare -g STD_DEBUG_INIT
 		STD_DEBUG_INIT=${EPOCHREALTIME//./}
-		printf "\r\033[1;90m%s\033[0m" "[debug 0.000000] "
+		printf "\r\e[2K\033[1;90m%s\033[1;93m%s\033[0m%s\033[1;93m%s" \
+			"[debug 0.000000] " "[ \$_ ] " "${STD_DEBUG_CMD_NUM}: $STD_DEBUG_CMD " "-> "
+		local f
+		local i=1
+		for f in ${STD_DEBUG_FUNC[@]-1}; do
+			[[ $f = 0 ]] && break
+			printf "\033[1;91m%s\033[1;92m%s" "${f}: " "${FUNCNAME[${i}]}() "
+			((i++))
+		done
+		printf "\033[0m\n"
 		return
 	fi
 	local STD_DEBUG_ADJUSTED STD_DEBUG_DOT
@@ -93,27 +101,19 @@ debug::trap() {
 	esac
 	STD_DEBUG_DOT=$((${#STD_DEBUG_ADJUSTED}-6))
 	if [[ $STD_DEBUG_DOT -eq 0 ]]; then
-		printf "\r\033[1;90m%s\033[1;93m%s\033[0m%s\033[1;93m%s" \
+		printf "\r\e[2K\033[1;90m%s\033[1;93m%s\033[0m%s\033[1;93m%s" \
 			"[debug 0.${STD_DEBUG_ADJUSTED}] " "[ \$_ ] " "${STD_DEBUG_CMD_NUM}: $STD_DEBUG_CMD " "-> "
-			local f
-			local i=1
-			for f in ${STD_DEBUG_FUNC[@]-1}; do
-				[[ $f = 0 ]] && break
-				printf "\033[1;91m%s\033[1;92m%s" "${f}: " "${FUNCNAME[${i}]}() "
-				((i++))
-			done
-			printf "\033[0m\n"
 	else
-		printf "\r\033[1;90m%s\033[1;93m%s\033[0m%s\033[1;93m%s" \
+		printf "\r\e[2K\033[1;90m%s\033[1;93m%s\033[0m%s\033[1;93m%s" \
 			"[debug ${STD_DEBUG_ADJUSTED:0:${STD_DEBUG_DOT}}.${STD_DEBUG_ADJUSTED:${STD_DEBUG_DOT}}] " \
 			"[ \$_ ] " "${STD_DEBUG_CMD_NUM}: $STD_DEBUG_CMD " "-> "
-			local f
-			local i=1
-			for f in ${STD_DEBUG_FUNC[@]-1}; do
-				[[ $f = 0 ]] && break
-				printf "\033[1;91m%s\033[1;92m%s" "${f}: " "${FUNCNAME[${i}]}() "
-				((i++))
-			done
-			printf "\033[0m\n"
 	fi
+	local f
+	local i=1
+	for f in ${STD_DEBUG_FUNC[@]-1}; do
+		[[ $f = 0 ]] && break
+		printf "\033[1;91m%s\033[1;92m%s" "${f}: " "${FUNCNAME[${i}]}() "
+		((i++))
+	done
+	printf "\033[0m\n"
 }

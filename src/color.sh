@@ -19,7 +19,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib/color.sh/524ddb2>
+#git <stdlib/color.sh/33f74e2>
 
 # color()
 # -------

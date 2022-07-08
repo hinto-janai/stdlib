@@ -22,8 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib.sh/524ddb2>
-#nix <1657285208>
+#git <stdlib.sh/33f74e2>
+#nix <1657288252>
 #hbc <7a8caa0>
 #src <ask.sh>
 #src <color.sh>
@@ -157,11 +157,19 @@ debug() {
 	trap 'STD_DEBUG_CMD="$BASH_COMMAND" STD_DEBUG_FUNC=(${BASH_LINENO[@]}) STD_DEBUG_CMD_NUM="$LINENO" STD_DEBUG_PIPE=(${PIPESTATUS[@]});debug::trap' DEBUG
 }
 debug::trap() {
-	printf "\r\e[2K"
 	if [[ -z $STD_DEBUG_INIT ]]; then
 		declare -g STD_DEBUG_INIT
 		STD_DEBUG_INIT=${EPOCHREALTIME//./}
-		printf "\r\033[1;90m%s\033[0m" "[debug 0.000000] "
+		printf "\r\e[2K\033[1;90m%s\033[1;93m%s\033[0m%s\033[1;93m%s" \
+			"[debug 0.000000] " "[ \$_ ] " "${STD_DEBUG_CMD_NUM}: $STD_DEBUG_CMD " "-> "
+		local f
+		local i=1
+		for f in ${STD_DEBUG_FUNC[@]-1}; do
+			[[ $f = 0 ]] && break
+			printf "\033[1;91m%s\033[1;92m%s" "${f}: " "${FUNCNAME[${i}]}() "
+			((i++))
+		done
+		printf "\033[0m\n"
 		return
 	fi
 	local STD_DEBUG_ADJUSTED STD_DEBUG_DOT
@@ -175,29 +183,21 @@ debug::trap() {
 	esac
 	STD_DEBUG_DOT=$((${#STD_DEBUG_ADJUSTED}-6))
 	if [[ $STD_DEBUG_DOT -eq 0 ]]; then
-		printf "\r\033[1;90m%s\033[1;93m%s\033[0m%s\033[1;93m%s" \
+		printf "\r\e[2K\033[1;90m%s\033[1;93m%s\033[0m%s\033[1;93m%s" \
 			"[debug 0.${STD_DEBUG_ADJUSTED}] " "[ \$_ ] " "${STD_DEBUG_CMD_NUM}: $STD_DEBUG_CMD " "-> "
-			local f
-			local i=1
-			for f in ${STD_DEBUG_FUNC[@]-1}; do
-				[[ $f = 0 ]] && break
-				printf "\033[1;91m%s\033[1;92m%s" "${f}: " "${FUNCNAME[${i}]}() "
-				((i++))
-			done
-			printf "\033[0m\n"
 	else
-		printf "\r\033[1;90m%s\033[1;93m%s\033[0m%s\033[1;93m%s" \
+		printf "\r\e[2K\033[1;90m%s\033[1;93m%s\033[0m%s\033[1;93m%s" \
 			"[debug ${STD_DEBUG_ADJUSTED:0:${STD_DEBUG_DOT}}.${STD_DEBUG_ADJUSTED:${STD_DEBUG_DOT}}] " \
 			"[ \$_ ] " "${STD_DEBUG_CMD_NUM}: $STD_DEBUG_CMD " "-> "
-			local f
-			local i=1
-			for f in ${STD_DEBUG_FUNC[@]-1}; do
-				[[ $f = 0 ]] && break
-				printf "\033[1;91m%s\033[1;92m%s" "${f}: " "${FUNCNAME[${i}]}() "
-				((i++))
-			done
-			printf "\033[0m\n"
 	fi
+	local f
+	local i=1
+	for f in ${STD_DEBUG_FUNC[@]-1}; do
+		[[ $f = 0 ]] && break
+		printf "\033[1;91m%s\033[1;92m%s" "${f}: " "${FUNCNAME[${i}]}() "
+		((i++))
+	done
+	printf "\033[0m\n"
 }
 guard() {
 	local STD_GUARD_HASH STD_TMP_GUARD_HASH || return 11
@@ -387,21 +387,21 @@ log::prog() {
 }
 log::debug() {
 	[[ $STD_LOG_DEBUG != true ]] && return 0
-	printf "\r\e[2K"
 	if [[ -z $STD_LOG_DEBUG_INIT ]]; then
 		declare -g STD_LOG_DEBUG_INIT
 		STD_LOG_DEBUG_INIT=${EPOCHREALTIME//./}
-		printf "\r\033[1;90m%s\033[0m" "[log::debug 0.000000] "
+		printf "\r\e[2K\033[1;90m%s\033[0m%s" "[log::debug 0.000000] " "${BASH_LINENO}: $@ "
 		if [[ $STD_LOG_DEBUG_VERBOSE = true ]]; then
+			printf "\033[1;93m%s" "-> "
 			local f i
 			i=1
 			for f in ${BASH_LINENO[@]}; do
 				[[ $f = 0 ]] && break
-				printf "\033[1;91m%s\033[1;92m%s\033[0m" "${f}: " "${FUNCNAME[${i}]}() "
+				printf "\033[1;91m%s\033[1;92m%s" "${f}: " "${FUNCNAME[${i}]}() "
 				((i++))
 			done
 		fi
-		printf "| %s\n" "$@"
+		printf "\033[0m\n"
 		return
 	fi
 	local STD_LOG_DEBUG_ADJUSTED STD_LOG_DEBUG_DOT
@@ -415,30 +415,22 @@ log::debug() {
 	esac
 	STD_LOG_DEBUG_DOT=$((${#STD_LOG_DEBUG_ADJUSTED}-6))
 	if [[ $STD_LOG_DEBUG_DOT -eq 0 ]]; then
-		printf "\r\033[1;90m%s\033[0m" "[log::debug 0.${STD_LOG_DEBUG_ADJUSTED}] "
-		if [[ $STD_LOG_DEBUG_VERBOSE = true ]]; then
-			local f i
-			i=1
-			for f in ${BASH_LINENO[@]}; do
-				[[ $f = 0 ]] && break
-				printf "\033[1;91m%s\033[1;92m%s" "${f}: " "${FUNCNAME[${i}]}() "
-				((i++))
-			done
-		fi
-		printf "\033[0m| %s\n" "$@"
+		printf "\r\e[2K\033[1;90m%s\033[0m%s" "[log::debug 0.${STD_LOG_DEBUG_ADJUSTED}] " "${BASH_LINENO}: $@ "
 	else
-		printf "\r\033[1;90m%s\033[0m" "[log::debug ${STD_LOG_DEBUG_ADJUSTED:0:${STD_LOG_DEBUG_DOT}}.${STD_LOG_DEBUG_ADJUSTED:${STD_LOG_DEBUG_DOT}}] "
-		if [[ $STD_LOG_DEBUG_VERBOSE = true ]]; then
-			local f i
-			i=1
-			for f in ${BASH_LINENO[@]}; do
-				[[ $f = 0 ]] && break
-				printf "\033[1;91m%s\033[1;92m%s" "${f}: " "${FUNCNAME[${i}]}() "
-				((i++))
-			done
-		fi
-		printf "\033[0m| %s\n" "$@"
+		printf "\r\e[2K\033[1;90m%s\033[0m%s" \
+			"[log::debug ${STD_LOG_DEBUG_ADJUSTED:0:${STD_LOG_DEBUG_DOT}}.${STD_LOG_DEBUG_ADJUSTED:${STD_LOG_DEBUG_DOT}}] " "${BASH_LINENO}: $@ "
 	fi
+	if [[ $STD_LOG_DEBUG_VERBOSE = true ]]; then
+		printf "\033[1;93m%s" "-> "
+		local f i
+		i=1
+		for f in ${BASH_LINENO[@]}; do
+			[[ $f = 0 ]] && break
+			printf "\033[1;91m%s\033[1;92m%s" "${f}: " "${FUNCNAME[${i}]}() "
+			((i++))
+		done
+	fi
+	printf "\033[0m\n"
 }
 malloc() {
 	[[ $# = 0 ]] && return 11

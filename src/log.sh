@@ -19,7 +19,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib/log.sh/524ddb2>
+#git <stdlib/log.sh/33f74e2>
 
 # log()
 # -----
@@ -74,41 +74,41 @@ log::prog() {
 # the $STD_LOG_DEBUG_INIT and starts
 # counting from there.
 #
-# ENVIRONMENT VARIABLES:
-# $STD_LOG_DEBUG_INIT - the unix time used as a baseline reference
-# $STD_LOG_DEBUG - "true" will enable debug to printed
+# ENVIRONMENT VARIABLES
+# ---------------------
+# $STD_LOG_DEBUG - "true" will enable debug messages to print
 # $STD_LOG_DEBUG_VERBOSE - "true" will show line + function stack
 #
-# EXAMPLE OUTPUT:
-# [log::debug 0.000000] init debug message
-# [log::debug 1.000000] this is 1 second after
-# [log::debug 1.000546] 5.46 milliseconds after
-# [log::debug 1.043411] 138: func() 155: main() | this one's verbose
+# EXAMPLE OUTPUT
+# --------------
+# [log::debug 0.000000] 12: init debug message                <-- formatting: [debug time] {debug line} {message} -> {function calls, if verbose}
+# [log::debug 1.000000] 27: this is 1 second after
+# [log::debug 1.000546] 45: 5.46 milliseconds after
+# [log::debug 1.043411] 139: this one's verbose -> 138: func() 155: main()
 #
 # 100% bash builtins, no external programs.
+
 log::debug() {
 	# to enable debug to show up, make sure
 	# STD_LOG_DEBUG gets set "true" somewhere
 	[[ $STD_LOG_DEBUG != true ]] && return 0
-	# log:: line wiping
-	printf "\r\e[2K"
 	# if first time running, initiate debug time and return
 	if [[ -z $STD_LOG_DEBUG_INIT ]]; then
 		declare -g STD_LOG_DEBUG_INIT
 		STD_LOG_DEBUG_INIT=${EPOCHREALTIME//./}
-		printf "\r\033[1;90m%s\033[0m" "[log::debug 0.000000] "
+		printf "\r\e[2K\033[1;90m%s\033[0m%s" "[log::debug 0.000000] " "${BASH_LINENO}: $@ "
 		# print line + function stack
 		if [[ $STD_LOG_DEBUG_VERBOSE = true ]]; then
+			printf "\033[1;93m%s" "-> "
 			local f i
 			i=1
 			for f in ${BASH_LINENO[@]}; do
 				[[ $f = 0 ]] && break
-				printf "\033[1;91m%s\033[1;92m%s\033[0m" "${f}: " "${FUNCNAME[${i}]}() "
+				printf "\033[1;91m%s\033[1;92m%s" "${f}: " "${FUNCNAME[${i}]}() "
 				((i++))
 			done
 		fi
-		# print arguments given
-		printf "| %s\n" "$@"
+		printf "\033[0m\n"
 		return
 	fi
 	# local variable init
@@ -137,33 +137,22 @@ log::debug() {
 	# if 6 digits long, that means one second
 	# hasn't even passed, so just print 0.$the_number
 	if [[ $STD_LOG_DEBUG_DOT -eq 0 ]]; then
-		printf "\r\033[1;90m%s\033[0m" "[log::debug 0.${STD_LOG_DEBUG_ADJUSTED}] "
-		# print line + function stack
-		if [[ $STD_LOG_DEBUG_VERBOSE = true ]]; then
-			local f i
-			i=1
-			for f in ${BASH_LINENO[@]}; do
-				[[ $f = 0 ]] && break
-				printf "\033[1;91m%s\033[1;92m%s" "${f}: " "${FUNCNAME[${i}]}() "
-				((i++))
-			done
-		fi
-		# print arguments
-		printf "\033[0m| %s\n" "$@"
+		printf "\r\e[2K\033[1;90m%s\033[0m%s" "[log::debug 0.${STD_LOG_DEBUG_ADJUSTED}] " "${BASH_LINENO}: $@ "
 	else
 	# else print the integer, '.', then decimals
-		printf "\r\033[1;90m%s\033[0m" "[log::debug ${STD_LOG_DEBUG_ADJUSTED:0:${STD_LOG_DEBUG_DOT}}.${STD_LOG_DEBUG_ADJUSTED:${STD_LOG_DEBUG_DOT}}] "
-		# print line + function stack
-		if [[ $STD_LOG_DEBUG_VERBOSE = true ]]; then
-			local f i
-			i=1
-			for f in ${BASH_LINENO[@]}; do
-				[[ $f = 0 ]] && break
-				printf "\033[1;91m%s\033[1;92m%s" "${f}: " "${FUNCNAME[${i}]}() "
-				((i++))
-			done
-		fi
-		# print arguments
-		printf "\033[0m| %s\n" "$@"
+		printf "\r\e[2K\033[1;90m%s\033[0m%s" \
+			"[log::debug ${STD_LOG_DEBUG_ADJUSTED:0:${STD_LOG_DEBUG_DOT}}.${STD_LOG_DEBUG_ADJUSTED:${STD_LOG_DEBUG_DOT}}] " "${BASH_LINENO}: $@ "
 	fi
+	# print line + function stack
+	if [[ $STD_LOG_DEBUG_VERBOSE = true ]]; then
+		printf "\033[1;93m%s" "-> "
+		local f i
+		i=1
+		for f in ${BASH_LINENO[@]}; do
+			[[ $f = 0 ]] && break
+			printf "\033[1;91m%s\033[1;92m%s" "${f}: " "${FUNCNAME[${i}]}() "
+			((i++))
+		done
+	fi
+	printf "\033[0m\n"
 }
