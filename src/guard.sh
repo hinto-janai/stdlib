@@ -19,7 +19,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib/guard.sh/28d9c9b>
+#git <stdlib/guard.sh/47f56ea>
 
 # guard()
 # -------

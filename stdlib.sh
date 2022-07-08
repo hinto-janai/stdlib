@@ -22,8 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib.sh/28d9c9b>
-#nix <1657299718>
+#git <stdlib.sh/47f56ea>
+#nix <1657301230>
 #hbc <7a8caa0>
 #src <ask.sh>
 #src <color.sh>
@@ -349,20 +349,25 @@ lock::alloc() {
 	\unset -f umask trap set return echo unset local return unalias mapfile command || return 8
 	\unalias -a || return 9
 	unset -v POSIXLY_CORRECT || return 10
-	[[ -z $1 ]] && return 11
+	[[ $# = 0 ]] && return 11
 	declare -g -A STD_LOCK_FILE || return 12
-	[[ ${STD_LOCK_FILE[$1]} ]] && return 13
-	trap 'lock::free "$1"' EXIT || return 14
+	local i || return 13
+	for i in $@; do
+		[[ ${STD_LOCK_FILE[$i]} ]] && return 14
+	done
+	trap 'lock::free $@' EXIT || return 15
 	local STD_LOCK_UUID || return 22
-	mapfile STD_LOCK_UUID < /proc/sys/kernel/random/uuid || return 23
-	STD_LOCK_UUID=${STD_LOCK_UUID[0]//$'\n'/}
-	STD_LOCK_UUID=${STD_LOCK_UUID//-/}
-	STD_LOCK_FILE[$1]="${1}_${STD_LOCK_UUID}" || return 33
-	local STD_DEFAULT_UMASK
-	STD_DEFAULT_UMASK=$(umask)
-	umask 177
-	echo "" > /tmp/"${STD_LOCK_FILE[$1]}" || return 44
-	umask $STD_DEFAULT_UMASK
+	for i in $@; do
+		mapfile STD_LOCK_UUID < /proc/sys/kernel/random/uuid || return 23
+		STD_LOCK_UUID=${STD_LOCK_UUID[0]//$'\n'/}
+		STD_LOCK_UUID=${STD_LOCK_UUID//-/}
+		STD_LOCK_FILE[$i]="${i}_${STD_LOCK_UUID}" || return 33
+		local STD_DEFAULT_UMASK
+		STD_DEFAULT_UMASK=$(umask)
+		umask 177
+		echo "" > /tmp/"${STD_LOCK_FILE[$i]}" || return 44
+		umask $STD_DEFAULT_UMASK
+	done
 	return 0
 }
 lock::free() {
@@ -370,10 +375,14 @@ lock::free() {
 	\unset -f unset return rm command || return 8
 	\unalias -a || return 9
 	unset -v POSIXLY_CORRECT || return 10
-	[[ -z $1 ]] && return 11
-	[[ ${STD_LOCK_FILE[$1]} ]] || return 21
-	command rm /tmp/"${STD_LOCK_FILE[$1]}" || return 22
-	unset -v "${STD_LOCK_FILE[$1]}" || return 23
+	[[ $# = 0 ]] && return 11
+	local i || return 20
+	for i in $@; do
+		[[ ${STD_LOCK_FILE[$i]} ]] || return 21
+		command rm /tmp/"${STD_LOCK_FILE[$i]}" || return 22
+		unset -v "${STD_LOCK_FILE[$i]}" || return 23
+	done
+	return 0
 }
 log::ok() {
 	printf "\r\e[2K"

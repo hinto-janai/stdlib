@@ -19,7 +19,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib/lock.sh/28d9c9b>
+#git <stdlib/lock.sh/47f56ea>
 
 # lock()
 # ------
@@ -47,8 +47,15 @@
 #                            unlock a lock by doing:
 #
 # lock::free hello       <-- the lock with key "hello" will now be unlocked,
-#                            a.k.a, /tmp/hello_5c1... will be deleted, and
+#                            /tmp/hello_5c1... will be deleted, and
 #                            ${STD_LOCK_FILE[hello]} will be unset
+#
+# lock::alloc one two    <-- multiple locks can be made at the same time
+#
+# echo "doing stuff..."
+# echo "we're good."
+#
+# lock::free one two     <-- and freed at the same time
 
 lock::alloc() {
 	# ultra paranoid safety measures (unset bash builtins)
@@ -58,29 +65,32 @@ lock::alloc() {
 	unset -v POSIXLY_CORRECT || return 10
 
 	# no input, return error
-	[[ -z $1 ]] && return 11
+	[[ $# = 0 ]] && return 11
 	# make lock file var global
 	declare -g -A STD_LOCK_FILE || return 12
 	# lock already found, return error
-	[[ ${STD_LOCK_FILE[$1]} ]] && return 13
+	local i || return 13
+	for i in $@; do
+		[[ ${STD_LOCK_FILE[$i]} ]] && return 14
+	done
 	# remove lock on exit
-	trap 'lock::free "$1"' EXIT || return 14
+	trap 'lock::free $@' EXIT || return 15
 
 	# get lock UUID
 	local STD_LOCK_UUID || return 22
-	mapfile STD_LOCK_UUID < /proc/sys/kernel/random/uuid || return 23
-	STD_LOCK_UUID=${STD_LOCK_UUID[0]//$'\n'/}
-	STD_LOCK_UUID=${STD_LOCK_UUID//-/}
-
-	# $1 = the locks name
-	STD_LOCK_FILE[$1]="${1}_${STD_LOCK_UUID}" || return 33
-
-	# create file in /tmp with 600 perms
-	local STD_DEFAULT_UMASK
-	STD_DEFAULT_UMASK=$(umask)
-	umask 177
-	echo "" > /tmp/"${STD_LOCK_FILE[$1]}" || return 44
-	umask $STD_DEFAULT_UMASK
+	for i in $@; do
+		mapfile STD_LOCK_UUID < /proc/sys/kernel/random/uuid || return 23
+		STD_LOCK_UUID=${STD_LOCK_UUID[0]//$'\n'/}
+		STD_LOCK_UUID=${STD_LOCK_UUID//-/}
+		# locks name = i_UUID
+		STD_LOCK_FILE[$i]="${i}_${STD_LOCK_UUID}" || return 33
+		# create file in /tmp with 600 perms
+		local STD_DEFAULT_UMASK
+		STD_DEFAULT_UMASK=$(umask)
+		umask 177
+		echo "" > /tmp/"${STD_LOCK_FILE[$i]}" || return 44
+		umask $STD_DEFAULT_UMASK
+	done
 	return 0
 }
 
@@ -90,10 +100,14 @@ lock::free() {
 	\unset -f unset return rm command || return 8
 	\unalias -a || return 9
 	unset -v POSIXLY_CORRECT || return 10
-	[[ -z $1 ]] && return 11
+	[[ $# = 0 ]] && return 11
 
 	# free lock
-	[[ ${STD_LOCK_FILE[$1]} ]] || return 21
-	command rm /tmp/"${STD_LOCK_FILE[$1]}" || return 22
-	unset -v "${STD_LOCK_FILE[$1]}" || return 23
+	local i || return 20
+	for i in $@; do
+		[[ ${STD_LOCK_FILE[$i]} ]] || return 21
+		command rm /tmp/"${STD_LOCK_FILE[$i]}" || return 22
+		unset -v "${STD_LOCK_FILE[$i]}" || return 23
+	done
+	return 0
 }

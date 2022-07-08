@@ -19,7 +19,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib/panic.sh/28d9c9b>
+#git <stdlib/panic.sh/47f56ea>
 
 # panic()
 # ------
