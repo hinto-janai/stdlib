@@ -25,45 +25,44 @@
 # -----
 # print formatted
 # messages to the terminal.
-# lines are cleared with spaces
-# the length of $COLUMNS, then
-# message is printed. this is to
+# the line is first cleared then
+# the message is printed. this is to
 # avoid previous messages (from log::prog)
 # from leaving traces. can take
 # multiple inputs, each input will
 # be formatted and print a newline.
 
 log::ok() {
-	printf "\r%${COLUMNS}s" " "
+	printf "\r\e[2K"
 	printf "\r\033[1;32m[  OK  ]\033[0m %s\n" "$@"
 }
 log::info() {
-	printf "\r%${COLUMNS}s" " "
+	printf "\r\e[2K"
 	printf "\r\033[1;37m[ INFO ]\033[0m %s\n" "$@"
 }
 log::warn() {
-	printf "\r%${COLUMNS}s" " "
+	printf "\r\e[2K"
 	printf "\r\033[1;33m[ WARN ]\033[0m %s\n" "$@"
 }
 log::fail() {
-	printf "\r%${COLUMNS}s" " "
+	printf "\r\e[2K"
 	printf "\r\033[1;31m[ FAIL ]\033[0m %s\n" "$@"
 }
 log::danger() {
-	printf "\r%${COLUMNS}s" " "
+	printf "\r\e[2K"
 	printf "\r\033[1;31m[DANGER]\033[0m %s\n" "$@"
 }
 
 # format with 8 spaces instead of []
 log::tab() {
-	printf "\r%${COLUMNS}s" " "
+	printf "\r\e[2K"
 	printf "\r\033[0m         %s\n" "$@"
 }
 
 # do not print a newline, leave cursor at the end.
 # printing a different log:: will overwrite this one.
 log::prog() {
-	printf "\r%${COLUMNS}s" " "
+	printf "\r\e[2K"
 	printf "\r\033[1;37m[ \033[0m....\033[1;37m ]\033[0m %s " "$@"
 }
 
@@ -91,8 +90,8 @@ log::debug() {
 	# to enable debug to show up, make sure
 	# STD_LOG_DEBUG gets set "true" somewhere
 	[[ $STD_LOG_DEBUG != true ]] && return 0
-	# standard log:: line wiping
-	printf "\r%${COLUMNS}s" " "
+	# log:: line wiping
+	printf "\r\e[2K"
 	# if first time running, initiate debug time and return
 	if [[ -z $STD_LOG_DEBUG_INIT ]]; then
 		declare -g STD_LOG_DEBUG_INIT
