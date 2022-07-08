@@ -21,16 +21,14 @@
 
 #git <stdlib/lock.sh/35457d9>
 
-# lock()
-# ------
-# create a lock file. prevents
-# multiple instances of a
-# script/function taking place
-# because a lock will be found
-# by lock::alloc() and return error.
+# lock::alloc(), lock::free() & lock::trap()
+# ------------------------------------------
+# create a lock file. prevents multiple instances
+# of a script/function taking place because a lock
+# will be found by lock::alloc() and return error.
 #
-# GLOBAL ARRAY HOLDING ALL LOCK PATHS:
-# $STD_LOCK_FILE
+# THIS GLOBAL ARRAY HOLDS ALL LOCK PATHS:
+#            $STD_LOCK_FILE
 #
 # 99% bash builtins.
 # how is rm not a builtin yet?
@@ -48,10 +46,9 @@
 # exit 0                 <-- INCORRECT USAGE
 #                            ---------------
 #                            in order to not override user programmed traps,
-#                            lock::alloc, on purpose, does not include an
-#                            auto-delete-on-exit trap, you must create
-#                            your own trap with a removal or manually free
-#                            the lock like so:
+#                            lock::alloc, on purpose, does not include the
+#                            auto-delete-on-exit lock::trap() by default.
+#                            however, you can manually free the lock like so:
 #
 # lock::free hello       <-- the lock with key "hello" will now be unlocked,
 #                            /tmp/std_lock_hello_5c1... will be deleted, and
@@ -64,23 +61,24 @@
 #
 # lock::free one two     <-- and freed at the same time
 
-# MAKING AUTO-DELETE TRAP
-# -----------------------
-# $STD_LOCK_FILE is the global associative array
-# that holds all the full paths to the locks created
-# by lock::alloc(). you can include it
-# in an exit trap to automatically delete the locks
-# on exit, or any other signal.
+# MAKING AUTO-DELETE TRAPS AND lock::trap()
+# -----------------------------------------
+# $STD_LOCK_FILE is the global array that holds all
+# the full paths to the locks created by lock::alloc().
+# you can use lock::trap() to cleanup ALL locks, and
+# include it in a trap to auto-clean on a signal.
 #
 # EXAMPLES
 # -------
-# trap 'command rm ${STD_LOCK_FILE[@]}' EXIT       <-- this will delete every single lock file
-#                                                      on script exit. be aware that setting
-#                                                      a trap overrides the previous one if set,
-#                                                      which is why this is not on by default.
+# trap 'lock::trap' EXIT                          <-- this will delete ALL lock files on
+#                                                     script exit. be aware that setting a
+#                                                     trap overrides the previous one if set,
+#                                                     which is why this is not on by default.
 #
-# trap 'command rm ${STD_LOCK_FILE[sync]}' EXIT    <-- this will only delete the lock with the
-#                                                      keyname "sync", on exit.
+# trap 'lock::free ${STD_LOCK_FILE[sync]}' EXIT   <-- this will only free the lock with the
+#                                                     keyname "sync", on exit.
+#
+# trap 'other_thing; lock::trap' EXIT             <-- you can always chainlink commands/functions
 
 lock::alloc() {
 	# ultra paranoid safety measures (unset bash builtins)
@@ -126,7 +124,7 @@ lock::alloc() {
 		shift || return 45
 	done
 	# READ USAGE ABOVE IF YOU WANT TO USE THIS
-	#trap 'command rm ${STD_LOCK_TRAP[@]}' EXIT || return 46
+	#trap 'lock::trap' EXIT || return 46
 }
 
 lock::free() {
@@ -137,10 +135,23 @@ lock::free() {
 	unset -v POSIXLY_CORRECT || return 10
 	[[ $# = 0 ]] && return 11
 
-	# free lock
+	# free locks
 	local i || return 20
 	for i in $@; do
 		command rm "${STD_LOCK_FILE[${i}]}" || return 22
 		unset -v STD_LOCK_FILE[$i] || return 23
 	done
+}
+
+lock::trap() {
+	# ultra paranoid safety measures (unset bash builtins)
+	POSIXLY_CORRECT= || return 7
+	\unset -f unset return rm command || return 8
+	\unalias -a || return 9
+	unset -v POSIXLY_CORRECT || return 10
+
+	# removes and unsets locks whether they
+	# exist or not. these will never error.
+	command rm "${STD_LOCK_FILE[@]}" || true
+	unset -v STD_LOCK_FILE || true
 }
