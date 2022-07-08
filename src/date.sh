@@ -19,7 +19,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib/date.sh/1611706>
+#git <stdlib/date.sh/59ba0e7>
 
 # date()
 # ------

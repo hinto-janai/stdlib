@@ -19,7 +19,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib/log.sh/1611706>
+#git <stdlib/log.sh/59ba0e7>
 
 # log()
 # -----
@@ -80,10 +80,10 @@ log::prog() {
 # $STD_LOG_DEBUG_VERBOSE - "true" will show line + function stack
 #
 # EXAMPLE OUTPUT:
-# [debug 0.000000] init debug message
-# [debug 1.000000] this is 1 second after
-# [debug 1.000546] 5.46 milliseconds after
-# [debug 1.043411] 138: func() 155: main() | this one's verbose
+# [log::debug 0.000000] init debug message
+# [log::debug 1.000000] this is 1 second after
+# [log::debug 1.000546] 5.46 milliseconds after
+# [log::debug 1.043411] 138: func() 155: main() | this one's verbose
 #
 # 100% bash builtins, no external programs.
 log::debug() {
@@ -96,14 +96,14 @@ log::debug() {
 	if [[ -z $STD_LOG_DEBUG_INIT ]]; then
 		declare -g STD_LOG_DEBUG_INIT
 		STD_LOG_DEBUG_INIT=${EPOCHREALTIME//./}
-		printf "\r\033[1;90m%s\033[0m" "[debug 0.000000] "
+		printf "\r\033[1;90m%s\033[0m" "[log::debug 0.000000] "
 		# print line + function stack
 		if [[ $STD_LOG_DEBUG_VERBOSE = true ]]; then
 			local f i
 			i=1
 			for f in ${BASH_LINENO[@]}; do
 				[[ $f = 0 ]] && break
-				printf "\033[0;91m%s\033[1;92m%s\033[0m" "${f}: " "${FUNCNAME[${i}]}() "
+				printf "\033[1;91m%s\033[1;92m%s\033[0m" "${f}: " "${FUNCNAME[${i}]}() "
 				((i++))
 			done
 		fi
@@ -137,14 +137,14 @@ log::debug() {
 	# if 6 digits long, that means one second
 	# hasn't even passed, so just print 0.$the_number
 	if [[ $STD_LOG_DEBUG_DOT -eq 0 ]]; then
-		printf "\r\033[1;90m%s\033[0m" "[debug 0.${STD_LOG_DEBUG_ADJUSTED}] "
+		printf "\r\033[1;90m%s\033[0m" "[log::debug 0.${STD_LOG_DEBUG_ADJUSTED}] "
 		# print line + function stack
 		if [[ $STD_LOG_DEBUG_VERBOSE = true ]]; then
 			local f i
 			i=1
 			for f in ${BASH_LINENO[@]}; do
 				[[ $f = 0 ]] && break
-				printf "\033[0;91m%s\033[1;92m%s\033[0m" "${f}: " "${FUNCNAME[${i}]}() "
+				printf "\033[1;91m%s\033[1;92m%s\033[0m" "${f}: " "${FUNCNAME[${i}]}() "
 				((i++))
 			done
 		fi
@@ -152,14 +152,14 @@ log::debug() {
 		printf "| %s\n" "$@"
 	else
 	# else print the integer, '.', then decimals
-		printf "\r\033[1;90m%s\033[0m" "[debug ${STD_LOG_DEBUG_ADJUSTED:0:${STD_LOG_DEBUG_DOT}}.${STD_LOG_DEBUG_ADJUSTED:${STD_LOG_DEBUG_DOT}}] "
+		printf "\r\033[1;90m%s\033[0m" "[log::debug ${STD_LOG_DEBUG_ADJUSTED:0:${STD_LOG_DEBUG_DOT}}.${STD_LOG_DEBUG_ADJUSTED:${STD_LOG_DEBUG_DOT}}] "
 		# print line + function stack
 		if [[ $STD_LOG_DEBUG_VERBOSE = true ]]; then
 			local f i
 			i=1
 			for f in ${BASH_LINENO[@]}; do
 				[[ $f = 0 ]] && break
-				printf "\033[0;91m%s\033[1;92m%s\033[0m" "${f}: " "${FUNCNAME[${i}]}() "
+				printf "\033[1;91m%s\033[1;92m%s\033[0m" "${f}: " "${FUNCNAME[${i}]}() "
 				((i++))
 			done
 		fi
