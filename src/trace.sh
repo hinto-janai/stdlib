@@ -48,7 +48,7 @@
 #                                                              #
 # true | true | false | true                                   #
 #                 ^                                            #
-#                 |_ this will trigger trace                   #
+#                 |_ this will trigger trace()                 #
 ################################################################
 # CONDITIONAL ERRORS                                           #
 # ------------------------------------------------------------ #
@@ -62,18 +62,26 @@
 # fi                         will not consider it an error.    #
 #                                                              #
 # [[ -n $NULL_VAR ]] || echo "this is immune too"              #
-# [[ -n $NULL_VAR ]]    <-- this WILL trigger trace though     #
+#                                                              #
+# [[ -n $NULL_VAR ]]     <-- this WILL trigger trace() though  #
 ###################################################################################
 # EXAMPLE CODE                                                                    #
 # ------------------------------------------------------------------------------- #
-# ___BEGIN___ERROR___TRACE___  <-- this function begins the trace                 #
+# ___BEGIN___ERROR___TRACE___  <-- this function initiates trace()                #
 #                                                                                 #
 # echo "good command"          <-- these commands will run fine                   #
 # echo "this is fine"                                                             #
-# bad_command                  <-- this will trigger trace + debug + exit         #
-# rm -rf /*                    <-- this dangerous command will never go off       #
 #                                                                                 #
-# ___ENDOF___ERROR___TRACE___  <-- this closes, and disables the trace            #
+# VAR=$(null_command)          <-- this null_command will FAIL and trigger        #
+#                                  trace + debug + exit. without trace(), $VAR    #
+#                                  would now be NULL or "", making the next       #
+#                                  command catastrophic.                          #
+#                                                                                 #
+# rm -rf $VAR/*                <-- this dangerous rm won't execute because        #
+#                                  trace() exit on the last command. without it,  #
+#                                  this would remove your /* root directory.      #
+#                                                                                 #
+# ___ENDOF___ERROR___TRACE___  <-- this closes, and disables trace()              #
 ###################################################################################
 
 ___BEGIN___ERROR___TRACE___() {

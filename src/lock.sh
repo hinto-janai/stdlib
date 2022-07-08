@@ -29,33 +29,69 @@
 # because a lock will be found
 # by lock::alloc and return error.
 #
-# 99% bash builtin.
+# 99% bash builtins.
 # how is rm not a builtin yet?
 
+# USAGE
+# -----
+# lock::alloc hello      <-- this makes an associative key-pair in the
+#                            $STD_LOCK_FILE array. the key = your input,
+#                            and the actual array value (and lock file name)
+#                            is your input + a random UUID from the kernel.
+#                            ${STD_LOCK_FILE[my_lock]}'s value will look something like:
+#                            hello_5c11f6dd-a7e8-4e55-a9fe-1f6bc6ae612b
+#                            which will be stored in /tmp/, as in /tmp/hello_5c1...
+#
+# exit 0                 <-- lock::alloc sets a trap to remove the lock
+#                            automatically on exit, or you can manually
+#                            unlock a lock by doing:
+#
+# lock::free hello       <-- the lock with key "hello" will now be unlocked,
+#                            a.k.a, /tmp/hello_5c1... will be deleted.
+
 lock::alloc() {
-	# remove lock on exit
-	trap 'lock::free' EXIT || return 11
+	# ultra paranoid safety measures (unset bash builtins)
+	POSIXLY_CORRECT= || return 7
+	\unset -f umask trap set return echo unset local return unalias mapfile command || return 8
+	\unalias -a || return 9
+	unset -v POSIXLY_CORRECT || return 10
+
+	# no input, return error
+	[[ -z $1 ]] && return 11
 	# make lock file var global
-	declare -g STD_LOCK_FILE || return 22
-	# $1 = the locks name
-	if [[ $1 ]]; then
-		STD_LOCK_FILE="$1" || return 33
-	else
-		STD_LOCK_FILE="$0" || return 44
-	fi
-	# attach UUID to lock name
-	local STD_LOCK_UUID || return 55
-	mapfile -n 1 STD_LOCK_UUID < /proc/sys/kernel/random/uuid || return 66
+	declare -g -A STD_LOCK_FILE || return 12
+	# lock already found, return error
+	[[ ${STD_LOCK_FILE[$1]} ]] && return 13
+	# remove lock on exit
+	trap 'lock::free "$1"' EXIT || return 14
+
+	# get lock UUID
+	local STD_LOCK_UUID || return 22
+	mapfile STD_LOCK_UUID < /proc/sys/kernel/random/uuid || return 23
 	STD_LOCK_UUID=${STD_LOCK_UUID[0]//$'\n'/}
 	STD_LOCK_UUID=${STD_LOCK_UUID//-/}
-	STD_LOCK_FILE="${STD_LOCK_FILE}_${STD_LOCK_UUID}"
+
+	# $1 = the locks name
+	STD_LOCK_FILE[$1]="${1}_${STD_LOCK_UUID}" || return 33
+
 	# create file in /tmp with 600 perms
 	local STD_DEFAULT_UMASK
 	STD_DEFAULT_UMASK=$(umask)
 	umask 177
-	echo "" > /tmp/"$STD_LOCK_FILE" || return 77
+	echo "" > /tmp/"${STD_LOCK_FILE[$1]}" || return 44
 	umask $STD_DEFAULT_UMASK
 	return 0
 }
 
-lock::free() { command rm /tmp/"$STD_LOCK_FILE"; }
+lock::free() {
+	# ultra paranoid safety measures (unset bash builtins)
+	POSIXLY_CORRECT= || return 7
+	\unset -f unset return rm command || return 8
+	\unalias -a || return 9
+	unset -v POSIXLY_CORRECT || return 10
+	[[ -z $1 ]] && return 11
+
+	# free lock
+	unset -v "${STD_LOCK_FILE[$1]}" || return 22
+	command rm /tmp/"${STD_LOCK_FILE[$1]}" || return 23
+}

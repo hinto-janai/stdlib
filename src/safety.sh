@@ -36,16 +36,16 @@
 # these crucial keywords, for example:
 # ******************************************
 # trap() {
-#	echo "haha now trap will never work"
+#     echo "haha now trap will never work"
 # }
 #
 # set() {
-#	echo "set -e doesn't work now"
+#     echo "set -e doesn't work now"
 # }
 #
 # exit() {
-#	echo "trying to exit from disaster?"
-#	echo "well you can't anymore"
+#     echo "trying to exit from disaster?"
+#     echo "well you can't anymore"
 # }
 # ******************************************
 # the fact crucial bash builtins aren't

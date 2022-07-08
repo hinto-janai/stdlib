@@ -25,14 +25,24 @@
 # --------
 # generate crypto.
 
-# fetch $1 bytes of /dev/random
+# get $1 bytes of /dev/random
 crypto::bytes() {
 	[[ $# = 0 ]] && return 1
 	head -c $1 /dev/random
 }
 
-# pick random number from 0-$1
+# get random number from 0-$1 or $1-$2
 crypto::num() {
-	[[ $# = 0 ]] && return 1
-	shuf -i 0-$1 -n 1
+	case $# in
+		1) shuf -i 0-$1 -n 1; return;;
+		2) shuf -i $1-$2 -n 1; return;;
+		*) return 1;;
+	esac
+}
+
+# get UUID from kernel (newline removed)
+crypto::uuid() {
+	local STD_CRYPTO_UUID || return 1
+	mapfile STD_CRYPTO_UUID < /proc/sys/kernel/random/uuid
+	printf "%s" ${STD_CRYPTO_UUID//$'\n'}
 }
