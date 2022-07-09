@@ -19,7 +19,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib/lock.sh/35457d9>
+#git <stdlib/lock.sh/a091726>
 
 # lock::alloc() & lock::free()
 # ----------------------------
@@ -102,7 +102,7 @@ lock::alloc() {
 		# instead of globbing ONLY IF there are no files found.
 		# if files were found, the -e will confirm they already
 		# exist, so we return error.
-		for f in /tmp/std_lock_${i}_*; do
+		for f in /tmp/std_lock_"$i"_*; do
 			[[ -e "$f" ]] && return 15
 		done
 	done
@@ -110,13 +110,12 @@ lock::alloc() {
 	# create lock
 	local STD_LOCK_UUID || return 22
 	until [[ $# = 0 ]]; do
-		debug
 		# create UUID
 		mapfile STD_LOCK_UUID < /proc/sys/kernel/random/uuid || return 23
-		STD_LOCK_UUID=${STD_LOCK_UUID[0]//$'\n'/}
-		STD_LOCK_UUID=${STD_LOCK_UUID//-/}
+		STD_LOCK_UUID[0]=${STD_LOCK_UUID[0]//$'\n'/}
+		STD_LOCK_UUID[0]=${STD_LOCK_UUID//-/}
 		# create lock name and keypair
-		STD_LOCK_FILE[$1]="/tmp/std_lock_${1}_${STD_LOCK_UUID}" || return 33
+		STD_LOCK_FILE[$1]="/tmp/std_lock_${1}_${STD_LOCK_UUID[0]}" || return 33
 		# create file in /tmp with 600 perms
 		local STD_DEFAULT_UMASK
 		STD_DEFAULT_UMASK=$(umask)
@@ -147,8 +146,8 @@ lock::free() {
 			return 0
 		else
 			# free locks normally
-			command rm "${STD_LOCK_FILE[${i}]}" || return 22
-			unset -v STD_LOCK_FILE[$i] || return 23
+			command rm "${STD_LOCK_FILE[$1]}" || return 22
+			unset -v "STD_LOCK_FILE[$1]" || return 23
 		fi
 		shift
 	done

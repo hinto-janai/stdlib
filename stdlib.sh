@@ -22,9 +22,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib.sh/df0c198>
-#nix <1657314974>
-#hbc <7a8caa0>
+#git <stdlib.sh/a091726>
+#nix <1657326313>
+#hbc <8d9a1fb>
 #src <ask.sh>
 #src <color.sh>
 #src <const.sh>
@@ -354,7 +354,7 @@ lock::alloc() {
 	set +f || return 13
 	local i f || return 14
 	for i in $@; do
-		for f in /tmp/std_lock_${i}_*; do
+		for f in /tmp/std_lock_"$i"_*; do
 			[[ -e "$f" ]] && return 15
 		done
 	done
@@ -386,7 +386,7 @@ lock::free() {
 			return 0
 		else
 			command rm "${STD_LOCK_FILE[${i}]}" || return 22
-			unset -v STD_LOCK_FILE[$i] || return 23
+			unset -v "STD_LOCK_FILE[$i]" || return 23
 		fi
 		shift
 	done
@@ -424,7 +424,7 @@ log::debug() {
 	if [[ -z $STD_LOG_DEBUG_INIT ]]; then
 		declare -g STD_LOG_DEBUG_INIT
 		STD_LOG_DEBUG_INIT=${EPOCHREALTIME//./}
-		printf "\r\e[2K\033[1;90m%s\033[0m%s" "[log::debug 0.000000] " "${BASH_LINENO}: $@ "
+		printf "\r\e[2K\033[1;90m%s\033[0m%s" "[log::debug 0.000000] " "${BASH_LINENO}: $* "
 		if [[ $STD_LOG_DEBUG_VERBOSE = true ]]; then
 			printf "\033[1;93m%s" "-> "
 			local f i
@@ -449,10 +449,10 @@ log::debug() {
 	esac
 	STD_LOG_DEBUG_DOT=$((${#STD_LOG_DEBUG_ADJUSTED}-6))
 	if [[ $STD_LOG_DEBUG_DOT -eq 0 ]]; then
-		printf "\r\e[2K\033[1;90m%s\033[0m%s" "[log::debug 0.${STD_LOG_DEBUG_ADJUSTED}] " "${BASH_LINENO}: $@ "
+		printf "\r\e[2K\033[1;90m%s\033[0m%s" "[log::debug 0.${STD_LOG_DEBUG_ADJUSTED}] " "${BASH_LINENO}: $* "
 	else
 		printf "\r\e[2K\033[1;90m%s\033[0m%s" \
-			"[log::debug ${STD_LOG_DEBUG_ADJUSTED:0:${STD_LOG_DEBUG_DOT}}.${STD_LOG_DEBUG_ADJUSTED:${STD_LOG_DEBUG_DOT}}] " "${BASH_LINENO}: $@ "
+			"[log::debug ${STD_LOG_DEBUG_ADJUSTED:0:${STD_LOG_DEBUG_DOT}}.${STD_LOG_DEBUG_ADJUSTED:${STD_LOG_DEBUG_DOT}}] " "${BASH_LINENO}: $* "
 	fi
 	if [[ $STD_LOG_DEBUG_VERBOSE = true ]]; then
 		printf "\033[1;93m%s" "-> "
