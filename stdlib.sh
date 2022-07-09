@@ -22,9 +22,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib.sh/a091726>
-#nix <1657326313>
-#hbc <8d9a1fb>
+#git <stdlib.sh/10d1bf8>
+#nix <1657373927>
+#hbc <808713c>
 #src <ask.sh>
 #src <color.sh>
 #src <const.sh>
@@ -360,11 +360,10 @@ lock::alloc() {
 	done
 	local STD_LOCK_UUID || return 22
 	until [[ $# = 0 ]]; do
-		debug
 		mapfile STD_LOCK_UUID < /proc/sys/kernel/random/uuid || return 23
-		STD_LOCK_UUID=${STD_LOCK_UUID[0]//$'\n'/}
-		STD_LOCK_UUID=${STD_LOCK_UUID//-/}
-		STD_LOCK_FILE[$1]="/tmp/std_lock_${1}_${STD_LOCK_UUID}" || return 33
+		STD_LOCK_UUID[0]=${STD_LOCK_UUID[0]//$'\n'/}
+		STD_LOCK_UUID[0]=${STD_LOCK_UUID//-/}
+		STD_LOCK_FILE[$1]="/tmp/std_lock_${1}_${STD_LOCK_UUID[0]}" || return 33
 		local STD_DEFAULT_UMASK
 		STD_DEFAULT_UMASK=$(umask)
 		umask 177
@@ -385,8 +384,8 @@ lock::free() {
 			unset -v STD_LOCK_FILE || :
 			return 0
 		else
-			command rm "${STD_LOCK_FILE[${i}]}" || return 22
-			unset -v "STD_LOCK_FILE[$i]" || return 23
+			command rm "${STD_LOCK_FILE[$1]}" || return 22
+			unset -v "STD_LOCK_FILE[$1]" || return 23
 		fi
 		shift
 	done
@@ -480,7 +479,7 @@ malloc::arr() {
 	local i || return 22
 	for i in $@; do
 		declare -p ${i/=*/} &>/dev/null && return 33
-		declare -a $i || return 44
+		declare -g -a $i || return 44
 	done
 	return 0
 }
@@ -489,7 +488,7 @@ malloc::ass() {
 	local i || return 22
 	for i in $@; do
 		declare -p ${i/=*/} &>/dev/null && return 33
-		declare -A $i || return 44
+		declare -g -A $i || return 44
 	done
 	return 0
 }
@@ -498,7 +497,7 @@ malloc::int() {
 	local i || return 22
 	for i in $@; do
 		declare -p ${i/=*/} &>/dev/null && return 33
-		declare -i $i || return 44
+		declare -g -i $i || return 44
 	done
 	return 0
 }

@@ -90,7 +90,7 @@ malloc::arr() {
 	local i || return 22
 	for i in $@; do
 		declare -p ${i/=*/} &>/dev/null && return 33
-		declare -a $i || return 44
+		declare -g -a $i || return 44
 	done
 	return 0
 }
@@ -101,7 +101,7 @@ malloc::ass() {
 	local i || return 22
 	for i in $@; do
 		declare -p ${i/=*/} &>/dev/null && return 33
-		declare -A $i || return 44
+		declare -g -A $i || return 44
 	done
 	return 0
 }
@@ -112,7 +112,7 @@ malloc::int() {
 	local i || return 22
 	for i in $@; do
 		declare -p ${i/=*/} &>/dev/null && return 33
-		declare -i $i || return 44
+		declare -g -i $i || return 44
 	done
 	return 0
 }
