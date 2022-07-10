@@ -19,7 +19,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib/crypto.sh/3bafba8>
+#git <stdlib/crypto.sh/f698951>
 
 # crypto()
 # --------
@@ -46,3 +46,18 @@ crypto::uuid() {
 	mapfile STD_CRYPTO_UUID < /proc/sys/kernel/random/uuid
 	printf "%s" ${STD_CRYPTO_UUID//$'\n'}
 }
+
+# use gpg to encrypt input with a passphrase
+# and return a pgp message
+# USAGE: crypto::encrypt "input_to_encrypt" "passphrase"
+crypto::encrypt() {
+	[[ $# != 2 ]] && return 1
+	printf "%s\n" "$1" | gpg --batch --symmetric --armor --quiet --cipher-algo AES256 --passphrase "$2"
+}
+
+# decrypts the above function
+# USAGE: crypto::decrypt "input_to_decrypt" "passphrase"
+crypto::decrypt() {
+	printf "%s\n" "$1" | gpg --batch --decrypt --quiet --passphrase "$2"
+}
+
