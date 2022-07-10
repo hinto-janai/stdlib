@@ -19,7 +19,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib/is.sh/a091726>
+#git <stdlib/is.sh/db11450>
 
 # is()
 # ----
@@ -34,15 +34,15 @@ is::int() {
 	if [[ -p /dev/stdin ]]; then
 		local i || return 11
 		for i in $(</dev/stdin); do
-			[ $i -eq $i ] &>/dev/null || return 22
+			[ $i -eq $i ] &>/dev/null || { STD_TRACE_RETURN="not integer: $i"; return 22; }
 		done
 		return 0
 	fi
 	# regular input
 	[[ $# = 0 ]] && return 33
 	local i || return 44
-	for i in $@; do
-		[ $i -eq $i ] &>/dev/null || return 55
+	for i in "$@"; do
+		[ $i -eq $i ] &>/dev/null || { STD_TRACE_RETURN="not integer: $i"; return 55; }
 	done
 }
 
@@ -51,17 +51,17 @@ is::int_pos() {
 	if [[ -p /dev/stdin ]]; then
 		local i || return 11
 		for i in $(</dev/stdin); do
-			[ $i -gt -1 ] &>/dev/null || return 22
-			[ $i -eq $i ] &>/dev/null || return 33
+			[ $i -gt -1 ] &>/dev/null || { STD_TRACE_RETURN="not pos int: $i"; return 22; }
+			[ $i -eq $i ] &>/dev/null || { STD_TRACE_RETURN="not pos int: $i"; return 33; }
 		done
 		return 0
 	fi
 	# regular input
 	[[ $# = 0 ]] && return 44
 	local i || return 55
-	for i in $@; do
-		[ $i -gt -1 ] &>/dev/null || return 66
-		[ $i -eq $i ] &>/dev/null || return 77
+	for i in "$@"; do
+		[ $i -gt -1 ] &>/dev/null || { STD_TRACE_RETURN="not pos int: $i"; return 66; }
+		[ $i -eq $i ] &>/dev/null || { STD_TRACE_RETURN="not pos int: $i"; return 77; }
 	done
 }
 
@@ -70,16 +70,16 @@ is::int_neg() {
 	if [[ -p /dev/stdin ]]; then
 		local i || return 11
 		for i in $(</dev/stdin); do
-			[ $i -lt 0 ] &>/dev/null || return 22
-			[ $i -eq $i ] &>/dev/null || return 33
+			[ $i -lt 0 ] &>/dev/null || { STD_TRACE_RETURN="not neg int: $i"; return 22; }
+			[ $i -eq $i ] &>/dev/null || { STD_TRACE_RETURN="not neg int: $i"; return 33; }
 		done
 		return 0
 	fi
 	# regular input
 	[[ $# = 0 ]] && return 44
 	local i || return 55
-	for i in $@; do
-		[ $i -lt 0 ] &>/dev/null || return 66
-		[ $i -eq $i ] &>/dev/null || return 77
+	for i in "$@"; do
+		[ $i -lt 0 ] &>/dev/null || { STD_TRACE_RETURN="not neg int: $i"; return 66; }
+		[ $i -eq $i ] &>/dev/null || { STD_TRACE_RETURN="not neg int: $i"; return 77; }
 	done
 }

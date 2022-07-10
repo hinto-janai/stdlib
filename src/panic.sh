@@ -19,7 +19,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib/panic.sh/a091726>
+#git <stdlib/panic.sh/db11450>
 
 # panic()
 # ------
@@ -37,7 +37,7 @@ panic() {
 	\unset -f trap set return exit printf echo local unalias unset builtin kill || exit 22
 	\unalias -a || exit 33
 	unset POSIXLY_CORRECT || exit 44
-	printf "\033[0;m%s\n" "@@@@@@@@  panic  @@@@@@@@"
+	printf "\e[7m\033[0;m%s\033[0m\n" "@@@@@@@@  panic  @@@@@@@@"
 	# get command based off line number from $STD_TRACE_CMD_NUM
 	local STD_PANIC_CMD
 	mapfile -s $((STD_TRACE_CMD_NUM-1)) -n 1 STD_PANIC_CMD < $0
@@ -102,6 +102,6 @@ panic() {
 	while :; do read -s -r; done
 	# just in case, kill and exit
 	printf "\033[0;m%s\n" "@ loop fail, killing \$$ @"
-	builtin kill $$
+	builtin kill -s KILL 0
 	[[ $1 =~ ^[0-9]+$ ]] && exit $1 || exit 99
 }

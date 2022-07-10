@@ -19,7 +19,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib/trace.sh/a091726>
+#git <stdlib/trace.sh/db11450>
 
 # trace()
 # -------
@@ -83,6 +83,27 @@
 #                                                                                 #
 # ___ENDOF___ERROR___TRACE___  <-- this closes, and disables trace()              #
 ###################################################################################
+# $STD_TRACE_RETURN ENVIRONMENTAL VARIABLE #
+# ---------------------------------------- #
+# trace() has a special environmental      #
+# variable called: $STD_TRACE_RETURN. this #
+# variable is scattered throughout certain #
+# stdlib error-prone functions. it gives   #
+# trace() an extra line of information on  #
+# how the stdlib function failed,          #
+# example output:                          #
+#                                          #
+# [STD_TRACE_RETURN] array found: a[0]=hi  #
+#              ^                           #
+#              |_ this means array()       #
+#                 found an array that      #
+#                 you tried to declare.    #
+#                                          #
+# it's possible to set this variable in    #
+# regular code, but it may prove useful    #
+# to not do so and keep regular errors     #
+# and stdlib function errors distinct.     #
+############################################
 
 ___BEGIN___ERROR___TRACE___() {
 	# ultra paranoid safety measures (unset bash builtins)
@@ -185,6 +206,8 @@ ___ENDOF___ERROR___TRACE___() {
 		fi
 		((STD_TRACE_CMD_NUM++))
 	done
+	# STD_TRACE_RETURN
+	[[ $STD_TRACE_RETURN ]] && printf "\e[38;5;196m%s\e[0;1m%s\e[0m\n" "[STD_TRACE_RETURN]" " $STD_TRACE_RETURN"
 	printf "\033[1;91m%s\033[0m\n" "========  ENDOF ERROR TRACE  ========"
 	# disarm and exit
 	unset -v STD_TRACE_CMD STD_TRACE_FUNC_NUM STD_TRACE_CMD_NUM STD_TRACE_PIPE || exit 26

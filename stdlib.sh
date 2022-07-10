@@ -22,8 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib.sh/10d1bf8>
-#nix <1657373927>
+#git <stdlib.sh/db11450>
+#nix <1657420525>
 #hbc <808713c>
 #src <ask.sh>
 #src <color.sh>
@@ -36,10 +36,11 @@
 #src <is.sh>
 #src <lock.sh>
 #src <log.sh>
-#src <malloc.sh>
 #src <panic.sh>
+#src <readonly.sh>
 #src <safety.sh>
 #src <trace.sh>
+#src <type.sh>
 
 #-------------------------------------------------------------------------------- BEGIN SRC
 ask::yes() {
@@ -86,39 +87,62 @@ color::ipurple() { printf "\033[0;95m" ;}
 color::icyan() { printf "\033[0;96m" ;}
 color::iwhite() { printf "\033[0;97m" ;}
 color::off() { printf "\033[0m" ;}
-readonly BLACK="\033[0;30m"
-readonly RED="\033[0;31m"
-readonly GREEN="\033[0;32m"
-readonly YELLOW="\033[0;33m"
-readonly BLUE="\033[0;34m"
-readonly PURPLE="\033[0;35m"
-readonly CYAN="\033[0;36m"
-readonly WHITE="\033[0;37m"
-readonly BBLACK="\033[1;90m"
-readonly BRED="\033[1;91m"
-readonly BGREEN="\033[1;92m"
-readonly BYELLOW="\033[1;93m"
-readonly BBLUE="\033[1;94m"
-readonly BPURPLE="\033[1;95m"
-readonly BCYAN="\033[1;96m"
-readonly BWHITE="\033[1;97m"
-readonly UBLACK="\033[4;30m"
-readonly URED="\033[4;31m"
-readonly UGREEN="\033[4;32m"
-readonly UYELLOW="\033[4;33m"
-readonly UBLUE="\033[4;34m"
-readonly UPURPLE="\033[4;35m"
-readonly UCYAN="\033[4;36m"
-readonly UWHITE="\033[4;37m"
-readonly IBLACK="\033[0;90m"
-readonly IRED="\033[0;91m"
-readonly IGREEN="\033[0;92m"
-readonly IYELLOW="\033[0;93m"
-readonly IBLUE="\033[0;94m"
-readonly IPURPLE="\033[0;95m"
-readonly ICYAN="\033[0;96m"
-readonly IWHITE="\033[0;97m"
-readonly OFF="\033[0m"
+const::char() {
+	[[ $# = 0 ]] && return 11
+	local i || return 22
+	for i in "$@"; do
+		declare -p "$i" &>/dev/null || { STD_TRACE_RETURN="char not found: $i"; return 33; }
+		declare -r -g "$i" || return 44
+	done
+	return 0
+}
+const::array() {
+	[[ $# = 0 ]] && return 11
+	local i || return 22
+	for i in "$@"; do
+		declare -p "$i" &>/dev/null || { STD_TRACE_RETURN="array not found: $i"; return 33; }
+		declare -r -g -a "$i" || return 44
+	done
+	return 0
+}
+const::map() {
+	[[ $# = 0 ]] && return 11
+	local i || return 22
+	for i in "$@"; do
+		declare -p "$i" &>/dev/null || { STD_TRACE_RETURN="map not found: $i"; return 33; }
+		declare -r -g -A "$i" || return 44
+	done
+	return 0
+}
+const::int() {
+	[[ $# = 0 ]] && return 11
+	local i || return 22
+	for i in "$@"; do
+		case "$i" in
+			''|*[!0-9]*) { STD_TRACE_RETURN="not integer: $i"; return 33; } ;;
+		esac
+		declare -p "$i" &>/dev/null || { STD_TRACE_RETURN="integer not found: $i"; return 44; }
+		declare -r -g -i "$i" || return 55
+	done
+	return 0
+}
+const::bool() {
+	[[ $# = 0 ]] && return 11
+	local i || return 22
+	for i in "$@"; do
+		declare -p "$i" &>/dev/null || { STD_TRACE_RETURN="bool not found: $i"; return 33; }
+		declare -r -g "$i" || return 44
+	done
+}
+const::ref() {
+	[[ $# = 0 ]] && return 11
+	local i || return 22
+	for i in "$@"; do
+		declare -p "$i" &>/dev/null || { STD_TRACE_RETURN="ref not found: $i"; return 33; }
+		declare -r -g -n "$i" || return 44
+	done
+	return 0
+}
 crypto::bytes() {
 	[[ $# = 0 ]] && return 1
 	head -c $1 /dev/random
@@ -214,7 +238,7 @@ guard() {
 		mapfile -O $((BASH_LINENO-1)) -s $BASH_LINENO STD_TMP_GUARD_HASH < "$0";
 		printf "%s" "${STD_TMP_GUARD_HASH[@]}" | sha1sum) || return 22
 	if [[ ${STD_GUARD_HASH// */} != "$1" ]]; then
-		printf "%s\n" "${STD_GUARD_HASH// */}"
+		STD_TRACE_RETURN="bad guard() hash, real: ${STD_GUARD_HASH// */}"
 		return 33
 	fi
 }
@@ -302,46 +326,46 @@ is::int() {
 	if [[ -p /dev/stdin ]]; then
 		local i || return 11
 		for i in $(</dev/stdin); do
-			[ $i -eq $i ] &>/dev/null || return 22
+			[ $i -eq $i ] &>/dev/null || { STD_TRACE_RETURN="not integer: $i"; return 22; }
 		done
 		return 0
 	fi
 	[[ $# = 0 ]] && return 33
 	local i || return 44
-	for i in $@; do
-		[ $i -eq $i ] &>/dev/null || return 55
+	for i in "$@"; do
+		[ $i -eq $i ] &>/dev/null || { STD_TRACE_RETURN="not integer: $i"; return 55; }
 	done
 }
 is::int_pos() {
 	if [[ -p /dev/stdin ]]; then
 		local i || return 11
 		for i in $(</dev/stdin); do
-			[ $i -gt -1 ] &>/dev/null || return 22
-			[ $i -eq $i ] &>/dev/null || return 33
+			[ $i -gt -1 ] &>/dev/null || { STD_TRACE_RETURN="not pos int: $i"; return 22; }
+			[ $i -eq $i ] &>/dev/null || { STD_TRACE_RETURN="not pos int: $i"; return 33; }
 		done
 		return 0
 	fi
 	[[ $# = 0 ]] && return 44
 	local i || return 55
-	for i in $@; do
-		[ $i -gt -1 ] &>/dev/null || return 66
-		[ $i -eq $i ] &>/dev/null || return 77
+	for i in "$@"; do
+		[ $i -gt -1 ] &>/dev/null || { STD_TRACE_RETURN="not pos int: $i"; return 66; }
+		[ $i -eq $i ] &>/dev/null || { STD_TRACE_RETURN="not pos int: $i"; return 77; }
 	done
 }
 is::int_neg() {
 	if [[ -p /dev/stdin ]]; then
 		local i || return 11
 		for i in $(</dev/stdin); do
-			[ $i -lt 0 ] &>/dev/null || return 22
-			[ $i -eq $i ] &>/dev/null || return 33
+			[ $i -lt 0 ] &>/dev/null || { STD_TRACE_RETURN="not neg int: $i"; return 22; }
+			[ $i -eq $i ] &>/dev/null || { STD_TRACE_RETURN="not neg int: $i"; return 33; }
 		done
 		return 0
 	fi
 	[[ $# = 0 ]] && return 44
 	local i || return 55
-	for i in $@; do
-		[ $i -lt 0 ] &>/dev/null || return 66
-		[ $i -eq $i ] &>/dev/null || return 77
+	for i in "$@"; do
+		[ $i -lt 0 ] &>/dev/null || { STD_TRACE_RETURN="not neg int: $i"; return 66; }
+		[ $i -eq $i ] &>/dev/null || { STD_TRACE_RETURN="not neg int: $i"; return 77; }
 	done
 }
 lock::alloc() {
@@ -353,9 +377,9 @@ lock::alloc() {
 	declare -g -A STD_LOCK_FILE || return 12
 	set +f || return 13
 	local i f || return 14
-	for i in $@; do
+	for i in "$@"; do
 		for f in /tmp/std_lock_"$i"_*; do
-			[[ -e "$f" ]] && return 15
+			[[ -e "$f" ]] && { STD_TRACE_RETURN="lock file found: $f"; return 15; }
 		done
 	done
 	local STD_LOCK_UUID || return 22
@@ -384,7 +408,7 @@ lock::free() {
 			unset -v STD_LOCK_FILE || :
 			return 0
 		else
-			command rm "${STD_LOCK_FILE[$1]}" || return 22
+			command rm "${STD_LOCK_FILE[$1]}" || { STD_TRACE_RETURN="lock rm fail: ${STD_LOCK_FILE[$1]}"; return 22; }
 			unset -v "STD_LOCK_FILE[$1]" || return 23
 		fi
 		shift
@@ -465,67 +489,13 @@ log::debug() {
 	fi
 	printf "\033[0m\n"
 }
-malloc() {
-	[[ $# = 0 ]] && return 11
-	local i || return 22
-	for i in $@; do
-		declare -p ${i/=*/} &>/dev/null && return 33
-		declare -g $i || return 44
-	done
-	return 0
-}
-malloc::arr() {
-	[[ $# = 0 ]] && return 11
-	local i || return 22
-	for i in $@; do
-		declare -p ${i/=*/} &>/dev/null && return 33
-		declare -g -a $i || return 44
-	done
-	return 0
-}
-malloc::ass() {
-	[[ $# = 0 ]] && return 11
-	local i || return 22
-	for i in $@; do
-		declare -p ${i/=*/} &>/dev/null && return 33
-		declare -g -A $i || return 44
-	done
-	return 0
-}
-malloc::int() {
-	[[ $# = 0 ]] && return 11
-	local i || return 22
-	for i in $@; do
-		declare -p ${i/=*/} &>/dev/null && return 33
-		declare -g -i $i || return 44
-	done
-	return 0
-}
-free() {
-	[[ $# = 0 ]] && return 11
-	local i || return 22
-	for i in $@; do
-		declare -p ${i/=*/} &>/dev/null || return 33
-		unset -v $i || return 44
-	done
-	return 0
-}
-free::func() {
-	[[ $# = 0 ]] && return 11
-	local i || return 22
-	for i in $@; do
-		declare -F $i &>/dev/null || return 33
-		unset -f $i || return 44
-	done
-	return 0
-}
 panic() {
 	local STD_PANIC_CODE="$?" STD_TRACE_FUNC=("${BASH_LINENO[@]}") STD_TRACE_CMD_NUM=${BASH_LINENO[0]}|| exit 98
 	POSIXLY_CORRECT= || exit 11
 	\unset -f trap set return exit printf echo local unalias unset builtin kill || exit 22
 	\unalias -a || exit 33
 	unset POSIXLY_CORRECT || exit 44
-	printf "\033[0;m%s\n" "@@@@@@@@  panic  @@@@@@@@"
+	printf "\e[7m\033[0;m%s\033[0m\n" "@@@@@@@@  panic  @@@@@@@@"
 	local STD_PANIC_CMD
 	mapfile -s $((STD_TRACE_CMD_NUM-1)) -n 1 STD_PANIC_CMD < $0
 	printf "\033[1;95m%s\033[0m%s\n" "[bash] " "$BASH_VERSION"
@@ -577,17 +547,54 @@ panic() {
 	printf "\033[0;m%s\n" "@@@@@@@@  panic  @@@@@@@@"
 	while :; do read -s -r; done
 	printf "\033[0;m%s\n" "@ loop fail, killing \$$ @"
-	builtin kill $$
+	builtin kill -s KILL 0
 	[[ $1 =~ ^[0-9]+$ ]] && exit $1 || exit 99
 }
+readonly BLACK="\033[0;30m"
+readonly RED="\033[0;31m"
+readonly GREEN="\033[0;32m"
+readonly YELLOW="\033[0;33m"
+readonly BLUE="\033[0;34m"
+readonly PURPLE="\033[0;35m"
+readonly CYAN="\033[0;36m"
+readonly WHITE="\033[0;37m"
+readonly BBLACK="\033[1;90m"
+readonly BRED="\033[1;91m"
+readonly BGREEN="\033[1;92m"
+readonly BYELLOW="\033[1;93m"
+readonly BBLUE="\033[1;94m"
+readonly BPURPLE="\033[1;95m"
+readonly BCYAN="\033[1;96m"
+readonly BWHITE="\033[1;97m"
+readonly UBLACK="\033[4;30m"
+readonly URED="\033[4;31m"
+readonly UGREEN="\033[4;32m"
+readonly UYELLOW="\033[4;33m"
+readonly UBLUE="\033[4;34m"
+readonly UPURPLE="\033[4;35m"
+readonly UCYAN="\033[4;36m"
+readonly UWHITE="\033[4;37m"
+readonly IBLACK="\033[0;90m"
+readonly IRED="\033[0;91m"
+readonly IGREEN="\033[0;92m"
+readonly IYELLOW="\033[0;93m"
+readonly IBLUE="\033[0;94m"
+readonly IPURPLE="\033[0;95m"
+readonly ICYAN="\033[0;96m"
+readonly IWHITE="\033[0;97m"
+readonly OFF="\033[0m"
 safety::builtin() {
 	POSIXLY_CORRECT= || exit 11
-	\unset -f $@ || exit 22
+	\unset -f "$@" || exit 22
 	\unalias -a || exit 33
 	unset POSIXLY_CORRECT || exit 44
 }
-safety::bash() { [[ ${BASH_VERSINFO[0]} -ge 5 ]] ;}
-safety::gnu_linux() { [[ $OSTYPE = linux-gnu* ]] ;}
+safety::bash() {
+	[[ ${BASH_VERSINFO[0]} -ge 5 ]] || { STD_TRACE_RETURN="bash not v5+: ${BASH_VERSINFO[0]}"; return 11; }
+}
+safety::gnu_linux() {
+	[[ $OSTYPE = linux-gnu* ]] || { STD_TRACE_RETURN="os not gnu/linux: $OSTYPE"; return 11; }
+}
 ___BEGIN___ERROR___TRACE___() {
 	POSIXLY_CORRECT= || exit 8
 	\unset -f : true false trap set return exit printf unset local return read unalias mapfile kill builtin wait || exit 9
@@ -663,6 +670,7 @@ ___ENDOF___ERROR___TRACE___() {
 		fi
 		((STD_TRACE_CMD_NUM++))
 	done
+	[[ $STD_TRACE_RETURN ]] && printf "\e[38;5;196m%s\e[0;1m%s\e[0m\n" "[STD_TRACE_RETURN]" " $STD_TRACE_RETURN"
 	printf "\033[1;91m%s\033[0m\n" "========  ENDOF ERROR TRACE  ========"
 	unset -v STD_TRACE_CMD STD_TRACE_FUNC_NUM STD_TRACE_CMD_NUM STD_TRACE_PIPE || exit 26
 	set +E +eo pipefail || exit 27
@@ -677,4 +685,84 @@ ___ENDOF___ERROR___TRACE___() {
 	while true; do read -s -r; done
 	while true; do false; done
 	while :; do :; done
+}
+char() {
+	[[ $# = 0 ]] && return 11
+	local i || return 22
+	for i in "$@"; do
+		declare -p ${i%=*} &>/dev/null && { STD_TRACE_RETURN="char already found: $i"; return 33; }
+		declare -g "$i" || return 44
+	done
+	return 0
+}
+array() {
+	[[ $# = 0 ]] && return 11
+	local i || return 22
+	for i in "$@"; do
+		{ declare -p ${i%=*} &>/dev/null || [[ -v ${i%=*} ]]; } && { STD_TRACE_RETURN="array already found: $i"; return 33; }
+		declare -g -a "$i" || return 44
+	done
+	return 0
+}
+map() {
+	[[ $# = 0 ]] && return 11
+	local i || return 22
+	for i in "$@"; do
+		{ declare -p ${i%=*} &>/dev/null || [[ -v ${i%=*} ]]; } && { STD_TRACE_RETURN="map already found: $i"; return 33; }
+		declare -g -A "$i" || return 44
+	done
+	return 0
+}
+int() {
+	[[ $# = 0 ]] && return 11
+	local i || return 22
+	for i in "$@"; do
+		if [[ $i = *=* ]]; then
+			case ${i/*=} in
+				''|*[!0-9]*) { STD_TRACE_RETURN="not integer: $i"; return 33; } ;;
+			esac
+		fi
+		declare -p ${i%=*} &>/dev/null && { STD_TRACE_RETURN="integer already found: $i"; return 44; }
+		declare -g -i "$i" || return 55
+	done
+	return 0
+}
+bool() {
+	[[ $# = 0 ]] && return 11
+	local i || return 22
+	for i in "$@"; do
+		declare -p ${i%=*} &>/dev/null && { STD_TRACE_RETURN="bool already found: $i"; return 33; }
+		case $i in
+			*=true) declare -g ${i%=*}=true || return 44 ;;
+			*=false) declare -g ${i%=*}=false || return 55 ;;
+			*) return 66 ;;
+		esac
+	done
+}
+ref() {
+	[[ $# = 0 ]] && return 11
+	local i || return 22
+	for i in "$@"; do
+		declare -p ${i%=*} &>/dev/null && { STD_TRACE_RETURN="ref already found: $i"; return 33; }
+		declare -g -n "$i" || return 44
+	done
+	return 0
+}
+free() {
+	[[ $# = 0 ]] && return 11
+	local i || return 22
+	for i in "$@"; do
+		{ declare -p ${i%=*} &>/dev/null || [[ -v ${i%=*} ]]; } || { STD_TRACE_RETURN="no var found: $i"; return 33; }
+		unset -v "$i" || return 44
+	done
+	return 0
+}
+free::func() {
+	[[ $# = 0 ]] && return 11
+	local i || return 22
+	for i in "$@"; do
+		declare -F "$i" &>/dev/null || { STD_TRACE_RETURN="no func found: $i"; return 33; }
+		unset -f "$i" || return 44
+	done
+	return 0
 }

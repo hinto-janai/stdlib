@@ -19,7 +19,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib/guard.sh/a091726>
+#git <stdlib/guard.sh/db11450>
 
 # guard()
 # -------
@@ -47,7 +47,7 @@ guard() {
 		mapfile -O $((BASH_LINENO-1)) -s $BASH_LINENO STD_TMP_GUARD_HASH < "$0";
 		printf "%s" "${STD_TMP_GUARD_HASH[@]}" | sha1sum) || return 22
 	if [[ ${STD_GUARD_HASH// */} != "$1" ]]; then
-		printf "%s\n" "${STD_GUARD_HASH// */}"
+		STD_TRACE_RETURN="bad guard() hash, real: ${STD_GUARD_HASH// */}"
 		return 33
 	fi
 }

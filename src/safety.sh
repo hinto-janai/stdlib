@@ -19,7 +19,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib/safety.sh/a091726>
+#git <stdlib/safety.sh/db11450>
 
 # safety()
 # --------
@@ -61,13 +61,17 @@
 # bash builtins, or exits on error.
 safety::builtin() {
 	POSIXLY_CORRECT= || exit 11
-	\unset -f $@ || exit 22
+	\unset -f "$@" || exit 22
 	\unalias -a || exit 33
 	unset POSIXLY_CORRECT || exit 44
 }
 
 # check for bash v5+ (2018+)
-safety::bash() { [[ ${BASH_VERSINFO[0]} -ge 5 ]] ;}
+safety::bash() {
+	[[ ${BASH_VERSINFO[0]} -ge 5 ]] || { STD_TRACE_RETURN="bash not v5+: ${BASH_VERSINFO[0]}"; return 11; }
+}
 
 # check for GNU/Linux
-safety::gnu_linux() { [[ $OSTYPE = linux-gnu* ]] ;}
+safety::gnu_linux() {
+	[[ $OSTYPE = linux-gnu* ]] || { STD_TRACE_RETURN="os not gnu/linux: $OSTYPE"; return 11; }
+}

@@ -19,7 +19,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib/lock.sh/a091726>
+#git <stdlib/lock.sh/db11450>
 
 # lock::alloc() & lock::free()
 # ----------------------------
@@ -97,13 +97,13 @@ lock::alloc() {
 	# the set below makes sure globbing is ENABLED for below
 	set +f || return 13
 	local i f || return 14
-	for i in $@; do
+	for i in "$@"; do
 		# the * below will NOT expand and become a literal '*'
 		# instead of globbing ONLY IF there are no files found.
 		# if files were found, the -e will confirm they already
 		# exist, so we return error.
 		for f in /tmp/std_lock_"$i"_*; do
-			[[ -e "$f" ]] && return 15
+			[[ -e "$f" ]] && { STD_TRACE_RETURN="lock file found: $f"; return 15; }
 		done
 	done
 
@@ -146,7 +146,7 @@ lock::free() {
 			return 0
 		else
 			# free locks normally
-			command rm "${STD_LOCK_FILE[$1]}" || return 22
+			command rm "${STD_LOCK_FILE[$1]}" || { STD_TRACE_RETURN="lock rm fail: ${STD_LOCK_FILE[$1]}"; return 22; }
 			unset -v "STD_LOCK_FILE[$1]" || return 23
 		fi
 		shift
