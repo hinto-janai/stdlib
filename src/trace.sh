@@ -19,7 +19,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib/trace.sh/db11450>
+#git <stdlib/trace.sh/55be512>
 
 # trace()
 # -------
@@ -52,18 +52,39 @@
 ################################################################
 # CONDITIONAL ERRORS                                           #
 # ------------------------------------------------------------ #
-# conditional tests are immune to trace():                     #
-# - test                                                       #
+# error'ed commands are immune to trace() if they              #
+# are handled by these conditional tests:                      #
 # - if then                                                    #
 # - && ||                                                      #
 #                                                              #
-# if bad_command; then   <-- even though bad_command failed,   #
-#     echo "its okay"        it's part of a test, so trace()   #
-# fi                         will not consider it an error.    #
+# if ! bad_command; then   <-- even though bad_command failed, #
+#     echo "its okay"          it's part of a test, so trace() #
+# fi                           will not consider it an error.  #
 #                                                              #
 # [[ -n $NULL_VAR ]] || echo "this is immune too"              #
 #                                                              #
-# [[ -n $NULL_VAR ]]     <-- this WILL trigger trace() though  #
+# [[ -n $NULL_VAR ]]       <-- this WILL trigger trace()       #
+#                              as it returns a raw error       #
+################################################################
+# MANUAL EXITS                                                 #
+# ------------------------------------------------------------ #
+# trace() will not trigger if you manually exit, even if the   #
+# exit code is non-zero, however, non-zero function returns    #
+# WILL count as errors and triggers trace().                   #
+#                                                              #
+# my_func() {                                                  #
+#     if ! pls_work; then                                      #
+#         exit 1           <-- this WON'T count as an error    #
+#     fi                       and trace() WILL NOT trigger    #
+#                                                              #
+#     if ! pls_work; then                                      #
+#         return 1         <-- this WILL count as an error     #
+#     fi                       and trace() WILL trigger        #
+#                                                              #
+#     exit 1               <-- conditionals not required,      #
+#                              a raw exit will behave the      #
+#                              same and NOT trigger trace()    #
+# }                                                            #
 ###################################################################################
 # EXAMPLE CODE                                                                    #
 # ------------------------------------------------------------------------------- #
@@ -94,10 +115,11 @@
 # example output:                          #
 #                                          #
 # [STD_TRACE_RETURN] array found: a[0]=hi  #
-#              ^                           #
-#              |_ this means array()       #
-#                 found an array that      #
-#                 you tried to declare.    #
+#                    ^                     #
+#                    |                     #
+#             this means array()           #
+#             found an array that          #
+#             you tried to declare.        #
 #                                          #
 # it's possible to set this variable in    #
 # regular code, but it may prove useful    #
@@ -213,11 +235,13 @@ ___ENDOF___ERROR___TRACE___() {
 	unset -v STD_TRACE_CMD STD_TRACE_FUNC_NUM STD_TRACE_CMD_NUM STD_TRACE_PIPE || exit 26
 	set +E +eo pipefail || exit 27
 	trap - ERR || exit 28
-	# if we're in a subshell, kill the original shell
+	# if we're in a subshell, terminate the original shell. killing instead of terminating would be a bit safer
+	# as no process can reject it, but this also means traps are killed. terminating allows any remaining traps
+	# to properly execute. just in case though, there's an infinite loop after the terminate.
 	if [[ $BASH_SUBSHELL != 0 ]]; then
-		printf "\033[1;93m%s\033[0m\n" "========  SUB-SHELLS KILLED  ========"
-		builtin kill -s KILL 0
+		printf "\033[1;93m%s\033[0m\n" "======  SUB-SHELLS TERMINATED  ======"
 	fi
+	builtin kill -s TERM 0 "$(jobs -p)"
 	exit 99
 	# just in case...
 	printf "\033[1;97m%s\033[0m\n" "=KILL/EXIT FAIL, BEGIN INFINITE LOOP="

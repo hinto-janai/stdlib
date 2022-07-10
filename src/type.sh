@@ -19,7 +19,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib/type.sh/db11450>
+#git <stdlib/type.sh/55be512>
 
 # ============================================== #
 # type.sh & free()                               #
@@ -159,7 +159,7 @@ free() {
 	local i || return 22
 	for i in "$@"; do
 		{ declare -p ${i%=*} &>/dev/null || [[ -v ${i%=*} ]]; } || { STD_TRACE_RETURN="no var found: $i"; return 33; }
-		unset -v "$i" || return 44
+		unset -v "$i" || { STD_TRACE_RETURN="could not free: $i"; return 44; }
 	done
 	return 0
 }
@@ -172,7 +172,7 @@ free::func() {
 	local i || return 22
 	for i in "$@"; do
 		declare -F "$i" &>/dev/null || { STD_TRACE_RETURN="no func found: $i"; return 33; }
-		unset -f "$i" || return 44
+		unset -f "$i" || { STD_TRACE_RETURN="could not free: $i"; return 44; }
 	done
 	return 0
 }

@@ -19,7 +19,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib/ask.sh/db11450>
+#git <stdlib/ask.sh/55be512>
 
 # ask()
 # -----

@@ -22,8 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib.sh/db11450>
-#nix <1657420525>
+#git <stdlib.sh/55be512>
+#nix <1657483784>
 #hbc <808713c>
 #src <ask.sh>
 #src <color.sh>
@@ -676,9 +676,9 @@ ___ENDOF___ERROR___TRACE___() {
 	set +E +eo pipefail || exit 27
 	trap - ERR || exit 28
 	if [[ $BASH_SUBSHELL != 0 ]]; then
-		printf "\033[1;93m%s\033[0m\n" "========  SUB-SHELLS KILLED  ========"
-		builtin kill -s KILL 0
+		printf "\033[1;93m%s\033[0m\n" "======  SUB-SHELLS TERMINATED  ======"
 	fi
+	builtin kill -s TERM 0 "$(jobs -p)"
 	exit 99
 	printf "\033[1;97m%s\033[0m\n" "=KILL/EXIT FAIL, BEGIN INFINITE LOOP="
 	while :; do read -s -r; done
@@ -753,7 +753,7 @@ free() {
 	local i || return 22
 	for i in "$@"; do
 		{ declare -p ${i%=*} &>/dev/null || [[ -v ${i%=*} ]]; } || { STD_TRACE_RETURN="no var found: $i"; return 33; }
-		unset -v "$i" || return 44
+		unset -v "$i" || { STD_TRACE_RETURN="could not free: $i"; return 44; }
 	done
 	return 0
 }
@@ -762,7 +762,7 @@ free::func() {
 	local i || return 22
 	for i in "$@"; do
 		declare -F "$i" &>/dev/null || { STD_TRACE_RETURN="no func found: $i"; return 33; }
-		unset -f "$i" || return 44
+		unset -f "$i" || { STD_TRACE_RETURN="could not free: $i"; return 44; }
 	done
 	return 0
 }
