@@ -22,9 +22,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib.sh/55be512>
-#nix <1657483784>
-#hbc <808713c>
+#git <stdlib.sh/3bafba8>
+#nix <1657489561>
+#hbc <35180cf>
 #src <ask.sh>
 #src <color.sh>
 #src <const.sh>
@@ -624,7 +624,7 @@ ___ENDOF___ERROR___TRACE___() {
 	printf "\033[1;95m%s\033[0m%s\n" "[bash] " "$BASH_VERSION"
 	printf "\033[1;96m%s\033[0m%s\n" "[unix] " "$EPOCHSECONDS"
 	printf "\033[1;91m%s" "[code] "
-	for i in ${STD_TRACE_PIPE[@]}; do
+	for i in "${STD_TRACE_PIPE[@]}"; do
 		printf "\033[0m%s" "$i"
 	done
 	printf "\n\033[1;97m%s\033[0m%s\n" "[file] " "${BASH_SOURCE[-1]}"
@@ -632,7 +632,7 @@ ___ENDOF___ERROR___TRACE___() {
 	printf "\033[1;93m%s\033[0m%s\n" "[ \$_ ] " "${STD_TRACE_CMD_NUM}: $STD_TRACE_CMD"
 	local f
 	local i=1
-	for f in ${STD_TRACE_FUNC[@]}; do
+	for f in "${STD_TRACE_FUNC[@]}"; do
 		[[ $f = 0 ]] && break
 		printf "\033[1;92m%s\033[0m%s\n" "[func] " "${f}: ${FUNCNAME[${i}]}()"
 		((i++))
@@ -641,10 +641,10 @@ ___ENDOF___ERROR___TRACE___() {
 	local STD_ORIGINAL_LINE="$STD_TRACE_CMD_NUM"
 	if [[ $STD_TRACE_CMD_NUM -lt 5 ]]; then
 		local STD_TRACE_CMD_NUM=1
-		mapfile -n 9 STD_TRACE_LINE_ARRAY < $0
+		mapfile -n 9 STD_TRACE_LINE_ARRAY < "$0"
 	else
 		local STD_TRACE_CMD_NUM=$((STD_TRACE_CMD_NUM-4))
-		mapfile -s $((STD_TRACE_CMD_NUM-1)) -n 9 STD_TRACE_LINE_ARRAY < $0
+		mapfile -s $((STD_TRACE_CMD_NUM-1)) -n 9 STD_TRACE_LINE_ARRAY < "$0"
 	fi
 	for i in {0..8}; do
 		[[ ${STD_TRACE_LINE_ARRAY[$i]} ]] || break

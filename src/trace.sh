@@ -19,7 +19,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib/trace.sh/55be512>
+#git <stdlib/trace.sh/3bafba8>
 
 # trace()
 # -------
@@ -167,7 +167,7 @@ ___ENDOF___ERROR___TRACE___() {
 	printf "\033[1;95m%s\033[0m%s\n" "[bash] " "$BASH_VERSION"
 	printf "\033[1;96m%s\033[0m%s\n" "[unix] " "$EPOCHSECONDS"
 	printf "\033[1;91m%s" "[code] "
-	for i in ${STD_TRACE_PIPE[@]}; do
+	for i in "${STD_TRACE_PIPE[@]}"; do
 		printf "\033[0m%s" "$i"
 	done
 	printf "\n\033[1;97m%s\033[0m%s\n" "[file] " "${BASH_SOURCE[-1]}"
@@ -176,7 +176,7 @@ ___ENDOF___ERROR___TRACE___() {
 	# print function stack
 	local f
 	local i=1
-	for f in ${STD_TRACE_FUNC[@]}; do
+	for f in "${STD_TRACE_FUNC[@]}"; do
 		[[ $f = 0 ]] && break
 		printf "\033[1;92m%s\033[0m%s\n" "[func] " "${f}: ${FUNCNAME[${i}]}()"
 		((i++))
@@ -187,10 +187,10 @@ ___ENDOF___ERROR___TRACE___() {
 	# prevent negative starting line
 	if [[ $STD_TRACE_CMD_NUM -lt 5 ]]; then
 		local STD_TRACE_CMD_NUM=1
-		mapfile -n 9 STD_TRACE_LINE_ARRAY < $0
+		mapfile -n 9 STD_TRACE_LINE_ARRAY < "$0"
 	else
 		local STD_TRACE_CMD_NUM=$((STD_TRACE_CMD_NUM-4))
-		mapfile -s $((STD_TRACE_CMD_NUM-1)) -n 9 STD_TRACE_LINE_ARRAY < $0
+		mapfile -s $((STD_TRACE_CMD_NUM-1)) -n 9 STD_TRACE_LINE_ARRAY < "$0"
 	fi
 	# print lines with numbers (with manual spacing)
 	# the array elements already have newlines,
