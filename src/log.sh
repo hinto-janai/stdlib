@@ -19,7 +19,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib/log.sh/2330c03>
+#git <stdlib/log.sh/24bfcd9>
 
 # log()
 # -----
@@ -34,36 +34,36 @@
 
 log::ok() {
 	printf "\r\e[2K"
-	printf "\r\033[1;32m[  OK  ]\033[0m %s\n" "$@"
+	printf "\r\e[1;32m[  OK  ]\e[0m %s\n" "$@"
 }
 log::info() {
 	printf "\r\e[2K"
-	printf "\r\033[1;37m[ INFO ]\033[0m %s\n" "$@"
+	printf "\r\e[1;37m[ INFO ]\e[0m %s\n" "$@"
 }
 log::warn() {
 	printf "\r\e[2K"
-	printf "\r\033[1;33m[ WARN ]\033[0m %s\n" "$@"
+	printf "\r\e[1;33m[ WARN ]\e[0m %s\n" "$@"
 }
 log::fail() {
 	printf "\r\e[2K"
-	printf "\r\033[1;31m[ FAIL ]\033[0m %s\n" "$@"
+	printf "\r\e[1;31m[ FAIL ]\e[0m %s\n" "$@"
 }
 log::danger() {
 	printf "\r\e[2K"
-	printf "\r\033[1;31m[DANGER]\033[0m %s\n" "$@"
+	printf "\r\e[1;31m[DANGER]\e[0m %s\n" "$@"
 }
 
 # format with 8 spaces instead of []
 log::tab() {
 	printf "\r\e[2K"
-	printf "\r\033[0m         %s\n" "$@"
+	printf "\r\e[0m         %s\n" "$@"
 }
 
 # do not print a newline, leave cursor at the end.
 # printing a different log:: will overwrite this one.
 log::prog() {
 	printf "\r\e[2K"
-	printf "\r\033[1;37m[ \033[0m....\033[1;37m ]\033[0m %s " "$@"
+	printf "\r\e[1;37m[ \e[0m....\e[1;37m ]\e[0m %s " "$@"
 }
 
 # log::debug()
@@ -81,10 +81,10 @@ log::prog() {
 #
 # EXAMPLE OUTPUT
 # --------------
-# [log::debug 0.000000] 12: init debug message                <-- formatting: [debug time] {debug line} {message} -> {function calls, if verbose}
-# [log::debug 1.000000] 27: this is 1 second after
-# [log::debug 1.000546] 45: 5.46 milliseconds after
-# [log::debug 1.043411] 139: this one's verbose -> 138: func() 155: main()
+# [log::debug 0.000000] init debug message                <-- formatting: [debug time] [message] -> {function calls, if verbose}
+# [log::debug 1.000000] this is 1 second after
+# [log::debug 1.000546] 5.46 milliseconds after
+# [log::debug 1.043411] this one's verbose -> 138: func() 155: main()
 #
 # 100% bash builtins, no external programs.
 
@@ -96,19 +96,19 @@ log::debug() {
 	if [[ -z $STD_LOG_DEBUG_INIT ]]; then
 		declare -g STD_LOG_DEBUG_INIT
 		STD_LOG_DEBUG_INIT=${EPOCHREALTIME//./}
-		printf "\r\e[2K\033[1;90m%s\033[0m%s" "[log::debug 0.000000] " "$* "
+		printf "\r\e[2K\e[1;90m%s\e[0m%s" "[log::debug 0.000000] " "$* "
 		# print line + function stack
 		if [[ $STD_LOG_DEBUG_VERBOSE = true ]]; then
-			printf "\033[1;93m%s" "-> "
+			printf "\e[1;93m%s" "-> "
 			local f i
 			i=1
 			for f in ${BASH_LINENO[@]}; do
 				[[ $f = 0 ]] && break
-				printf "\033[1;91m%s\033[1;92m%s" "${f}: " "${FUNCNAME[${i}]}() "
+				printf "\e[1;91m%s\e[1;92m%s" "${f}: " "${FUNCNAME[${i}]}() "
 				((i++))
 			done
 		fi
-		printf "\033[0m\n"
+		printf "\e[0m\n"
 		return
 	fi
 	# local variable init
@@ -137,22 +137,22 @@ log::debug() {
 	# if 6 digits long, that means one second
 	# hasn't even passed, so just print 0.$the_number
 	if [[ $STD_LOG_DEBUG_DOT -eq 0 ]]; then
-		printf "\r\e[2K\033[1;90m%s\033[0m%s" "[log::debug 0.${STD_LOG_DEBUG_ADJUSTED}] " "$* "
+		printf "\r\e[2K\e[1;90m%s\e[0m%s" "[log::debug 0.${STD_LOG_DEBUG_ADJUSTED}] " "$* "
 	else
 	# else print the integer, '.', then decimals
-		printf "\r\e[2K\033[1;90m%s\033[0m%s" \
+		printf "\r\e[2K\e[1;90m%s\e[0m%s" \
 			"[log::debug ${STD_LOG_DEBUG_ADJUSTED:0:${STD_LOG_DEBUG_DOT}}.${STD_LOG_DEBUG_ADJUSTED:${STD_LOG_DEBUG_DOT}}] " "$* "
 	fi
 	# print line + function stack
 	if [[ $STD_LOG_DEBUG_VERBOSE = true ]]; then
-		printf "\033[1;93m%s" "-> "
+		printf "\e[1;93m%s" "-> "
 		local f i
 		i=1
 		for f in ${BASH_LINENO[@]}; do
 			[[ $f = 0 ]] && break
-			printf "\033[1;91m%s\033[1;92m%s" "${f}: " "${FUNCNAME[${i}]}() "
+			printf "\e[1;91m%s\e[1;92m%s" "${f}: " "${FUNCNAME[${i}]}() "
 			((i++))
 		done
 	fi
-	printf "\033[0m\n"
+	printf "\e[0m\n"
 }

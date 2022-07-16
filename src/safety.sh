@@ -19,15 +19,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib/safety.sh/2330c03>
+#git <stdlib/safety.sh/24bfcd9>
 
 # safety()
 # --------
 # bash's biggest double-edged sword is that,
 # by default, it allows you to do _anything_
-# this is amazingly freeing as it doesn't
-# hold your hand but at the same time, it can
-# lead to insanely dangerous situations.
+# this is very freeing, but at the same time,
+# it can lead to insanely dangerous situations.
 # important builtins and unix commands
 # can be tampered by a malicious user,
 # or more likely, by someone who unknowingly

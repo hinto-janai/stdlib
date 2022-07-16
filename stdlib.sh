@@ -22,8 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib.sh/2330c03>
-#nix <1657981383>
+#git <stdlib.sh/24bfcd9>
+#nix <1657982547>
 #hbc <808713c>
 #src <ask.sh>
 #src <color.sh>
@@ -62,31 +62,33 @@ ask::no() {
 ask::sudo() {
 	sudo -v
 }
-color::black() { printf "\033[0;30m" ;}
-color::red() { printf "\033[0;31m" ;}
-color::green() { printf "\033[0;32m" ;}
-color::yellow() { printf "\033[0;33m" ;}
-color::blue() { printf "\033[0;34m" ;}
-color::purple() { printf "\033[0;35m" ;}
-color::cyan() { printf "\033[0;36m" ;}
-color::white() { printf "\033[0;37m" ;}
-color::bblack() { printf "\033[1;90m" ;}
-color::bred() { printf "\033[1;91m" ;}
-color::bgreen() { printf "\033[1;92m" ;}
-color::byellow() { printf "\033[1;93m" ;}
-color::bblue() { printf "\033[1;94m" ;}
-color::bpurple() { printf "\033[1;95m" ;}
-color::bcyan() { printf "\033[1;96m" ;}
-color::bwhite() { printf "\033[1;97m" ;}
-color::iblack() { printf "\033[0;90m" ;}
-color::ired() { printf "\033[0;91m" ;}
-color::igreen() { printf "\033[0;92m" ;}
-color::iyellow() { printf "\033[0;93m" ;}
-color::iblue() { printf "\033[0;94m" ;}
-color::ipurple() { printf "\033[0;95m" ;}
-color::icyan() { printf "\033[0;96m" ;}
-color::iwhite() { printf "\033[0;97m" ;}
-color::off() { printf "\033[0m" ;}
+color::black()   { printf "\e[0;30m"; }
+color::red()     { printf "\e[0;31m"; }
+color::green()   { printf "\e[0;32m"; }
+color::yellow()  { printf "\e[0;33m"; }
+color::blue()    { printf "\e[0;34m"; }
+color::purple()  { printf "\e[0;35m"; }
+color::cyan()    { printf "\e[0;36m"; }
+color::white()   { printf "\e[0;37m"; }
+color::bblack()  { printf "\e[1;90m"; }
+color::bred()    { printf "\e[1;91m"; }
+color::bgreen()  { printf "\e[1;92m"; }
+color::byellow() { printf "\e[1;93m"; }
+color::bblue()   { printf "\e[1;94m"; }
+color::bpurple() { printf "\e[1;95m"; }
+color::bcyan()   { printf "\e[1;96m"; }
+color::bwhite()  { printf "\e[1;97m"; }
+color::iblack()  { printf "\e[0;90m"; }
+color::ired()    { printf "\e[0;91m"; }
+color::igreen()  { printf "\e[0;92m"; }
+color::iyellow() { printf "\e[0;93m"; }
+color::iblue()   { printf "\e[0;94m"; }
+color::ipurple() { printf "\e[0;95m"; }
+color::icyan()   { printf "\e[0;96m"; }
+color::iwhite()  { printf "\e[0;97m"; }
+color::bold()    { printf "\e[1m"; }
+color::italic()  { printf "\e[3m"; }
+color::off()     { printf "\e[0m"; }
 const::char() {
 	[[ $# = 0 ]] && return 11
 	local i || return 22
@@ -423,49 +425,49 @@ lock::free() {
 }
 log::ok() {
 	printf "\r\e[2K"
-	printf "\r\033[1;32m[  OK  ]\033[0m %s\n" "$@"
+	printf "\r\e[1;32m[  OK  ]\e[0m %s\n" "$@"
 }
 log::info() {
 	printf "\r\e[2K"
-	printf "\r\033[1;37m[ INFO ]\033[0m %s\n" "$@"
+	printf "\r\e[1;37m[ INFO ]\e[0m %s\n" "$@"
 }
 log::warn() {
 	printf "\r\e[2K"
-	printf "\r\033[1;33m[ WARN ]\033[0m %s\n" "$@"
+	printf "\r\e[1;33m[ WARN ]\e[0m %s\n" "$@"
 }
 log::fail() {
 	printf "\r\e[2K"
-	printf "\r\033[1;31m[ FAIL ]\033[0m %s\n" "$@"
+	printf "\r\e[1;31m[ FAIL ]\e[0m %s\n" "$@"
 }
 log::danger() {
 	printf "\r\e[2K"
-	printf "\r\033[1;31m[DANGER]\033[0m %s\n" "$@"
+	printf "\r\e[1;31m[DANGER]\e[0m %s\n" "$@"
 }
 log::tab() {
 	printf "\r\e[2K"
-	printf "\r\033[0m         %s\n" "$@"
+	printf "\r\e[0m         %s\n" "$@"
 }
 log::prog() {
 	printf "\r\e[2K"
-	printf "\r\033[1;37m[ \033[0m....\033[1;37m ]\033[0m %s " "$@"
+	printf "\r\e[1;37m[ \e[0m....\e[1;37m ]\e[0m %s " "$@"
 }
 log::debug() {
 	[[ $STD_LOG_DEBUG != true ]] && return 0
 	if [[ -z $STD_LOG_DEBUG_INIT ]]; then
 		declare -g STD_LOG_DEBUG_INIT
 		STD_LOG_DEBUG_INIT=${EPOCHREALTIME//./}
-		printf "\r\e[2K\033[1;90m%s\033[0m%s" "[log::debug 0.000000] " "$* "
+		printf "\r\e[2K\e[1;90m%s\e[0m%s" "[log::debug 0.000000] " "$* "
 		if [[ $STD_LOG_DEBUG_VERBOSE = true ]]; then
-			printf "\033[1;93m%s" "-> "
+			printf "\e[1;93m%s" "-> "
 			local f i
 			i=1
 			for f in ${BASH_LINENO[@]}; do
 				[[ $f = 0 ]] && break
-				printf "\033[1;91m%s\033[1;92m%s" "${f}: " "${FUNCNAME[${i}]}() "
+				printf "\e[1;91m%s\e[1;92m%s" "${f}: " "${FUNCNAME[${i}]}() "
 				((i++))
 			done
 		fi
-		printf "\033[0m\n"
+		printf "\e[0m\n"
 		return
 	fi
 	local STD_LOG_DEBUG_ADJUSTED STD_LOG_DEBUG_DOT
@@ -479,22 +481,22 @@ log::debug() {
 	esac
 	STD_LOG_DEBUG_DOT=$((${#STD_LOG_DEBUG_ADJUSTED}-6))
 	if [[ $STD_LOG_DEBUG_DOT -eq 0 ]]; then
-		printf "\r\e[2K\033[1;90m%s\033[0m%s" "[log::debug 0.${STD_LOG_DEBUG_ADJUSTED}] " "$* "
+		printf "\r\e[2K\e[1;90m%s\e[0m%s" "[log::debug 0.${STD_LOG_DEBUG_ADJUSTED}] " "$* "
 	else
-		printf "\r\e[2K\033[1;90m%s\033[0m%s" \
+		printf "\r\e[2K\e[1;90m%s\e[0m%s" \
 			"[log::debug ${STD_LOG_DEBUG_ADJUSTED:0:${STD_LOG_DEBUG_DOT}}.${STD_LOG_DEBUG_ADJUSTED:${STD_LOG_DEBUG_DOT}}] " "$* "
 	fi
 	if [[ $STD_LOG_DEBUG_VERBOSE = true ]]; then
-		printf "\033[1;93m%s" "-> "
+		printf "\e[1;93m%s" "-> "
 		local f i
 		i=1
 		for f in ${BASH_LINENO[@]}; do
 			[[ $f = 0 ]] && break
-			printf "\033[1;91m%s\033[1;92m%s" "${f}: " "${FUNCNAME[${i}]}() "
+			printf "\e[1;91m%s\e[1;92m%s" "${f}: " "${FUNCNAME[${i}]}() "
 			((i++))
 		done
 	fi
-	printf "\033[0m\n"
+	printf "\e[0m\n"
 }
 panic() {
 	local STD_PANIC_CODE="$?" STD_TRACE_FUNC=("${BASH_LINENO[@]}") STD_TRACE_CMD_NUM=${BASH_LINENO[0]}|| exit 98
@@ -502,21 +504,21 @@ panic() {
 	\unset -f trap set return exit printf echo local unalias unset builtin kill || exit 22
 	\unalias -a || exit 33
 	unset POSIXLY_CORRECT || exit 44
-	printf "\e[7m\033[0;m%s\033[0m\n" "@@@@@@@@  panic  @@@@@@@@"
+	printf "\e[7m\e[0;m%s\e[0m\n" "@@@@@@@@  panic  @@@@@@@@"
 	local STD_PANIC_CMD
 	mapfile -s $((STD_TRACE_CMD_NUM-1)) -n 1 STD_PANIC_CMD < $0
-	printf "\033[1;95m%s\033[0m%s\n" "[bash] " "$BASH_VERSION"
-	printf "\033[1;96m%s\033[0m%s\n" "[unix] " "$EPOCHSECONDS"
-	printf "\033[1;97m%s\033[0m%s\n" "[file] " "${BASH_SOURCE[-1]}"
-	printf "\033[1;91m%s\033[0m%s\n" "[code] " "$STD_PANIC_CODE"
-	printf "\033[1;94m%s\033[0m%s\n" "[ wd ] " "$PWD"
-	printf "\033[1;93m%s\033[0m%s" "[ \$_ ] " "$STD_TRACE_CMD_NUM: ${STD_PANIC_CMD//$'\t'/}"
+	printf "\e[1;95m%s\e[0m%s\n" "[bash] " "$BASH_VERSION"
+	printf "\e[1;96m%s\e[0m%s\n" "[unix] " "$EPOCHSECONDS"
+	printf "\e[1;97m%s\e[0m%s\n" "[file] " "${BASH_SOURCE[-1]}"
+	printf "\e[1;91m%s\e[0m%s\n" "[code] " "$STD_PANIC_CODE"
+	printf "\e[1;94m%s\e[0m%s\n" "[ wd ] " "$PWD"
+	printf "\e[1;93m%s\e[0m%s" "[ \$_ ] " "$STD_TRACE_CMD_NUM: ${STD_PANIC_CMD//$'\t'/}"
 	local f
 	local i=1
 	STD_TRACE_FUNC=("${STD_TRACE_FUNC[@]:1}")
 	for f in ${STD_TRACE_FUNC[@]}; do
 		[[ $f = 0 ]] && break
-		printf "\033[1;92m%s\033[0m%s\n" "[func] " "${f}: ${FUNCNAME[${i}]}()"
+		printf "\e[1;92m%s\e[0m%s\n" "[func] " "${f}: ${FUNCNAME[${i}]}()"
 		((i++))
 	done
 	local STD_TRACE_LINE_ARRAY
@@ -532,28 +534,28 @@ panic() {
 		[[ ${STD_TRACE_LINE_ARRAY[$i]} ]] || break
 		if [[ $STD_TRACE_CMD_NUM = "$STD_ORIGINAL_LINE" ]]; then
 			case ${#STD_TRACE_CMD_NUM} in
-				1) printf "\033[1;97m%s" "     $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]}" ;;
-				2) printf "\033[1;97m%s" "    $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]}" ;;
-				3) printf "\033[1;97m%s" "   $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]}" ;;
-				4) printf "\033[1;97m%s" "  $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]}" ;;
-				5) printf "\033[1;97m%s" " $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]}" ;;
-				*) printf "\033[1;97m%s" "$STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]}" ;;
+				1) printf "\e[1;97m%s" "     $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]}" ;;
+				2) printf "\e[1;97m%s" "    $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]}" ;;
+				3) printf "\e[1;97m%s" "   $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]}" ;;
+				4) printf "\e[1;97m%s" "  $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]}" ;;
+				5) printf "\e[1;97m%s" " $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]}" ;;
+				*) printf "\e[1;97m%s" "$STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]}" ;;
 			esac
 		else
 			case ${#STD_TRACE_CMD_NUM} in
-				1) printf "\033[1;90m%s" "     $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]}" ;;
-				2) printf "\033[1;90m%s" "    $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]}" ;;
-				3) printf "\033[1;90m%s" "   $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]}" ;;
-				4) printf "\033[1;90m%s" "  $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]}" ;;
-				5) printf "\033[1;90m%s" " $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]}" ;;
-				*) printf "\033[1;90m%s" "$STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]}" ;;
+				1) printf "\e[1;90m%s" "     $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]}" ;;
+				2) printf "\e[1;90m%s" "    $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]}" ;;
+				3) printf "\e[1;90m%s" "   $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]}" ;;
+				4) printf "\e[1;90m%s" "  $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]}" ;;
+				5) printf "\e[1;90m%s" " $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]}" ;;
+				*) printf "\e[1;90m%s" "$STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]}" ;;
 			esac
 		fi
 		((STD_TRACE_CMD_NUM++))
 	done
-	printf "\033[0;m%s\n" "@@@@@@@@  panic  @@@@@@@@"
+	printf "\e[0;m%s\n" "@@@@@@@@  panic  @@@@@@@@"
 	while :; do read -s -r; done
-	printf "\033[0;m%s\n" "@ loop fail, killing \$$ @"
+	printf "\e[0;m%s\n" "@ loop fail, killing \$$ @"
 	builtin kill -s KILL 0
 	[[ $1 =~ ^[0-9]+$ ]] && exit $1 || exit 99
 }
@@ -627,21 +629,21 @@ ___ENDOF___ERROR___TRACE___() {
 		trap - ERR || exit 25
 		return 0
 	fi
-	printf "\033[1;91m%s\n" "========  BEGIN ERROR TRACE  ========"
-	printf "\033[1;95m%s\033[0m%s\n" "[bash] " "$BASH_VERSION"
-	printf "\033[1;96m%s\033[0m%s\n" "[unix] " "$EPOCHSECONDS"
-	printf "\033[1;91m%s" "[code] "
+	printf "\e[1;91m%s\n" "========  BEGIN ERROR TRACE  ========"
+	printf "\e[1;95m%s\e[0m%s\n" "[bash] " "$BASH_VERSION"
+	printf "\e[1;96m%s\e[0m%s\n" "[unix] " "$EPOCHSECONDS"
+	printf "\e[1;91m%s" "[code] "
 	for i in "${STD_TRACE_PIPE[@]}"; do
-		printf "\033[0m%s" "$i"
+		printf "\e[0m%s" "$i"
 	done
-	printf "\n\033[1;97m%s\033[0m%s\n" "[file] " "${BASH_SOURCE[-1]}"
-	printf "\033[1;94m%s\033[0m%s\n" "[ wd ] " "$PWD"
-	printf "\033[1;93m%s\033[0m%s\n" "[ \$_ ] " "${STD_TRACE_CMD_NUM}: $STD_TRACE_CMD"
+	printf "\n\e[1;97m%s\e[0m%s\n" "[file] " "${BASH_SOURCE[-1]}"
+	printf "\e[1;94m%s\e[0m%s\n" "[ wd ] " "$PWD"
+	printf "\e[1;93m%s\e[0m%s\n" "[ \$_ ] " "${STD_TRACE_CMD_NUM}: $STD_TRACE_CMD"
 	local f
 	local i=1
 	for f in "${STD_TRACE_FUNC[@]}"; do
 		[[ $f = 0 ]] && break
-		printf "\033[1;92m%s\033[0m%s\n" "[func] " "${f}: ${FUNCNAME[${i}]}()"
+		printf "\e[1;92m%s\e[0m%s\n" "[func] " "${f}: ${FUNCNAME[${i}]}()"
 		((i++))
 	done
 	local STD_TRACE_LINE_ARRAY
@@ -658,36 +660,36 @@ ___ENDOF___ERROR___TRACE___() {
 	  local STD_TRACE_SPACING="    "
 		if [[ $STD_TRACE_CMD_NUM = "$STD_ORIGINAL_LINE" ]]; then
 			case ${#STD_TRACE_CMD_NUM} in
-				1) printf "\033[1;97m%s" "     $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]//$'\t'/${STD_TRACE_SPACING}}" ;;
-				2) printf "\033[1;97m%s" "    $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]//$'\t'/${STD_TRACE_SPACING}}" ;;
-				3) printf "\033[1;97m%s" "   $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]//$'\t'/${STD_TRACE_SPACING}}" ;;
-				4) printf "\033[1;97m%s" "  $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]//$'\t'/${STD_TRACE_SPACING}}" ;;
-				5) printf "\033[1;97m%s" " $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]//$'\t'/${STD_TRACE_SPACING}}" ;;
-				*) printf "\033[1;97m%s" "$STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]//$'\t'/${STD_TRACE_SPACING}}" ;;
+				1) printf "\e[1;97m%s" "     $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]//$'\t'/${STD_TRACE_SPACING}}" ;;
+				2) printf "\e[1;97m%s" "    $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]//$'\t'/${STD_TRACE_SPACING}}" ;;
+				3) printf "\e[1;97m%s" "   $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]//$'\t'/${STD_TRACE_SPACING}}" ;;
+				4) printf "\e[1;97m%s" "  $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]//$'\t'/${STD_TRACE_SPACING}}" ;;
+				5) printf "\e[1;97m%s" " $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]//$'\t'/${STD_TRACE_SPACING}}" ;;
+				*) printf "\e[1;97m%s" "$STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]//$'\t'/${STD_TRACE_SPACING}}" ;;
 			esac
 		else
 			case ${#STD_TRACE_CMD_NUM} in
-				1) printf "\033[1;90m%s" "     $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]//$'\t'/${STD_TRACE_SPACING}}" ;;
-				2) printf "\033[1;90m%s" "    $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]//$'\t'/${STD_TRACE_SPACING}}" ;;
-				3) printf "\033[1;90m%s" "   $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]//$'\t'/${STD_TRACE_SPACING}}" ;;
-				4) printf "\033[1;90m%s" "  $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]//$'\t'/${STD_TRACE_SPACING}}" ;;
-				5) printf "\033[1;90m%s" " $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]//$'\t'/${STD_TRACE_SPACING}}" ;;
-				*) printf "\033[1;90m%s" "$STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]//$'\t'/${STD_TRACE_SPACING}}" ;;
+				1) printf "\e[1;90m%s" "     $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]//$'\t'/${STD_TRACE_SPACING}}" ;;
+				2) printf "\e[1;90m%s" "    $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]//$'\t'/${STD_TRACE_SPACING}}" ;;
+				3) printf "\e[1;90m%s" "   $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]//$'\t'/${STD_TRACE_SPACING}}" ;;
+				4) printf "\e[1;90m%s" "  $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]//$'\t'/${STD_TRACE_SPACING}}" ;;
+				5) printf "\e[1;90m%s" " $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]//$'\t'/${STD_TRACE_SPACING}}" ;;
+				*) printf "\e[1;90m%s" "$STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]//$'\t'/${STD_TRACE_SPACING}}" ;;
 			esac
 		fi
 		((STD_TRACE_CMD_NUM++))
 	done
 	[[ $STD_TRACE_RETURN ]] && printf "\e[38;5;196m%s\e[0;1m%s\e[0m\n" "[STD_TRACE_RETURN]" " $STD_TRACE_RETURN"
-	printf "\033[1;91m%s\033[0m\n" "========  ENDOF ERROR TRACE  ========"
+	printf "\e[1;91m%s\e[0m\n" "========  ENDOF ERROR TRACE  ========"
 	unset -v STD_TRACE_CMD STD_TRACE_FUNC_NUM STD_TRACE_CMD_NUM STD_TRACE_PIPE || exit 26
 	set +E +eo pipefail || exit 27
 	trap - ERR || exit 28
 	if [[ $BASH_SUBSHELL != 0 ]]; then
-		printf "\033[1;93m%s\033[0m\n" "======  SUB-SHELLS TERMINATED  ======"
+		printf "\e[1;93m%s\e[0m\n" "======  SUB-SHELLS TERMINATED  ======"
 	fi
 	builtin kill -s TERM 0 "$(jobs -p)"
 	exit 99
-	printf "\033[1;97m%s\033[0m\n" "=KILL/EXIT FAIL, BEGIN INFINITE LOOP="
+	printf "\e[1;97m%s\e[0m\n" "=KILL/EXIT FAIL, BEGIN INFINITE LOOP="
 	while :; do read -s -r; done
 	while true; do read -s -r; done
 	while true; do false; done

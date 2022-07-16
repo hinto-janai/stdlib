@@ -19,7 +19,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib/trace.sh/2330c03>
+#git <stdlib/trace.sh/24bfcd9>
 
 # trace()
 # -------
@@ -163,22 +163,22 @@ ___ENDOF___ERROR___TRACE___() {
 		return 0
 	fi
 	# print trace info
-	printf "\033[1;91m%s\n" "========  BEGIN ERROR TRACE  ========"
-	printf "\033[1;95m%s\033[0m%s\n" "[bash] " "$BASH_VERSION"
-	printf "\033[1;96m%s\033[0m%s\n" "[unix] " "$EPOCHSECONDS"
-	printf "\033[1;91m%s" "[code] "
+	printf "\e[1;91m%s\n" "========  BEGIN ERROR TRACE  ========"
+	printf "\e[1;95m%s\e[0m%s\n" "[bash] " "$BASH_VERSION"
+	printf "\e[1;96m%s\e[0m%s\n" "[unix] " "$EPOCHSECONDS"
+	printf "\e[1;91m%s" "[code] "
 	for i in "${STD_TRACE_PIPE[@]}"; do
-		printf "\033[0m%s" "$i"
+		printf "\e[0m%s" "$i"
 	done
-	printf "\n\033[1;97m%s\033[0m%s\n" "[file] " "${BASH_SOURCE[-1]}"
-	printf "\033[1;94m%s\033[0m%s\n" "[ wd ] " "$PWD"
-	printf "\033[1;93m%s\033[0m%s\n" "[ \$_ ] " "${STD_TRACE_CMD_NUM}: $STD_TRACE_CMD"
+	printf "\n\e[1;97m%s\e[0m%s\n" "[file] " "${BASH_SOURCE[-1]}"
+	printf "\e[1;94m%s\e[0m%s\n" "[ wd ] " "$PWD"
+	printf "\e[1;93m%s\e[0m%s\n" "[ \$_ ] " "${STD_TRACE_CMD_NUM}: $STD_TRACE_CMD"
 	# print function stack
 	local f
 	local i=1
 	for f in "${STD_TRACE_FUNC[@]}"; do
 		[[ $f = 0 ]] && break
-		printf "\033[1;92m%s\033[0m%s\n" "[func] " "${f}: ${FUNCNAME[${i}]}()"
+		printf "\e[1;92m%s\e[0m%s\n" "[func] " "${f}: ${FUNCNAME[${i}]}()"
 		((i++))
 	done
 	# put trace lines into array, error line in middle, 9 lines total
@@ -208,29 +208,29 @@ ___ENDOF___ERROR___TRACE___() {
 		# if error line, print bold white
 		if [[ $STD_TRACE_CMD_NUM = "$STD_ORIGINAL_LINE" ]]; then
 			case ${#STD_TRACE_CMD_NUM} in
-				1) printf "\033[1;97m%s" "     $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]//$'\t'/${STD_TRACE_SPACING}}" ;;
-				2) printf "\033[1;97m%s" "    $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]//$'\t'/${STD_TRACE_SPACING}}" ;;
-				3) printf "\033[1;97m%s" "   $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]//$'\t'/${STD_TRACE_SPACING}}" ;;
-				4) printf "\033[1;97m%s" "  $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]//$'\t'/${STD_TRACE_SPACING}}" ;;
-				5) printf "\033[1;97m%s" " $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]//$'\t'/${STD_TRACE_SPACING}}" ;;
-				*) printf "\033[1;97m%s" "$STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]//$'\t'/${STD_TRACE_SPACING}}" ;;
+				1) printf "\e[1;97m%s" "     $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]//$'\t'/${STD_TRACE_SPACING}}" ;;
+				2) printf "\e[1;97m%s" "    $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]//$'\t'/${STD_TRACE_SPACING}}" ;;
+				3) printf "\e[1;97m%s" "   $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]//$'\t'/${STD_TRACE_SPACING}}" ;;
+				4) printf "\e[1;97m%s" "  $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]//$'\t'/${STD_TRACE_SPACING}}" ;;
+				5) printf "\e[1;97m%s" " $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]//$'\t'/${STD_TRACE_SPACING}}" ;;
+				*) printf "\e[1;97m%s" "$STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]//$'\t'/${STD_TRACE_SPACING}}" ;;
 			esac
 		# else print grey
 		else
 			case ${#STD_TRACE_CMD_NUM} in
-				1) printf "\033[1;90m%s" "     $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]//$'\t'/${STD_TRACE_SPACING}}" ;;
-				2) printf "\033[1;90m%s" "    $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]//$'\t'/${STD_TRACE_SPACING}}" ;;
-				3) printf "\033[1;90m%s" "   $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]//$'\t'/${STD_TRACE_SPACING}}" ;;
-				4) printf "\033[1;90m%s" "  $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]//$'\t'/${STD_TRACE_SPACING}}" ;;
-				5) printf "\033[1;90m%s" " $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]//$'\t'/${STD_TRACE_SPACING}}" ;;
-				*) printf "\033[1;90m%s" "$STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]//$'\t'/${STD_TRACE_SPACING}}" ;;
+				1) printf "\e[1;90m%s" "     $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]//$'\t'/${STD_TRACE_SPACING}}" ;;
+				2) printf "\e[1;90m%s" "    $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]//$'\t'/${STD_TRACE_SPACING}}" ;;
+				3) printf "\e[1;90m%s" "   $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]//$'\t'/${STD_TRACE_SPACING}}" ;;
+				4) printf "\e[1;90m%s" "  $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]//$'\t'/${STD_TRACE_SPACING}}" ;;
+				5) printf "\e[1;90m%s" " $STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]//$'\t'/${STD_TRACE_SPACING}}" ;;
+				*) printf "\e[1;90m%s" "$STD_TRACE_CMD_NUM ${STD_TRACE_LINE_ARRAY[${i}]//$'\t'/${STD_TRACE_SPACING}}" ;;
 			esac
 		fi
 		((STD_TRACE_CMD_NUM++))
 	done
 	# STD_TRACE_RETURN
 	[[ $STD_TRACE_RETURN ]] && printf "\e[38;5;196m%s\e[0;1m%s\e[0m\n" "[STD_TRACE_RETURN]" " $STD_TRACE_RETURN"
-	printf "\033[1;91m%s\033[0m\n" "========  ENDOF ERROR TRACE  ========"
+	printf "\e[1;91m%s\e[0m\n" "========  ENDOF ERROR TRACE  ========"
 	# disarm and exit
 	unset -v STD_TRACE_CMD STD_TRACE_FUNC_NUM STD_TRACE_CMD_NUM STD_TRACE_PIPE || exit 26
 	set +E +eo pipefail || exit 27
@@ -239,12 +239,12 @@ ___ENDOF___ERROR___TRACE___() {
 	# as no process can reject it, but this also means traps are killed. terminating allows any remaining traps
 	# to properly execute. just in case though, there's an infinite loop after the terminate.
 	if [[ $BASH_SUBSHELL != 0 ]]; then
-		printf "\033[1;93m%s\033[0m\n" "======  SUB-SHELLS TERMINATED  ======"
+		printf "\e[1;93m%s\e[0m\n" "======  SUB-SHELLS TERMINATED  ======"
 	fi
 	builtin kill -s TERM 0 "$(jobs -p)"
 	exit 99
 	# just in case...
-	printf "\033[1;97m%s\033[0m\n" "=KILL/EXIT FAIL, BEGIN INFINITE LOOP="
+	printf "\e[1;97m%s\e[0m\n" "=KILL/EXIT FAIL, BEGIN INFINITE LOOP="
 	while :; do read -s -r; done
 	while true; do read -s -r; done
 	while true; do false; done
