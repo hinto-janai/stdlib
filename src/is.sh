@@ -19,7 +19,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib/is.sh/24bfcd9>
+#git <stdlib/is.sh/1eaba1f>
 
 # is()
 # ----

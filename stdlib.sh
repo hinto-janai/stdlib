@@ -22,8 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib.sh/f2810d3>
-#nix <1657982828>
+#git <stdlib.sh/1eaba1f>
+#nix <1657992730>
 #hbc <808713c>
 #src <ask.sh>
 #src <color.sh>
@@ -777,3 +777,7 @@ free::func() {
 	done
 	return 0
 }
+
+#-------------------------------------------------------------------------------- BEGIN MAIN
+# there's nothing in here, this is a library.
+#-------------------------------------------------------------------------------- ENDOF MAIN

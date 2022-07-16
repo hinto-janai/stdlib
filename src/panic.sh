@@ -19,13 +19,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib/panic.sh/24bfcd9>
+#git <stdlib/panic.sh/1eaba1f>
 
 # panic()
 # ------
 # print error information and
 # enter endless loop to prevent
-# futher code execution. must
+# further code execution. must
 # be called manually, does not
 # catch errors like trace().
 
