@@ -19,7 +19,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib/hash.sh/f698951>
+#git <stdlib/hash.sh/2330c03>
 
 # hash()
 # ------
