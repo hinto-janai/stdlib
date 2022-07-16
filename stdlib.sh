@@ -22,8 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib.sh/24bfcd9>
-#nix <1657982547>
+#git <stdlib.sh/f2810d3>
+#nix <1657982828>
 #hbc <808713c>
 #src <ask.sh>
 #src <color.sh>
@@ -591,6 +591,8 @@ readonly IBLUE="\e[0;94m"
 readonly IPURPLE="\e[0;95m"
 readonly ICYAN="\e[0;96m"
 readonly IWHITE="\e[0;97m"
+readonly BOLD="\e[1m"
+readonly ITALIC="\e[3m"
 readonly OFF="\e[0m"
 safety::builtin() {
 	POSIXLY_CORRECT= || exit 11

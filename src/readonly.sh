@@ -63,5 +63,8 @@ readonly IBLUE="\e[0;94m"
 readonly IPURPLE="\e[0;95m"
 readonly ICYAN="\e[0;96m"
 readonly IWHITE="\e[0;97m"
+# STYLE
+readonly BOLD="\e[1m"
+readonly ITALIC="\e[3m"
 # OFF
 readonly OFF="\e[0m"
