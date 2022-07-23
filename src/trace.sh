@@ -241,7 +241,7 @@ ___ENDOF___ERROR___TRACE___() {
 	if [[ $BASH_SUBSHELL != 0 ]]; then
 		printf "\e[1;93m%s\e[0m\n" "======  SUB-SHELLS TERMINATED  ======"
 	fi
-	builtin kill -s TERM 0 "$(jobs -p)"
+	builtin kill -s TERM 0
 	exit 99
 	# just in case...
 	printf "\e[1;97m%s\e[0m\n" "=KILL/EXIT FAIL, BEGIN INFINITE LOOP="
