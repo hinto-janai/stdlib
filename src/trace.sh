@@ -130,9 +130,10 @@
 ___BEGIN___ERROR___TRACE___() {
 	# ultra paranoid safety measures (unset bash builtins)
 	POSIXLY_CORRECT= || exit 8
-	\unset -f : true false trap set return exit printf unset local return read unalias mapfile kill builtin wait || exit 9
+	\unset -f true false trap set return exit printf unset local return read unalias mapfile kill builtin wait || exit 9
 	\unalias -a || exit 10
 	unset -v POSIXLY_CORRECT || exit 11
+	unset -f : || exit 1
 	# set trap to catch error data
 	trap 'STD_TRACE_CMD="$BASH_COMMAND" STD_TRACE_FUNC=(${BASH_LINENO[@]}) STD_TRACE_CMD_NUM="$LINENO" STD_TRACE_PIPE=(${PIPESTATUS[@]}); ___ENDOF___ERROR___TRACE___ > /dev/tty || exit 100' ERR || exit 12
 	# ^
@@ -146,9 +147,10 @@ ___BEGIN___ERROR___TRACE___() {
 ___ENDOF___ERROR___TRACE___() {
 	# ultra paranoid safety measures (unset bash builtins)
 	POSIXLY_CORRECT= || exit 15
-	\unset -f : true false trap set return exit printf unset local return read unalias mapfile kill builtin wait || exit 16
+	\unset -f true false trap set return exit printf unset local return read unalias mapfile kill builtin wait || exit 16
 	\unalias -a || exit 17
 	unset -v POSIXLY_CORRECT || exit 18
+	unset -f : || exit 1
 	# disarm if no trap
 	if [[ -z $STD_TRACE_PIPE ]]; then
 		# paranoid safety

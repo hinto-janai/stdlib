@@ -37,6 +37,7 @@ panic() {
 	\unset -f trap set return exit printf echo local unalias unset builtin kill || exit 22
 	\unalias -a || exit 33
 	unset POSIXLY_CORRECT || exit 44
+	unset : || exit 55
 	printf "\e[7m\e[0;m%s\e[0m\n" "@@@@@@@@  panic  @@@@@@@@"
 	# get command based off line number from $STD_TRACE_CMD_NUM
 	local STD_PANIC_CMD
