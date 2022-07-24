@@ -95,7 +95,7 @@ log::debug() {
 	# if first time running, initiate debug time and return
 	if [[ -z $STD_LOG_DEBUG_INIT ]]; then
 		declare -g STD_LOG_DEBUG_INIT
-		STD_LOG_DEBUG_INIT=${EPOCHREALTIME//./}
+		STD_LOG_DEBUG_INIT=${EPOCHREALTIME//[!0-9]/}
 		printf "\r\e[2K\e[1;90m%s\e[0m%s" "[log::debug 0.000000] " "$* "
 		# print line + function stack
 		if [[ $STD_LOG_DEBUG_VERBOSE = true ]]; then
@@ -115,8 +115,9 @@ log::debug() {
 	local STD_LOG_DEBUG_ADJUSTED STD_LOG_DEBUG_DOT
 	# current unix time - init unix time = current time in seconds
 	# 1656979999.949650 - 1656979988.549640 = 11.400010
-	# remove the '.' so the math works
-	STD_LOG_DEBUG_ADJUSTED=$((${EPOCHREALTIME//./}-STD_LOG_DEBUG_INIT))
+	# remove the '.' so the math works.
+	# Ubuntu adds a ',' so remove anything that isn't a number.
+	STD_LOG_DEBUG_ADJUSTED=$((${EPOCHREALTIME//[!0-9]/}-STD_LOG_DEBUG_INIT))
 	# during init cases, the difference
 	# can be as low as 0.000002 which
 	# renders as just 2. this is a problem
