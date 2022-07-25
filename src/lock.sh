@@ -131,7 +131,7 @@ lock::alloc() {
 lock::free() {
 	# ultra paranoid safety measures (unset bash builtins)
 	POSIXLY_CORRECT= || return 7
-	\unset -f : unset return rm command || return 8
+	\unset -f true unset return rm command || return 8
 	\unalias -a || return 9
 	unset -v POSIXLY_CORRECT || return 10
 	[[ $# = 0 ]] && return 11
@@ -141,8 +141,8 @@ lock::free() {
 		# ALL LOCKS, regardless if they exist or not.
 		# this will always return true.
 		if [[ $1 = '@' ]]; then
-			command rm "${STD_LOCK_FILE[@]}" || :
-			unset -v STD_LOCK_FILE || :
+			command rm "${STD_LOCK_FILE[@]}" || true
+			unset -v STD_LOCK_FILE || true
 			return 0
 		else
 			# free locks normally
