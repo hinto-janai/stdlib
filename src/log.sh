@@ -92,11 +92,26 @@ log::debug() {
 	# to enable debug to show up, make sure
 	# STD_LOG_DEBUG gets set "true" somewhere
 	[[ $STD_LOG_DEBUG != true ]] && return 0
+
+	# swap the color for every NEW function called
+	if [[ $STD_LOG_DEBUG_LAST_FUNC != "${FUNCNAME[1]}" ]]; then
+		declare -g STD_LOG_DEBUG_LAST_FUNC="${FUNCNAME[1]}"
+		case "$STD_LOG_DEBUG_FUNC_COLOR" in
+			"\e[1;91m") STD_LOG_DEBUG_FUNC_COLOR="\e[1;92m";;
+			"\e[1;92m") STD_LOG_DEBUG_FUNC_COLOR="\e[1;93m";;
+			"\e[1;93m") STD_LOG_DEBUG_FUNC_COLOR="\e[1;94m";;
+			"\e[1;94m") STD_LOG_DEBUG_FUNC_COLOR="\e[1;95m";;
+			"\e[1;95m") STD_LOG_DEBUG_FUNC_COLOR="\e[1;96m";;
+			"\e[1;96m") STD_LOG_DEBUG_FUNC_COLOR="\e[1;97m";;
+			*) STD_LOG_DEBUG_FUNC_COLOR="\e[1;91m";;
+		esac
+	fi
+
 	# if first time running, initiate debug time and return
 	if [[ -z $STD_LOG_DEBUG_INIT ]]; then
 		declare -g STD_LOG_DEBUG_INIT
 		STD_LOG_DEBUG_INIT=${EPOCHREALTIME//[!0-9]/}
-		printf "\r\e[2K\e[1;90m%s\e[1;96m%s\e[0m%s" "[log::debug 0.000000] " "${FUNCNAME[1]}() " "$* "
+		printf "\r\e[2K\e[1;90m%s${STD_LOG_DEBUG_FUNC_COLOR}%s\e[0m%s" "[log::debug 0.000000] " "${FUNCNAME[1]}() " "$* "
 		# print line + function stack
 		if [[ $STD_LOG_DEBUG_VERBOSE = true ]]; then
 			printf "\e[1;93m%s" "-> "
@@ -138,10 +153,10 @@ log::debug() {
 	# if 6 digits long, that means one second
 	# hasn't even passed, so just print 0.$the_number
 	if [[ $STD_LOG_DEBUG_DOT -eq 0 ]]; then
-		printf "\r\e[2K\e[1;90m%s\e[1;96m%s\e[0m%s" "[log::debug 0.${STD_LOG_DEBUG_ADJUSTED}] " "${FUNCNAME[1]}() " "$* "
+		printf "\r\e[2K\e[1;90m%s${STD_LOG_DEBUG_FUNC_COLOR}%s\e[0m%s" "[log::debug 0.${STD_LOG_DEBUG_ADJUSTED}] " "${FUNCNAME[1]}() " "$* "
 	else
 	# else print the integer, '.', then decimals
-		printf "\r\e[2K\e[1;90m%s\e[1;96m%s\e[0m%s" \
+		printf "\r\e[2K\e[1;90m%s${STD_LOG_DEBUG_FUNC_COLOR}%s\e[0m%s" \
 			"[log::debug ${STD_LOG_DEBUG_ADJUSTED:0:${STD_LOG_DEBUG_DOT}}.${STD_LOG_DEBUG_ADJUSTED:${STD_LOG_DEBUG_DOT}}] " "${FUNCNAME[1]}() " "$* "
 	fi
 	# print line + function stack
