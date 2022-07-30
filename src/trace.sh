@@ -153,11 +153,6 @@ ___ENDOF___ERROR___TRACE___() {
 	unset -f : || exit 1
 	# disarm if no trap
 	if [[ -z $STD_TRACE_PIPE ]]; then
-		# paranoid safety
-		POSIXLY_CORRECT= || exit 19
-		\unset -f trap set return exit return || exit 20
-		\unalias -a || exit 21
-		unset POSIXLY_CORRECT || exit 22
 		# disarm
 		unset -v STD_TRACE_CMD STD_TRACE_FUNC_NUM STD_TRACE_CMD_NUM STD_TRACE_PIPE || exit 23
 		set +E +eo pipefail || exit 24
