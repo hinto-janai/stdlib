@@ -19,7 +19,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib/type.sh/1eaba1f>
+#git <stdlib/type.sh/9a1b93f>
 
 # ============================================== #
 # type.sh & free()                               #

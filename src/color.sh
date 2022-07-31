@@ -19,7 +19,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib/color.sh/1eaba1f>
+#git <stdlib/color.sh/9a1b93f>
 
 # color()
 # -------
@@ -41,34 +41,34 @@
 # use <stdlib/var.sh> instead.
 
 # REGULAR
-color::black()   { printf "\e[0;30m"; }
-color::red()     { printf "\e[0;31m"; }
-color::green()   { printf "\e[0;32m"; }
-color::yellow()  { printf "\e[0;33m"; }
-color::blue()    { printf "\e[0;34m"; }
-color::purple()  { printf "\e[0;35m"; }
-color::cyan()    { printf "\e[0;36m"; }
-color::white()   { printf "\e[0;37m"; }
+color::black()   { builtin printf "\e[0;30m"; }
+color::red()     { builtin printf "\e[0;31m"; }
+color::green()   { builtin printf "\e[0;32m"; }
+color::yellow()  { builtin printf "\e[0;33m"; }
+color::blue()    { builtin printf "\e[0;34m"; }
+color::purple()  { builtin printf "\e[0;35m"; }
+color::cyan()    { builtin printf "\e[0;36m"; }
+color::white()   { builtin printf "\e[0;37m"; }
 # BOLD
-color::bblack()  { printf "\e[1;90m"; }
-color::bred()    { printf "\e[1;91m"; }
-color::bgreen()  { printf "\e[1;92m"; }
-color::byellow() { printf "\e[1;93m"; }
-color::bblue()   { printf "\e[1;94m"; }
-color::bpurple() { printf "\e[1;95m"; }
-color::bcyan()   { printf "\e[1;96m"; }
-color::bwhite()  { printf "\e[1;97m"; }
+color::bblack()  { builtin printf "\e[1;90m"; }
+color::bred()    { builtin printf "\e[1;91m"; }
+color::bgreen()  { builtin printf "\e[1;92m"; }
+color::byellow() { builtin printf "\e[1;93m"; }
+color::bblue()   { builtin printf "\e[1;94m"; }
+color::bpurple() { builtin printf "\e[1;95m"; }
+color::bcyan()   { builtin printf "\e[1;96m"; }
+color::bwhite()  { builtin printf "\e[1;97m"; }
 # INTENSE
-color::iblack()  { printf "\e[0;90m"; }
-color::ired()    { printf "\e[0;91m"; }
-color::igreen()  { printf "\e[0;92m"; }
-color::iyellow() { printf "\e[0;93m"; }
-color::iblue()   { printf "\e[0;94m"; }
-color::ipurple() { printf "\e[0;95m"; }
-color::icyan()   { printf "\e[0;96m"; }
-color::iwhite()  { printf "\e[0;97m"; }
+color::iblack()  { builtin printf "\e[0;90m"; }
+color::ired()    { builtin printf "\e[0;91m"; }
+color::igreen()  { builtin printf "\e[0;92m"; }
+color::iyellow() { builtin printf "\e[0;93m"; }
+color::iblue()   { builtin printf "\e[0;94m"; }
+color::ipurple() { builtin printf "\e[0;95m"; }
+color::icyan()   { builtin printf "\e[0;96m"; }
+color::iwhite()  { builtin printf "\e[0;97m"; }
 # STYLE
-color::bold()    { printf "\e[1m"; }
-color::italic()  { printf "\e[3m"; }
+color::bold()    { builtin printf "\e[1m"; }
+color::italic()  { builtin printf "\e[3m"; }
 # OFF
-color::off()     { printf "\e[0m"; }
+color::off()     { builtin printf "\e[0m"; }

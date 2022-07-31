@@ -19,7 +19,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib/const.sh/1eaba1f>
+#git <stdlib/const.sh/9a1b93f>
 
 # const()
 # -------

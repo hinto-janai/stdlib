@@ -22,9 +22,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib.sh/1eaba1f>
-#nix <1657992730>
-#hbc <808713c>
+#git <stdlib.sh/9a1b93f>
+#nix <1659238124>
+#hbc <e35ca7a>
 #src <ask.sh>
 #src <color.sh>
 #src <const.sh>
@@ -36,6 +36,7 @@
 #src <is.sh>
 #src <lock.sh>
 #src <log.sh>
+#src <math.sh>
 #src <panic.sh>
 #src <readonly.sh>
 #src <safety.sh>
@@ -62,33 +63,33 @@ ask::no() {
 ask::sudo() {
 	sudo -v
 }
-color::black()   { printf "\e[0;30m"; }
-color::red()     { printf "\e[0;31m"; }
-color::green()   { printf "\e[0;32m"; }
-color::yellow()  { printf "\e[0;33m"; }
-color::blue()    { printf "\e[0;34m"; }
-color::purple()  { printf "\e[0;35m"; }
-color::cyan()    { printf "\e[0;36m"; }
-color::white()   { printf "\e[0;37m"; }
-color::bblack()  { printf "\e[1;90m"; }
-color::bred()    { printf "\e[1;91m"; }
-color::bgreen()  { printf "\e[1;92m"; }
-color::byellow() { printf "\e[1;93m"; }
-color::bblue()   { printf "\e[1;94m"; }
-color::bpurple() { printf "\e[1;95m"; }
-color::bcyan()   { printf "\e[1;96m"; }
-color::bwhite()  { printf "\e[1;97m"; }
-color::iblack()  { printf "\e[0;90m"; }
-color::ired()    { printf "\e[0;91m"; }
-color::igreen()  { printf "\e[0;92m"; }
-color::iyellow() { printf "\e[0;93m"; }
-color::iblue()   { printf "\e[0;94m"; }
-color::ipurple() { printf "\e[0;95m"; }
-color::icyan()   { printf "\e[0;96m"; }
-color::iwhite()  { printf "\e[0;97m"; }
-color::bold()    { printf "\e[1m"; }
-color::italic()  { printf "\e[3m"; }
-color::off()     { printf "\e[0m"; }
+color::black()   { builtin printf "\e[0;30m"; }
+color::red()     { builtin printf "\e[0;31m"; }
+color::green()   { builtin printf "\e[0;32m"; }
+color::yellow()  { builtin printf "\e[0;33m"; }
+color::blue()    { builtin printf "\e[0;34m"; }
+color::purple()  { builtin printf "\e[0;35m"; }
+color::cyan()    { builtin printf "\e[0;36m"; }
+color::white()   { builtin printf "\e[0;37m"; }
+color::bblack()  { builtin printf "\e[1;90m"; }
+color::bred()    { builtin printf "\e[1;91m"; }
+color::bgreen()  { builtin printf "\e[1;92m"; }
+color::byellow() { builtin printf "\e[1;93m"; }
+color::bblue()   { builtin printf "\e[1;94m"; }
+color::bpurple() { builtin printf "\e[1;95m"; }
+color::bcyan()   { builtin printf "\e[1;96m"; }
+color::bwhite()  { builtin printf "\e[1;97m"; }
+color::iblack()  { builtin printf "\e[0;90m"; }
+color::ired()    { builtin printf "\e[0;91m"; }
+color::igreen()  { builtin printf "\e[0;92m"; }
+color::iyellow() { builtin printf "\e[0;93m"; }
+color::iblue()   { builtin printf "\e[0;94m"; }
+color::ipurple() { builtin printf "\e[0;95m"; }
+color::icyan()   { builtin printf "\e[0;96m"; }
+color::iwhite()  { builtin printf "\e[0;97m"; }
+color::bold()    { builtin printf "\e[1m"; }
+color::italic()  { builtin printf "\e[3m"; }
+color::off()     { builtin printf "\e[0m"; }
 const::char() {
 	[[ $# = 0 ]] && return 11
 	local i || return 22
@@ -407,14 +408,14 @@ lock::alloc() {
 }
 lock::free() {
 	POSIXLY_CORRECT= || return 7
-	\unset -f : unset return rm command || return 8
+	\unset -f true unset return rm command || return 8
 	\unalias -a || return 9
 	unset -v POSIXLY_CORRECT || return 10
 	[[ $# = 0 ]] && return 11
 	until [[ $# = 0 ]]; do
 		if [[ $1 = '@' ]]; then
-			command rm "${STD_LOCK_FILE[@]}" || :
-			unset -v STD_LOCK_FILE || :
+			command rm "${STD_LOCK_FILE[@]}" || true
+			unset -v STD_LOCK_FILE || true
 			return 0
 		else
 			command rm "${STD_LOCK_FILE[$1]}" || { STD_TRACE_RETURN="lock rm fail: ${STD_LOCK_FILE[$1]}"; return 22; }
@@ -453,10 +454,22 @@ log::prog() {
 }
 log::debug() {
 	[[ $STD_LOG_DEBUG != true ]] && return 0
+	if [[ $STD_LOG_DEBUG_LAST_FUNC != "${FUNCNAME[1]}" ]]; then
+		declare -g STD_LOG_DEBUG_LAST_FUNC="${FUNCNAME[1]}"
+		case "$STD_LOG_DEBUG_FUNC_COLOR" in
+			"\e[1;91m") STD_LOG_DEBUG_FUNC_COLOR="\e[1;92m";;
+			"\e[1;92m") STD_LOG_DEBUG_FUNC_COLOR="\e[1;93m";;
+			"\e[1;93m") STD_LOG_DEBUG_FUNC_COLOR="\e[1;94m";;
+			"\e[1;94m") STD_LOG_DEBUG_FUNC_COLOR="\e[1;95m";;
+			"\e[1;95m") STD_LOG_DEBUG_FUNC_COLOR="\e[1;96m";;
+			"\e[1;96m") STD_LOG_DEBUG_FUNC_COLOR="\e[1;97m";;
+			*) STD_LOG_DEBUG_FUNC_COLOR="\e[1;91m";;
+		esac
+	fi
 	if [[ -z $STD_LOG_DEBUG_INIT ]]; then
 		declare -g STD_LOG_DEBUG_INIT
-		STD_LOG_DEBUG_INIT=${EPOCHREALTIME//./}
-		printf "\r\e[2K\e[1;90m%s\e[0m%s" "[log::debug 0.000000] " "$* "
+		STD_LOG_DEBUG_INIT=${EPOCHREALTIME//[!0-9]/}
+		printf "\r\e[2K\e[1;90m%s${STD_LOG_DEBUG_FUNC_COLOR}%s\e[0m%s" "[log::debug 0.000000] " "${FUNCNAME[1]}() " "$* "
 		if [[ $STD_LOG_DEBUG_VERBOSE = true ]]; then
 			printf "\e[1;93m%s" "-> "
 			local f i
@@ -471,7 +484,7 @@ log::debug() {
 		return
 	fi
 	local STD_LOG_DEBUG_ADJUSTED STD_LOG_DEBUG_DOT
-	STD_LOG_DEBUG_ADJUSTED=$((${EPOCHREALTIME//./}-STD_LOG_DEBUG_INIT))
+	STD_LOG_DEBUG_ADJUSTED=$((${EPOCHREALTIME//[!0-9]/}-STD_LOG_DEBUG_INIT))
 	case ${#STD_LOG_DEBUG_ADJUSTED} in
 		1) STD_LOG_DEBUG_ADJUSTED=00000${STD_LOG_DEBUG_ADJUSTED};;
 		2) STD_LOG_DEBUG_ADJUSTED=0000${STD_LOG_DEBUG_ADJUSTED};;
@@ -481,10 +494,10 @@ log::debug() {
 	esac
 	STD_LOG_DEBUG_DOT=$((${#STD_LOG_DEBUG_ADJUSTED}-6))
 	if [[ $STD_LOG_DEBUG_DOT -eq 0 ]]; then
-		printf "\r\e[2K\e[1;90m%s\e[0m%s" "[log::debug 0.${STD_LOG_DEBUG_ADJUSTED}] " "$* "
+		printf "\r\e[2K\e[1;90m%s${STD_LOG_DEBUG_FUNC_COLOR}%s\e[0m%s" "[log::debug 0.${STD_LOG_DEBUG_ADJUSTED}] " "${FUNCNAME[1]}() " "$* "
 	else
-		printf "\r\e[2K\e[1;90m%s\e[0m%s" \
-			"[log::debug ${STD_LOG_DEBUG_ADJUSTED:0:${STD_LOG_DEBUG_DOT}}.${STD_LOG_DEBUG_ADJUSTED:${STD_LOG_DEBUG_DOT}}] " "$* "
+		printf "\r\e[2K\e[1;90m%s${STD_LOG_DEBUG_FUNC_COLOR}%s\e[0m%s" \
+			"[log::debug ${STD_LOG_DEBUG_ADJUSTED:0:${STD_LOG_DEBUG_DOT}}.${STD_LOG_DEBUG_ADJUSTED:${STD_LOG_DEBUG_DOT}}] " "${FUNCNAME[1]}() " "$* "
 	fi
 	if [[ $STD_LOG_DEBUG_VERBOSE = true ]]; then
 		printf "\e[1;93m%s" "-> "
@@ -498,12 +511,28 @@ log::debug() {
 	fi
 	printf "\e[0m\n"
 }
+short::sum() { builtin echo "$1" | awk -M -v PREC=200 '{SUM+=$1}END{printf "%.3f\n", SUM }'; }
+float::sum() { builtin echo "$1" | awk -M -v PREC=200 '{SUM+=$1}END{printf "%.7f\n", SUM }'; }
+double::sum() { builtin echo "$1" | awk -M -v PREC=200 '{SUM+=$1}END{printf "%.15f\n", SUM }'; }
+short::add() { builtin echo "$1" "$2" | awk -M -v PREC=200 '{printf "%.3f\n", $1 + $2 }'; }
+float::add() { builtin echo "$1" "$2" | awk -M -v PREC=200 '{printf "%.7f\n", $1 + $2 }'; }
+double::add() { builtin echo "$1" "$2" | awk -M -v PREC=200 '{printf "%.15f\n", $1 + $2 }'; }
+short::sub() { builtin echo "$1" "$2" | awk -M -v PREC=200 '{printf "%.3f\n", $1 - $2 }'; }
+float::sub() { builtin echo "$1" "$2" | awk -M -v PREC=200 '{printf "%.7f\n", $1 - $2 }'; }
+double::sub() { builtin echo "$1" "$2" | awk -M -v PREC=200 '{printf "%.15f\n", $1 - $2 }'; }
+short::mul() { builtin echo "$1" "$2" | awk -M -v PREC=200 '{printf "%.3f\n", $1 * $2 }'; }
+float::mul() { builtin echo "$1" "$2" | awk -M -v PREC=200 '{printf "%.7f\n", $1 * $2 }'; }
+double::mul() { builtin echo "$1" "$2" | awk -M -v PREC=200 '{printf "%.15f\n", $1 * $2 }'; }
+short::div() { builtin echo "$1" "$2" | awk -M -v PREC=200 '{printf "%.3f\n", $1 / $2 }'; }
+float::div() { builtin echo "$1" "$2" | awk -M -v PREC=200 '{printf "%.7f\n", $1 / $2 }'; }
+double::div() { builtin echo "$1" "$2" | awk -M -v PREC=200 '{printf "%.15f\n", $1 / $2 }'; }
 panic() {
 	local STD_PANIC_CODE="$?" STD_TRACE_FUNC=("${BASH_LINENO[@]}") STD_TRACE_CMD_NUM=${BASH_LINENO[0]}|| exit 98
 	POSIXLY_CORRECT= || exit 11
 	\unset -f trap set return exit printf echo local unalias unset builtin kill || exit 22
 	\unalias -a || exit 33
 	unset POSIXLY_CORRECT || exit 44
+	unset : || exit 55
 	printf "\e[7m\e[0;m%s\e[0m\n" "@@@@@@@@  panic  @@@@@@@@"
 	local STD_PANIC_CMD
 	mapfile -s $((STD_TRACE_CMD_NUM-1)) -n 1 STD_PANIC_CMD < $0
@@ -608,9 +637,10 @@ safety::gnu_linux() {
 }
 ___BEGIN___ERROR___TRACE___() {
 	POSIXLY_CORRECT= || exit 8
-	\unset -f : true false trap set return exit printf unset local return read unalias mapfile kill builtin wait || exit 9
+	\unset -f true false trap set return exit printf unset local return read unalias mapfile kill builtin wait || exit 9
 	\unalias -a || exit 10
 	unset -v POSIXLY_CORRECT || exit 11
+	unset -f : || exit 1
 	trap 'STD_TRACE_CMD="$BASH_COMMAND" STD_TRACE_FUNC=(${BASH_LINENO[@]}) STD_TRACE_CMD_NUM="$LINENO" STD_TRACE_PIPE=(${PIPESTATUS[@]}); ___ENDOF___ERROR___TRACE___ > /dev/tty || exit 100' ERR || exit 12
 	unset -v STD_TRACE_CMD STD_TRACE_FUNC_NUM STD_TRACE_CMD_NUM STD_TRACE_PIPE || exit 13
 	set -E -e -o pipefail || exit 14
@@ -618,14 +648,11 @@ ___BEGIN___ERROR___TRACE___() {
 }
 ___ENDOF___ERROR___TRACE___() {
 	POSIXLY_CORRECT= || exit 15
-	\unset -f : true false trap set return exit printf unset local return read unalias mapfile kill builtin wait || exit 16
+	\unset -f true false trap set return exit printf unset local return read unalias mapfile kill builtin wait || exit 16
 	\unalias -a || exit 17
 	unset -v POSIXLY_CORRECT || exit 18
+	unset -f : || exit 1
 	if [[ -z $STD_TRACE_PIPE ]]; then
-		POSIXLY_CORRECT= || exit 19
-		\unset -f trap set return exit return || exit 20
-		\unalias -a || exit 21
-		unset POSIXLY_CORRECT || exit 22
 		unset -v STD_TRACE_CMD STD_TRACE_FUNC_NUM STD_TRACE_CMD_NUM STD_TRACE_PIPE || exit 23
 		set +E +eo pipefail || exit 24
 		trap - ERR || exit 25
@@ -689,7 +716,7 @@ ___ENDOF___ERROR___TRACE___() {
 	if [[ $BASH_SUBSHELL != 0 ]]; then
 		printf "\e[1;93m%s\e[0m\n" "======  SUB-SHELLS TERMINATED  ======"
 	fi
-	builtin kill -s TERM 0 "$(jobs -p)"
+	builtin kill -s TERM 0
 	exit 99
 	printf "\e[1;97m%s\e[0m\n" "=KILL/EXIT FAIL, BEGIN INFINITE LOOP="
 	while :; do read -s -r; done
