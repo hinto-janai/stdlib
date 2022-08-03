@@ -19,7 +19,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib/readonly.sh/9a1b93f>
+#git <stdlib/readonly.sh/8038e38>
 
 # $readonly
 # ---------

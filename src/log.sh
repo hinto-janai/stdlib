@@ -19,7 +19,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib/log.sh/9a1b93f>
+#git <stdlib/log.sh/8038e38>
 
 # log()
 # -----
@@ -32,39 +32,18 @@
 # multiple inputs, each input will
 # be formatted and print a newline.
 
-log::ok() {
-	printf "\r\e[2K"
-	printf "\r\e[1;32m[  OK  ]\e[0m %s\n" "$@"
-}
-log::info() {
-	printf "\r\e[2K"
-	printf "\r\e[1;37m[ INFO ]\e[0m %s\n" "$@"
-}
-log::warn() {
-	printf "\r\e[2K"
-	printf "\r\e[1;33m[ WARN ]\e[0m %s\n" "$@"
-}
-log::fail() {
-	printf "\r\e[2K"
-	printf "\r\e[1;31m[ FAIL ]\e[0m %s\n" "$@"
-}
-log::danger() {
-	printf "\r\e[2K"
-	printf "\r\e[1;31m[DANGER]\e[0m %s\n" "$@"
-}
+log::ok() { printf "\r\e[2K\e[1;32m[  OK  ]\e[0m %s\n" "$@"; }
+log::info() { printf "\r\e[2K\e[1;37m[ INFO ]\e[0m %s\n" "$@"; }
+log::warn() { printf "\r\e[2K\e[1;33m[ WARN ]\e[0m %s\n" "$@"; }
+log::fail() { printf "\r\e[2K\e[1;31m[ FAIL ]\e[0m %s\n" "$@"; }
+log::danger() { printf "\r\e[2K\e[1;31m[DANGER]\e[0m %s\n" "$@"; }
 
 # format with 8 spaces instead of []
-log::tab() {
-	printf "\r\e[2K"
-	printf "\r\e[0m         %s\n" "$@"
-}
+log::tab() { printf "\r\e[2K\e[0m         %s\n" "$@"; }
 
 # do not print a newline, leave cursor at the end.
 # printing a different log:: will overwrite this one.
-log::prog() {
-	printf "\r\e[2K"
-	printf "\r\e[1;37m[ \e[0m....\e[1;37m ]\e[0m %s " "$@"
-}
+log::prog() { printf "\r\e[2K\e[1;37m[ \e[0m....\e[1;37m ]\e[0m %s " "$@"; }
 
 # log::debug()
 # ------------

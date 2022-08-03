@@ -19,7 +19,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib/safety.sh/9a1b93f>
+#git <stdlib/safety.sh/8038e38>
 
 # safety()
 # --------

@@ -22,8 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib.sh/9a1b93f>
-#nix <1659238124>
+#git <stdlib.sh/8038e38>
+#nix <1659546862>
 #hbc <e35ca7a>
 #src <ask.sh>
 #src <color.sh>
@@ -424,34 +424,13 @@ lock::free() {
 		shift
 	done
 }
-log::ok() {
-	printf "\r\e[2K"
-	printf "\r\e[1;32m[  OK  ]\e[0m %s\n" "$@"
-}
-log::info() {
-	printf "\r\e[2K"
-	printf "\r\e[1;37m[ INFO ]\e[0m %s\n" "$@"
-}
-log::warn() {
-	printf "\r\e[2K"
-	printf "\r\e[1;33m[ WARN ]\e[0m %s\n" "$@"
-}
-log::fail() {
-	printf "\r\e[2K"
-	printf "\r\e[1;31m[ FAIL ]\e[0m %s\n" "$@"
-}
-log::danger() {
-	printf "\r\e[2K"
-	printf "\r\e[1;31m[DANGER]\e[0m %s\n" "$@"
-}
-log::tab() {
-	printf "\r\e[2K"
-	printf "\r\e[0m         %s\n" "$@"
-}
-log::prog() {
-	printf "\r\e[2K"
-	printf "\r\e[1;37m[ \e[0m....\e[1;37m ]\e[0m %s " "$@"
-}
+log::ok() { printf "\r\e[2K\e[1;32m[  OK  ]\e[0m %s\n" "$@"; }
+log::info() { printf "\r\e[2K\e[1;37m[ INFO ]\e[0m %s\n" "$@"; }
+log::warn() { printf "\r\e[2K\e[1;33m[ WARN ]\e[0m %s\n" "$@"; }
+log::fail() { printf "\r\e[2K\e[1;31m[ FAIL ]\e[0m %s\n" "$@"; }
+log::danger() { printf "\r\e[2K\e[1;31m[DANGER]\e[0m %s\n" "$@"; }
+log::tab() { printf "\r\e[2K\e[0m         %s\n" "$@"; }
+log::prog() { printf "\r\e[2K\e[1;37m[ \e[0m....\e[1;37m ]\e[0m %s " "$@"; }
 log::debug() {
 	[[ $STD_LOG_DEBUG != true ]] && return 0
 	if [[ $STD_LOG_DEBUG_LAST_FUNC != "${FUNCNAME[1]}" ]]; then
