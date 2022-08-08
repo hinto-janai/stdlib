@@ -43,12 +43,30 @@
 # implementation for big loops.
 
 # REQUIRES the input to be a COLUMN.
-# usage: float::sum "$VAR_OF_NUMBERS_IN_A_COLUMN"
-short::sum() { builtin echo "$1" | awk -M -v PREC=200 '{SUM+=$1}END{printf "%.3f\n", SUM }'; }
-float::sum() { builtin echo "$1" | awk -M -v PREC=200 '{SUM+=$1}END{printf "%.7f\n", SUM }'; }
-double::sum() { builtin echo "$1" | awk -M -v PREC=200 '{SUM+=$1}END{printf "%.15f\n", SUM }'; }
-
-
+# Uses either arg $1 or standard input.
+# $1 usage:    float::sum "$VAR_OF_NUMBERS_IN_A_COLUMN"
+# stdin usage: cat file | float::sum
+short::sum() {
+	if [[ -p /dev/stdin ]]; then
+		awk -M -v PREC=200 '{SUM+=$1}END{printf "%.3f\n", SUM }'
+	else
+		builtin echo "$1" | awk -M -v PREC=200 '{SUM+=$1}END{printf "%.3f\n", SUM }'
+	fi
+}
+float::sum() {
+	if [[ -p /dev/stdin ]]; then
+		awk -M -v PREC=200 '{SUM+=$1}END{printf "%.7f\n", SUM }'
+	else
+		builtin echo "$1" | awk -M -v PREC=200 '{SUM+=$1}END{printf "%.7f\n", SUM }'
+	fi
+}
+double::sum() {
+	if [[ -p /dev/stdin ]]; then
+		awk -M -v PREC=200 '{SUM+=$1}END{printf "%.15f\n", SUM }'
+	else
+		builtin echo "$1" | awk -M -v PREC=200 '{SUM+=$1}END{printf "%.15f\n", SUM }'
+	fi
+}
 
 # The rest of these functions require 2 ARGUMENTS
 # usage: _____::add/div/sub "$1" "$2"

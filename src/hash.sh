@@ -28,93 +28,82 @@
 # md5 - sha1 - sha256 - sha512
 
 hash::md5() {
-	set -o pipefail || return 11
 	# stdin
 	if [[ -p /dev/stdin ]]; then
-		local i STD_HASH || return 22
+		local i STD_HASH || return 11
 		for i in $(</dev/stdin); do
-			STD_HASH=$(printf "%s" "$i" | md5sum) || return 33
-			printf "%s\n" "${STD_HASH// *-*/}" || return 44
+			STD_HASH=$(printf "%s" "$i" | md5sum) || return 22
+			printf "%s\n" "${STD_HASH// *}" || return 33
 		done
-		set +o pipefail && return 0 || return 55
+		return
 	elif [[ $# = 0 ]]; then
-		set +o pipefail || return 66
-		return 1
+		return 44
 	fi
 	# normal input
-	while [[ $# != 0 ]]; do
-		STD_HASH=$(printf "%s" "$i" | md5sum) || return 77
-		printf "%s\n" "${STD_HASH// *-*/}"
+	until [[ $# = 0 ]]; do
+		STD_HASH=$(printf "%s" "$i" | md5sum) || return 55
+		printf "%s\n" "${STD_HASH// *}"
 		shift
 	done
-	set +o pipefail && return 0 || return 88
 }
 
 hash::sha1() {
-	set -o pipefail || return 11
 	# stdin
 	if [[ -p /dev/stdin ]]; then
-		local i STD_HASH || return 22
+		local i STD_HASH || return 11
 		for i in $(</dev/stdin); do
-			STD_HASH=$(printf "%s" "$i" | sha1sum) || return 33
-			printf "%s\n" "${STD_HASH// *-*/}" || return 44
+			STD_HASH=$(printf "%s" "$i" | sha1sum) || return 22
+			printf "%s\n" "${STD_HASH// *}" || return 33
 		done
-		set +o pipefail && return 0 || return 55
+		return
 	elif [[ $# = 0 ]]; then
-		set +o pipefail || return 66
-		return 1
+		return 44
 	fi
 	# normal input
-	while [[ $# != 0 ]]; do
-		STD_HASH=$(printf "%s" "$i" | sha1sum) || return 77
-		printf "%s\n" "${STD_HASH// *-*/}"
+	until [[ $# = 0 ]]; do
+		STD_HASH=$(printf "%s" "$i" | sha1sum) || return 55
+		printf "%s\n" "${STD_HASH// *}"
 		shift
 	done
-	set +o pipefail && return 0 || return 88
 }
 
 hash::sha256() {
-	set -o pipefail || return 11
 	# stdin
 	if [[ -p /dev/stdin ]]; then
-		local i STD_HASH || return 22
+		local i STD_HASH || return 11
 		for i in $(</dev/stdin); do
-			STD_HASH=$(printf "%s" "$i" | sha256sum) || return 33
-			printf "%s\n" "${STD_HASH// *-*/}" || return 44
+			STD_HASH=$(printf "%s" "$i" | sha256sum) || return 22
+			printf "%s\n" "${STD_HASH// *}" || return 33
 		done
-		set +o pipefail && return 0 || return 55
+		return
 	elif [[ $# = 0 ]]; then
-		set +o pipefail || return 66
-		return 1
+		return 44
 	fi
 	# normal input
-	while [[ $# != 0 ]]; do
-		STD_HASH=$(printf "%s" "$i" | sha256sum) || return 77
-		printf "%s\n" "${STD_HASH// *-*/}"
+	until [[ $# = 0 ]]; do
+		STD_HASH=$(printf "%s" "$i" | sha256sum) || return 55
+		printf "%s\n" "${STD_HASH// *}"
 		shift
 	done
-	set +o pipefail && return 0 || return 88
 }
 
 hash::sha512() {
-	set -o pipefail || return 11
 	# stdin
 	if [[ -p /dev/stdin ]]; then
-		local i STD_HASH || return 22
+		local i STD_HASH || return 11
 		for i in $(</dev/stdin); do
-			STD_HASH=$(printf "%s" "$i" | sha512sum) || return 33
-			printf "%s\n" "${STD_HASH// *-*/}" || return 44
+			STD_HASH=$(printf "%s" "$i" | sha512sum) || return 22
+			printf "%s\n" "${STD_HASH// *}" || return 33
 		done
-		set +o pipefail && return 0 || return 55
+		return
 	elif [[ $# = 0 ]]; then
-		set +o pipefail || return 66
-		return 1
+		return 44
 	fi
 	# normal input
-	while [[ $# != 0 ]]; do
-		STD_HASH=$(printf "%s" "$i" | sha512sum) || return 77
-		printf "%s\n" "${STD_HASH// *-*/}"
+	until [[ $# = 0 ]]; do
+		STD_HASH=$(printf "%s" "$i" | sha512sum) || return 55
+		printf "%s\n" "${STD_HASH// *}"
 		shift
 	done
-	set +o pipefail && return 0 || return 88
 }
+
