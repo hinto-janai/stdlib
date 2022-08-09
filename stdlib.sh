@@ -22,8 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib.sh/681ca4f>
-#nix <1660008306>
+#git <stdlib.sh/308af73>
+#nix <1660008801>
 #hbc <7f27eed>
 #src <ask.sh>
 #src <color.sh>
@@ -146,42 +146,49 @@ const::ref() {
 	done
 	return 0
 }
-crypto::bytes() {
+crypto::bytes() (
 	[[ $# = 0 ]] && return 1
-	head -c $1 /dev/random
-}
-crypto::base64() {
+	set -o pipefail || return 2
+	head -c $1 /dev/random || return 3
+)
+crypto::base64() (
 	[[ $# = 0 ]] && return 1
-	head -c $1 /dev/random | base64
-}
-crypto::base32() {
+	set -o pipefail || return 2
+	head -c $1 /dev/random | base64 || return 3
+)
+crypto::base32() (
 	[[ $# = 0 ]] && return 1
-	head -c $1 /dev/random | base64
-}
-crypto::md5() {
-	[[ $# = 0 ]] && return 1
-	local STD_CRYPTO_HASH || return 2
-	STD_CRYPTO_HASH=$(head -c $1 /dev/random | md5sum) || return 3
-	printf "%s\n" "${STD_CRYPTO_HASH// */}"
-}
-crypto::sha1() {
+	set -o pipefail || return 2
+	head -c $1 /dev/random | base32 || return 3
+)
+crypto::md5() (
 	[[ $# = 0 ]] && return 1
 	local STD_CRYPTO_HASH || return 2
-	STD_CRYPTO_HASH=$(head -c $1 /dev/random | sha1sum) || return 3
+	set -o pipefail || return 3
+	STD_CRYPTO_HASH=$(head -c $1 /dev/random | md5sum) || return 4
 	printf "%s\n" "${STD_CRYPTO_HASH// */}"
-}
-crypto::sha256() {
+)
+crypto::sha1() (
 	[[ $# = 0 ]] && return 1
 	local STD_CRYPTO_HASH || return 2
-	STD_CRYPTO_HASH=$(head -c $1 /dev/random | sha256sum) || return 3
+	set -o pipefail || return 3
+	STD_CRYPTO_HASH=$(head -c $1 /dev/random | sha1sum) || return 4
 	printf "%s\n" "${STD_CRYPTO_HASH// */}"
-}
-crypto::sha512() {
+)
+crypto::sha256() (
 	[[ $# = 0 ]] && return 1
 	local STD_CRYPTO_HASH || return 2
-	STD_CRYPTO_HASH=$(head -c $1 /dev/random | sha512sum) || return 3
+	set -o pipefail || return 3
+	STD_CRYPTO_HASH=$(head -c $1 /dev/random | sha256sum) || return 4
 	printf "%s\n" "${STD_CRYPTO_HASH// */}"
-}
+)
+crypto::sha512() (
+	[[ $# = 0 ]] && return 1
+	local STD_CRYPTO_HASH || return 2
+	set -o pipefail || return 3
+	STD_CRYPTO_HASH=$(head -c $1 /dev/random | sha512sum) || return 4
+	printf "%s\n" "${STD_CRYPTO_HASH// */}"
+)
 crypto::num() {
 	case $# in
 		1) shuf -i 0-$1 -n 1; return;;
@@ -196,11 +203,11 @@ crypto::uuid() {
 }
 crypto::encrypt() {
 	[[ $# != 2 ]] && return 1
-	printf "%s\n" "$1" | gpg --batch --symmetric --armor --quiet --cipher-algo AES256 --passphrase "$2"
+	printf "%s\n" "$1" | gpg --batch --symmetric --armor --quiet --cipher-algo AES256 --passphrase "$2" || return 2
 }
 crypto::decrypt() {
 	[[ $# != 2 ]] && return 1
-	printf "%s\n" "$1" | gpg --batch --decrypt --quiet --passphrase "$2"
+	printf "%s\n" "$1" | gpg --batch --decrypt --quiet --passphrase "$2" || return 2
 }
 date::unix_translate() {
 	if [[ -p /dev/stdin ]]; then
