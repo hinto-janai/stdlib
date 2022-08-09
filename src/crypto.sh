@@ -19,7 +19,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib/crypto.sh/8038e38>
+#git <stdlib/crypto.sh/681ca4f>
 
 # crypto()
 # --------
@@ -31,6 +31,56 @@ crypto::bytes() {
 	head -c $1 /dev/random
 }
 
+# get $1 bytes of /dev/random
+# in base64 form.
+crypto::base64() {
+	[[ $# = 0 ]] && return 1
+	head -c $1 /dev/random | base64
+}
+
+# get $1 bytes of /dev/random
+# in base32 form.
+crypto::base32() {
+	[[ $# = 0 ]] && return 1
+	head -c $1 /dev/random | base64
+}
+
+# get $1 bytes of /dev/random
+# and hash with md5sum.
+crypto::md5() {
+	[[ $# = 0 ]] && return 1
+	local STD_CRYPTO_HASH || return 2
+	STD_CRYPTO_HASH=$(head -c $1 /dev/random | md5sum) || return 3
+	printf "%s\n" "${STD_CRYPTO_HASH// */}"
+}
+
+# get $1 bytes of /dev/random
+# and hash with sha1sum.
+crypto::sha1() {
+	[[ $# = 0 ]] && return 1
+	local STD_CRYPTO_HASH || return 2
+	STD_CRYPTO_HASH=$(head -c $1 /dev/random | sha1sum) || return 3
+	printf "%s\n" "${STD_CRYPTO_HASH// */}"
+}
+
+# get $1 bytes of /dev/random
+# and hash with sha256sum.
+crypto::sha256() {
+	[[ $# = 0 ]] && return 1
+	local STD_CRYPTO_HASH || return 2
+	STD_CRYPTO_HASH=$(head -c $1 /dev/random | sha256sum) || return 3
+	printf "%s\n" "${STD_CRYPTO_HASH// */}"
+}
+
+# get $1 bytes of /dev/random
+# and hash with sha512sum.
+crypto::sha512() {
+	[[ $# = 0 ]] && return 1
+	local STD_CRYPTO_HASH || return 2
+	STD_CRYPTO_HASH=$(head -c $1 /dev/random | sha512sum) || return 3
+	printf "%s\n" "${STD_CRYPTO_HASH// */}"
+}
+
 # get random number from 0-$1 or $1-$2
 crypto::num() {
 	case $# in
@@ -40,11 +90,11 @@ crypto::num() {
 	esac
 }
 
-# get UUID from kernel (newline removed)
+# get UUID from kernel
 crypto::uuid() {
 	local STD_CRYPTO_UUID || return 1
-	mapfile STD_CRYPTO_UUID < /proc/sys/kernel/random/uuid
-	printf "%s" ${STD_CRYPTO_UUID//$'\n'}
+	mapfile STD_CRYPTO_UUID < /proc/sys/kernel/random/uuid || return 2
+	printf "%s" "$STD_CRYPTO_UUID"
 }
 
 # use gpg to encrypt input with a passphrase
@@ -58,6 +108,6 @@ crypto::encrypt() {
 # decrypts the above function
 # USAGE: crypto::decrypt "input_to_decrypt" "passphrase"
 crypto::decrypt() {
+	[[ $# != 2 ]] && return 1
 	printf "%s\n" "$1" | gpg --batch --decrypt --quiet --passphrase "$2"
 }
-

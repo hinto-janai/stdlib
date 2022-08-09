@@ -22,9 +22,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib.sh/8038e38>
-#nix <1659546862>
-#hbc <e35ca7a>
+#git <stdlib.sh/681ca4f>
+#nix <1660008306>
+#hbc <7f27eed>
 #src <ask.sh>
 #src <color.sh>
 #src <const.sh>
@@ -150,6 +150,38 @@ crypto::bytes() {
 	[[ $# = 0 ]] && return 1
 	head -c $1 /dev/random
 }
+crypto::base64() {
+	[[ $# = 0 ]] && return 1
+	head -c $1 /dev/random | base64
+}
+crypto::base32() {
+	[[ $# = 0 ]] && return 1
+	head -c $1 /dev/random | base64
+}
+crypto::md5() {
+	[[ $# = 0 ]] && return 1
+	local STD_CRYPTO_HASH || return 2
+	STD_CRYPTO_HASH=$(head -c $1 /dev/random | md5sum) || return 3
+	printf "%s\n" "${STD_CRYPTO_HASH// */}"
+}
+crypto::sha1() {
+	[[ $# = 0 ]] && return 1
+	local STD_CRYPTO_HASH || return 2
+	STD_CRYPTO_HASH=$(head -c $1 /dev/random | sha1sum) || return 3
+	printf "%s\n" "${STD_CRYPTO_HASH// */}"
+}
+crypto::sha256() {
+	[[ $# = 0 ]] && return 1
+	local STD_CRYPTO_HASH || return 2
+	STD_CRYPTO_HASH=$(head -c $1 /dev/random | sha256sum) || return 3
+	printf "%s\n" "${STD_CRYPTO_HASH// */}"
+}
+crypto::sha512() {
+	[[ $# = 0 ]] && return 1
+	local STD_CRYPTO_HASH || return 2
+	STD_CRYPTO_HASH=$(head -c $1 /dev/random | sha512sum) || return 3
+	printf "%s\n" "${STD_CRYPTO_HASH// */}"
+}
 crypto::num() {
 	case $# in
 		1) shuf -i 0-$1 -n 1; return;;
@@ -159,14 +191,15 @@ crypto::num() {
 }
 crypto::uuid() {
 	local STD_CRYPTO_UUID || return 1
-	mapfile STD_CRYPTO_UUID < /proc/sys/kernel/random/uuid
-	printf "%s" ${STD_CRYPTO_UUID//$'\n'}
+	mapfile STD_CRYPTO_UUID < /proc/sys/kernel/random/uuid || return 2
+	printf "%s" "$STD_CRYPTO_UUID"
 }
 crypto::encrypt() {
 	[[ $# != 2 ]] && return 1
 	printf "%s\n" "$1" | gpg --batch --symmetric --armor --quiet --cipher-algo AES256 --passphrase "$2"
 }
 crypto::decrypt() {
+	[[ $# != 2 ]] && return 1
 	printf "%s\n" "$1" | gpg --batch --decrypt --quiet --passphrase "$2"
 }
 date::unix_translate() {
@@ -253,84 +286,72 @@ guard() {
 	fi
 }
 hash::md5() {
-	set -o pipefail || return 11
 	if [[ -p /dev/stdin ]]; then
-		local i STD_HASH || return 22
+		local i STD_HASH || return 11
 		for i in $(</dev/stdin); do
-			STD_HASH=$(printf "%s" "$i" | md5sum) || return 33
-			printf "%s\n" "${STD_HASH// *-*/}" || return 44
+			STD_HASH=$(printf "%s" "$i" | md5sum) || return 22
+			printf "%s\n" "${STD_HASH// *}" || return 33
 		done
-		set +o pipefail && return 0 || return 55
+		return
 	elif [[ $# = 0 ]]; then
-		set +o pipefail || return 66
-		return 1
+		return 44
 	fi
-	while [[ $# != 0 ]]; do
-		STD_HASH=$(printf "%s" "$i" | md5sum) || return 77
-		printf "%s\n" "${STD_HASH// *-*/}"
+	until [[ $# = 0 ]]; do
+		STD_HASH=$(printf "%s" "$i" | md5sum) || return 55
+		printf "%s\n" "${STD_HASH// *}"
 		shift
 	done
-	set +o pipefail && return 0 || return 88
 }
 hash::sha1() {
-	set -o pipefail || return 11
 	if [[ -p /dev/stdin ]]; then
-		local i STD_HASH || return 22
+		local i STD_HASH || return 11
 		for i in $(</dev/stdin); do
-			STD_HASH=$(printf "%s" "$i" | sha1sum) || return 33
-			printf "%s\n" "${STD_HASH// *-*/}" || return 44
+			STD_HASH=$(printf "%s" "$i" | sha1sum) || return 22
+			printf "%s\n" "${STD_HASH// *}" || return 33
 		done
-		set +o pipefail && return 0 || return 55
+		return
 	elif [[ $# = 0 ]]; then
-		set +o pipefail || return 66
-		return 1
+		return 44
 	fi
-	while [[ $# != 0 ]]; do
-		STD_HASH=$(printf "%s" "$i" | sha1sum) || return 77
-		printf "%s\n" "${STD_HASH// *-*/}"
+	until [[ $# = 0 ]]; do
+		STD_HASH=$(printf "%s" "$i" | sha1sum) || return 55
+		printf "%s\n" "${STD_HASH// *}"
 		shift
 	done
-	set +o pipefail && return 0 || return 88
 }
 hash::sha256() {
-	set -o pipefail || return 11
 	if [[ -p /dev/stdin ]]; then
-		local i STD_HASH || return 22
+		local i STD_HASH || return 11
 		for i in $(</dev/stdin); do
-			STD_HASH=$(printf "%s" "$i" | sha256sum) || return 33
-			printf "%s\n" "${STD_HASH// *-*/}" || return 44
+			STD_HASH=$(printf "%s" "$i" | sha256sum) || return 22
+			printf "%s\n" "${STD_HASH// *}" || return 33
 		done
-		set +o pipefail && return 0 || return 55
+		return
 	elif [[ $# = 0 ]]; then
-		set +o pipefail || return 66
-		return 1
+		return 44
 	fi
-	while [[ $# != 0 ]]; do
-		STD_HASH=$(printf "%s" "$i" | sha256sum) || return 77
-		printf "%s\n" "${STD_HASH// *-*/}"
+	until [[ $# = 0 ]]; do
+		STD_HASH=$(printf "%s" "$i" | sha256sum) || return 55
+		printf "%s\n" "${STD_HASH// *}"
 		shift
 	done
-	set +o pipefail && return 0 || return 88
 }
 hash::sha512() {
-	set -o pipefail || return 11
 	if [[ -p /dev/stdin ]]; then
-		local i STD_HASH || return 22
+		local i STD_HASH || return 11
 		for i in $(</dev/stdin); do
-			STD_HASH=$(printf "%s" "$i" | sha512sum) || return 33
-			printf "%s\n" "${STD_HASH// *-*/}" || return 44
+			STD_HASH=$(printf "%s" "$i" | sha512sum) || return 22
+			printf "%s\n" "${STD_HASH// *}" || return 33
 		done
-		set +o pipefail && return 0 || return 55
+		return
 	elif [[ $# = 0 ]]; then
-		set +o pipefail || return 66
-		return 1
+		return 44
 	fi
-	while [[ $# != 0 ]]; do
-		STD_HASH=$(printf "%s" "$i" | sha512sum) || return 77
-		printf "%s\n" "${STD_HASH// *-*/}"
+	until [[ $# = 0 ]]; do
+		STD_HASH=$(printf "%s" "$i" | sha512sum) || return 55
+		printf "%s\n" "${STD_HASH// *}"
 		shift
 	done
-	set +o pipefail && return 0 || return 88
 }
 is::int() {
 	if [[ -p /dev/stdin ]]; then
@@ -490,9 +511,27 @@ log::debug() {
 	fi
 	printf "\e[0m\n"
 }
-short::sum() { builtin echo "$1" | awk -M -v PREC=200 '{SUM+=$1}END{printf "%.3f\n", SUM }'; }
-float::sum() { builtin echo "$1" | awk -M -v PREC=200 '{SUM+=$1}END{printf "%.7f\n", SUM }'; }
-double::sum() { builtin echo "$1" | awk -M -v PREC=200 '{SUM+=$1}END{printf "%.15f\n", SUM }'; }
+short::sum() {
+	if [[ -p /dev/stdin ]]; then
+		awk -M -v PREC=200 '{SUM+=$1}END{printf "%.3f\n", SUM }'
+	else
+		builtin echo "$1" | awk -M -v PREC=200 '{SUM+=$1}END{printf "%.3f\n", SUM }'
+	fi
+}
+float::sum() {
+	if [[ -p /dev/stdin ]]; then
+		awk -M -v PREC=200 '{SUM+=$1}END{printf "%.7f\n", SUM }'
+	else
+		builtin echo "$1" | awk -M -v PREC=200 '{SUM+=$1}END{printf "%.7f\n", SUM }'
+	fi
+}
+double::sum() {
+	if [[ -p /dev/stdin ]]; then
+		awk -M -v PREC=200 '{SUM+=$1}END{printf "%.15f\n", SUM }'
+	else
+		builtin echo "$1" | awk -M -v PREC=200 '{SUM+=$1}END{printf "%.15f\n", SUM }'
+	fi
+}
 short::add() { builtin echo "$1" "$2" | awk -M -v PREC=200 '{printf "%.3f\n", $1 + $2 }'; }
 float::add() { builtin echo "$1" "$2" | awk -M -v PREC=200 '{printf "%.7f\n", $1 + $2 }'; }
 double::add() { builtin echo "$1" "$2" | awk -M -v PREC=200 '{printf "%.15f\n", $1 + $2 }'; }
