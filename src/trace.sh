@@ -1,4 +1,5 @@
 # This file is part of stdlib.sh - a standard library for Bash
+#
 # Copyright (c) 2022 hinto.janaiyo <https://github.com/hinto-janaiyo>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -19,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib/trace.sh/308af73>
+#git <stdlib/trace.sh/93731ac>
 
 # trace()
 # -------

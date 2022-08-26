@@ -1,4 +1,5 @@
 # This file is part of stdlib.sh - a standard library for Bash
+#
 # Copyright (c) 2022 hinto.janaiyo <https://github.com/hinto-janaiyo>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -19,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib/log.sh/308af73>
+#git <stdlib/log.sh/93731ac>
 
 # log()
 # -----
@@ -88,9 +89,8 @@ log::debug() {
 
 	# if first time running, initiate debug time and return
 	if [[ -z $STD_LOG_DEBUG_INIT ]]; then
-		declare -g STD_LOG_DEBUG_INIT
-		STD_LOG_DEBUG_INIT=${EPOCHREALTIME//[!0-9]/}
-		printf "\r\e[2K\e[1;90m%s${STD_LOG_DEBUG_FUNC_COLOR}%s\e[0m%s" "[log::debug 0.000000] " "${FUNCNAME[1]}() " "$* "
+		declare -gr STD_LOG_DEBUG_INIT=${EPOCHREALTIME//[!0-9]/}
+		printf "\r\e[2K\e[1;90m[%(%F %T)T 0.000000] ${STD_LOG_DEBUG_FUNC_COLOR}%s\e[0m%s" "-1" "${FUNCNAME[1]}() " "$* "
 		# print line + function stack
 		if [[ $STD_LOG_DEBUG_VERBOSE = true ]]; then
 			printf "\e[1;93m%s" "-> "
@@ -132,11 +132,11 @@ log::debug() {
 	# if 6 digits long, that means one second
 	# hasn't even passed, so just print 0.$the_number
 	if [[ $STD_LOG_DEBUG_DOT -eq 0 ]]; then
-		printf "\r\e[2K\e[1;90m%s${STD_LOG_DEBUG_FUNC_COLOR}%s\e[0m%s" "[log::debug 0.${STD_LOG_DEBUG_ADJUSTED}] " "${FUNCNAME[1]}() " "$* "
+		printf "\r\e[2K\e[1;90m[%(%F %T)T %s] ${STD_LOG_DEBUG_FUNC_COLOR}%s\e[0m%s" "-1" "${STD_LOG_DEBUG_ADJUSTED}" "${FUNCNAME[1]}() " "$* "
 	else
 	# else print the integer, '.', then decimals
-		printf "\r\e[2K\e[1;90m%s${STD_LOG_DEBUG_FUNC_COLOR}%s\e[0m%s" \
-			"[log::debug ${STD_LOG_DEBUG_ADJUSTED:0:${STD_LOG_DEBUG_DOT}}.${STD_LOG_DEBUG_ADJUSTED:${STD_LOG_DEBUG_DOT}}] " "${FUNCNAME[1]}() " "$* "
+		printf "\r\e[2K\e[1;90m[%(%F %T)T %s] ${STD_LOG_DEBUG_FUNC_COLOR}%s\e[0m%s" "-1" \
+			"${STD_LOG_DEBUG_ADJUSTED:0:${STD_LOG_DEBUG_DOT}}.${STD_LOG_DEBUG_ADJUSTED:${STD_LOG_DEBUG_DOT}}" "${FUNCNAME[1]}() " "$* "
 	fi
 	# print line + function stack
 	if [[ $STD_LOG_DEBUG_VERBOSE = true ]]; then

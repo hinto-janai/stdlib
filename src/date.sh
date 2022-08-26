@@ -1,4 +1,5 @@
 # This file is part of stdlib.sh - a standard library for Bash
+#
 # Copyright (c) 2022 hinto.janaiyo <https://github.com/hinto-janaiyo>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -19,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib/date.sh/308af73>
+#git <stdlib/date.sh/93731ac>
 
 # date()
 # ------
@@ -34,25 +35,27 @@ date::unix_translate() {
 	if [[ -p /dev/stdin ]]; then
 		local i || return 11
 		for i in $(</dev/stdin); do
-			date -d @"$i" || return 22
+			printf "%(%F %T)T\n" "$i" || return 22
 		done
 		return 0
 	fi
 	# normal input
 	[[ $# = 0 ]] && return 33
 	while [[ $# != 0 ]]; do
-		date -d @"$1" || return 44
+		printf "%(%F %T)T\n" "$1" || return 44
 		shift
 	done
 	return 0
 }
-date::unix() { printf "%s\n" "$EPOCHSECONDS" ;}
-date::time() { date +"%T" ;}
-date::calendar() { date +"%Y-%m-%d" ;}
-date::now() { date +"%Y-%m-%d %T" ;}
-date::year() { date +"%Y" ;}
-date::month() { date +"%m" ;}
-date::day() { date +"%d" ;}
-date::hour() { date +"%H" ;}
-date::minute() { date +"%M" ;}
-date::second() { date +"%S" ;}
+
+date::log()    { printf "%(%F %T)T %s\n" "$EPOCHSECONDS" "$EPOCHREALTIME" ;} # 2022-08-26 17:06:06 1661547966.103297
+date::unix()   { echo "$EPOCHSECONDS" ;} # 1661547672
+date::stamp()  { printf "%(%F %T)T\n" ;} # 2022-12-25 15:13:01
+date::ymd()    { printf "%(%F)T\n" ;}    # 2022-12-25
+date::time()   { printf '%(%T)T\n' ;}    # 15:13:01
+date::year()   { printf "%(%Y)T\n" ;}    # 2022
+date::month()  { printf "%(%m)T\n" ;}    # 12
+date::day()    { printf "%(%d)T\n" ;}    # 25
+date::hour()   { printf "%(H)T" ;}       # 15
+date::minute() { printf "%(M)T" ;}       # 13
+date::second() { printf "%(S)T" ;}       # 01

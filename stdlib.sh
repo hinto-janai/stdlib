@@ -22,8 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib.sh/308af73>
-#nix <1660008801>
+#git <stdlib.sh/93731ac>
+#nix <1661550320>
 #hbc <7f27eed>
 #src <ask.sh>
 #src <color.sh>
@@ -213,27 +213,28 @@ date::unix_translate() {
 	if [[ -p /dev/stdin ]]; then
 		local i || return 11
 		for i in $(</dev/stdin); do
-			date -d @"$i" || return 22
+			printf "%(%F %T)T\n" "$i" || return 22
 		done
 		return 0
 	fi
 	[[ $# = 0 ]] && return 33
 	while [[ $# != 0 ]]; do
-		date -d @"$1" || return 44
+		printf "%(%F %T)T\n" "$1" || return 44
 		shift
 	done
 	return 0
 }
-date::unix() { printf "%s\n" "$EPOCHSECONDS" ;}
-date::time() { date +"%T" ;}
-date::calendar() { date +"%Y-%m-%d" ;}
-date::now() { date +"%Y-%m-%d %T" ;}
-date::year() { date +"%Y" ;}
-date::month() { date +"%m" ;}
-date::day() { date +"%d" ;}
-date::hour() { date +"%H" ;}
-date::minute() { date +"%M" ;}
-date::second() { date +"%S" ;}
+date::log()    { printf "%(%F %T)T %s\n" "$EPOCHSECONDS" "$EPOCHREALTIME" ;} # 2022-08-26 17:06:06 1661547966.103297
+date::unix()   { echo "$EPOCHSECONDS" ;} # 1661547672
+date::stamp()  { printf "%(%F %T)T\n" ;} # 2022-12-25 15:13:01
+date::ymd()    { printf "%(%F)T\n" ;}    # 2022-12-25
+date::time()   { printf '%(%T)T\n' ;}    # 15:13:01
+date::year()   { printf "%(%Y)T\n" ;}    # 2022
+date::month()  { printf "%(%m)T\n" ;}    # 12
+date::day()    { printf "%(%d)T\n" ;}    # 25
+date::hour()   { printf "%(H)T" ;}       # 15
+date::minute() { printf "%(M)T" ;}       # 13
+date::second() { printf "%(S)T" ;}       # 01
 debug() {
 	[[ $STD_DEBUG != true ]] && return 0
 	trap 'STD_DEBUG_CMD="$BASH_COMMAND" STD_DEBUG_FUNC=(${BASH_LINENO[@]}) STD_DEBUG_CMD_NUM="$LINENO" STD_DEBUG_PIPE=(${PIPESTATUS[@]});debug::trap' DEBUG
@@ -474,9 +475,8 @@ log::debug() {
 		esac
 	fi
 	if [[ -z $STD_LOG_DEBUG_INIT ]]; then
-		declare -g STD_LOG_DEBUG_INIT
-		STD_LOG_DEBUG_INIT=${EPOCHREALTIME//[!0-9]/}
-		printf "\r\e[2K\e[1;90m%s${STD_LOG_DEBUG_FUNC_COLOR}%s\e[0m%s" "[log::debug 0.000000] " "${FUNCNAME[1]}() " "$* "
+		declare -gr STD_LOG_DEBUG_INIT=${EPOCHREALTIME//[!0-9]/}
+		printf "\r\e[2K\e[1;90m[%(%F %T)T 0.000000] ${STD_LOG_DEBUG_FUNC_COLOR}%s\e[0m%s" "-1" "${FUNCNAME[1]}() " "$* "
 		if [[ $STD_LOG_DEBUG_VERBOSE = true ]]; then
 			printf "\e[1;93m%s" "-> "
 			local f i
@@ -501,10 +501,10 @@ log::debug() {
 	esac
 	STD_LOG_DEBUG_DOT=$((${#STD_LOG_DEBUG_ADJUSTED}-6))
 	if [[ $STD_LOG_DEBUG_DOT -eq 0 ]]; then
-		printf "\r\e[2K\e[1;90m%s${STD_LOG_DEBUG_FUNC_COLOR}%s\e[0m%s" "[log::debug 0.${STD_LOG_DEBUG_ADJUSTED}] " "${FUNCNAME[1]}() " "$* "
+		printf "\r\e[2K\e[1;90m[%(%F %T)T %s] ${STD_LOG_DEBUG_FUNC_COLOR}%s\e[0m%s" "-1" "${STD_LOG_DEBUG_ADJUSTED}" "${FUNCNAME[1]}() " "$* "
 	else
-		printf "\r\e[2K\e[1;90m%s${STD_LOG_DEBUG_FUNC_COLOR}%s\e[0m%s" \
-			"[log::debug ${STD_LOG_DEBUG_ADJUSTED:0:${STD_LOG_DEBUG_DOT}}.${STD_LOG_DEBUG_ADJUSTED:${STD_LOG_DEBUG_DOT}}] " "${FUNCNAME[1]}() " "$* "
+		printf "\r\e[2K\e[1;90m[%(%F %T)T %s] ${STD_LOG_DEBUG_FUNC_COLOR}%s\e[0m%s" "-1" \
+			"${STD_LOG_DEBUG_ADJUSTED:0:${STD_LOG_DEBUG_DOT}}.${STD_LOG_DEBUG_ADJUSTED:${STD_LOG_DEBUG_DOT}}" "${FUNCNAME[1]}() " "$* "
 	fi
 	if [[ $STD_LOG_DEBUG_VERBOSE = true ]]; then
 		printf "\e[1;93m%s" "-> "
