@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib/lock.sh/93731ac>
+#git <stdlib/lock.sh/4c8490f>
 
 # lock::alloc() & lock::free()
 # ----------------------------

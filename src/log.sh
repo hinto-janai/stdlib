@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib/log.sh/93731ac>
+#git <stdlib/log.sh/4c8490f>
 
 # log()
 # -----
@@ -54,24 +54,22 @@ log::prog() { printf "\r\e[2K\e[1;37m[ \e[0m....\e[1;37m ]\e[0m %s " "$@"; }
 # the $STD_LOG_DEBUG_INIT and starts
 # counting from there.
 #
-# ENVIRONMENT VARIABLES
+# ENVIRONMENT VARIABLE
 # ---------------------
-# $STD_LOG_DEBUG - "true" will enable debug messages to print
-# $STD_LOG_DEBUG_VERBOSE - "true" will show line + function stack
-#
+# $STD_LOG_DEBUG - [true] will enable debug messages to print
+##
 # EXAMPLE OUTPUT
 # --------------
-# [log::debug 0.000000] init debug message                <-- formatting: [debug time] [message] -> {function calls, if verbose}
-# [log::debug 1.000000] this is 1 second after
-# [log::debug 1.000546] 5.46 milliseconds after
-# [log::debug 1.043411] this one's verbose -> 138: func() 155: main()
+# [2025-12-25 08:08:08 0.000000] init debug message        <-- formatting: [yyyy-mm-dd hh-ss seconds_passed] [func()] [message]
+# [2025-12-25 08:08:08 1.000000] this is 1 second after
+# [2025-12-25 08:08:08 1.000546] 5.46 milliseconds after
 #
 # 100% bash builtins, no external programs.
 
 log::debug() {
 	# to enable debug to show up, make sure
 	# STD_LOG_DEBUG gets set "true" somewhere
-	[[ $STD_LOG_DEBUG != true ]] && return 0
+	[[ $STD_LOG_DEBUG = true ]] || return 0
 
 	# swap the color for every NEW function called
 	if [[ $STD_LOG_DEBUG_LAST_FUNC != "${FUNCNAME[1]}" ]]; then
@@ -87,31 +85,20 @@ log::debug() {
 		esac
 	fi
 
+	# get date [YEAR-MONTH-DAY HOUR:MINUTE:SECOND]
+	local STD_LOG_DEBUG_DATE=$(printf "%(%F %T)T" "-1")
+
 	# if first time running, initiate debug time and return
 	if [[ -z $STD_LOG_DEBUG_INIT ]]; then
 		declare -gr STD_LOG_DEBUG_INIT=${EPOCHREALTIME//[!0-9]/}
-		printf "\r\e[2K\e[1;90m[%(%F %T)T 0.000000] ${STD_LOG_DEBUG_FUNC_COLOR}%s\e[0m%s" "-1" "${FUNCNAME[1]}() " "$* "
-		# print line + function stack
-		if [[ $STD_LOG_DEBUG_VERBOSE = true ]]; then
-			printf "\e[1;93m%s" "-> "
-			local f i
-			i=1
-			for f in ${BASH_LINENO[@]}; do
-				[[ $f = 0 ]] && break
-				printf "\e[1;91m%s\e[1;92m%s" "${f}: " "${FUNCNAME[${i}]}() "
-				((i++))
-			done
-		fi
-		printf "\e[0m\n"
+		printf "\r\e[2K\e[1;90m[${STD_LOG_DEBUG_DATE} 0.000000] ${STD_LOG_DEBUG_FUNC_COLOR}${FUNCNAME[1]}()\e[0m %s\n" "$@"
 		return
 	fi
-	# local variable init
-	local STD_LOG_DEBUG_ADJUSTED STD_LOG_DEBUG_DOT
 	# current unix time - init unix time = current time in seconds
 	# 1656979999.949650 - 1656979988.549640 = 11.400010
 	# remove the '.' so the math works.
 	# Ubuntu adds a ',' so remove anything that isn't a number.
-	STD_LOG_DEBUG_ADJUSTED=$((${EPOCHREALTIME//[!0-9]/}-STD_LOG_DEBUG_INIT))
+	local STD_LOG_DEBUG_ADJUSTED=$((${EPOCHREALTIME//[!0-9]/}-STD_LOG_DEBUG_INIT))
 	# during init cases, the difference
 	# can be as low as 0.000002 which
 	# renders as just 2. this is a problem
@@ -128,26 +115,13 @@ log::debug() {
 	esac
 	# this is to add back the '.', currently the number
 	# is something like 000002 or 1000543
-	STD_LOG_DEBUG_DOT=$((${#STD_LOG_DEBUG_ADJUSTED}-6))
+	local STD_LOG_DEBUG_DOT=$((${#STD_LOG_DEBUG_ADJUSTED}-6))
 	# if 6 digits long, that means one second
 	# hasn't even passed, so just print 0.$the_number
-	if [[ $STD_LOG_DEBUG_DOT -eq 0 ]]; then
-		printf "\r\e[2K\e[1;90m[%(%F %T)T %s] ${STD_LOG_DEBUG_FUNC_COLOR}%s\e[0m%s" "-1" "${STD_LOG_DEBUG_ADJUSTED}" "${FUNCNAME[1]}() " "$* "
+	if [[ $STD_LOG_DEBUG_DOT = 0 ]]; then
+		printf "\r\e[2K\e[1;90m[${STD_LOG_DEBUG_DATE} 0.${STD_LOG_DEBUG_ADJUSTED}] ${STD_LOG_DEBUG_FUNC_COLOR}${FUNCNAME[1]}()\e[0m %s\n" "$@"
 	else
 	# else print the integer, '.', then decimals
-		printf "\r\e[2K\e[1;90m[%(%F %T)T %s] ${STD_LOG_DEBUG_FUNC_COLOR}%s\e[0m%s" "-1" \
-			"${STD_LOG_DEBUG_ADJUSTED:0:${STD_LOG_DEBUG_DOT}}.${STD_LOG_DEBUG_ADJUSTED:${STD_LOG_DEBUG_DOT}}" "${FUNCNAME[1]}() " "$* "
+		printf "\r\e[2K\e[1;90m[${STD_LOG_DEBUG_DATE} ${STD_LOG_DEBUG_ADJUSTED:0:${STD_LOG_DEBUG_DOT}}.${STD_LOG_DEBUG_ADJUSTED:${STD_LOG_DEBUG_DOT}}] ${STD_LOG_DEBUG_FUNC_COLOR}${FUNCNAME[1]}()\e[0m %s\n" "$@"
 	fi
-	# print line + function stack
-	if [[ $STD_LOG_DEBUG_VERBOSE = true ]]; then
-		printf "\e[1;93m%s" "-> "
-		local f i
-		i=1
-		for f in ${BASH_LINENO[@]}; do
-			[[ $f = 0 ]] && break
-			printf "\e[1;91m%s\e[1;92m%s" "${f}: " "${FUNCNAME[${i}]}() "
-			((i++))
-		done
-	fi
-	printf "\e[0m\n"
 }

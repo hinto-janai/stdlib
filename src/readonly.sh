@@ -20,52 +20,22 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib/readonly.sh/93731ac>
+#git <stdlib/readonly.sh/4c8490f>
 
 # $readonly
 # ---------
 # common global variables set as readonly.
+# squashed into 1 readonly invocation for
+# speed reasons.
 
 # COLORS
 # usage: printf "${BLUE}%s\n" "blue text"
-# REGULAR
-readonly BLACK="\e[0;30m"
-readonly RED="\e[0;31m"
-readonly GREEN="\e[0;32m"
-readonly YELLOW="\e[0;33m"
-readonly BLUE="\e[0;34m"
-readonly PURPLE="\e[0;35m"
-readonly CYAN="\e[0;36m"
-readonly WHITE="\e[0;37m"
-# BOLD
-readonly BBLACK="\e[1;90m"
-readonly BRED="\e[1;91m"
-readonly BGREEN="\e[1;92m"
-readonly BYELLOW="\e[1;93m"
-readonly BBLUE="\e[1;94m"
-readonly BPURPLE="\e[1;95m"
-readonly BCYAN="\e[1;96m"
-readonly BWHITE="\e[1;97m"
-# UNDERSCORE
-readonly UBLACK="\e[4;30m"
-readonly URED="\e[4;31m"
-readonly UGREEN="\e[4;32m"
-readonly UYELLOW="\e[4;33m"
-readonly UBLUE="\e[4;34m"
-readonly UPURPLE="\e[4;35m"
-readonly UCYAN="\e[4;36m"
-readonly UWHITE="\e[4;37m"
-# HIGH INTENSITY
-readonly IBLACK="\e[0;90m"
-readonly IRED="\e[0;91m"
-readonly IGREEN="\e[0;92m"
-readonly IYELLOW="\e[0;93m"
-readonly IBLUE="\e[0;94m"
-readonly IPURPLE="\e[0;95m"
-readonly ICYAN="\e[0;96m"
-readonly IWHITE="\e[0;97m"
-# STYLE
-readonly BOLD="\e[1m"
-readonly ITALIC="\e[3m"
-# OFF
-readonly OFF="\e[0m"
+#
+# Types:
+# - REGULAR
+# - BOLD
+# - UNDERSCORE
+# - HIGH INTENSITY
+# - STYLE
+# - OFF
+readonly BLACK="\e[0;30m" RED="\e[0;31m" GREEN="\e[0;32m" YELLOW="\e[0;33m" BLUE="\e[0;34m" PURPLE="\e[0;35m" CYAN="\e[0;36m" WHITE="\e[0;37m" BBLACK="\e[1;90m" BRED="\e[1;91m" BGREEN="\e[1;92m" BYELLOW="\e[1;93m" BBLUE="\e[1;94m" BPURPLE="\e[1;95m" BCYAN="\e[1;96m" BWHITE="\e[1;97m" UBLACK="\e[4;30m" URED="\e[4;31m" UGREEN="\e[4;32m" UYELLOW="\e[4;33m" UBLUE="\e[4;34m" UPURPLE="\e[4;35m" UCYAN="\e[4;36m" UWHITE="\e[4;37m" IBLACK="\e[0;90m" IRED="\e[0;91m" IGREEN="\e[0;92m" IYELLOW="\e[0;93m" IBLUE="\e[0;94m" IPURPLE="\e[0;95m" ICYAN="\e[0;96m" IWHITE="\e[0;97m" BOLD="\e[1m" ITALIC="\e[3m" OFF="\e[0m"

@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib/crypto.sh/93731ac>
+#git <stdlib/crypto.sh/4c8490f>
 
 # crypto()
 # --------

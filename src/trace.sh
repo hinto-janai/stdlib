@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib/trace.sh/93731ac>
+#git <stdlib/trace.sh/4c8490f>
 
 # trace()
 # -------

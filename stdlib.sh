@@ -22,12 +22,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#git <stdlib.sh/93731ac>
-#nix <1661550320>
-#hbc <7f27eed>
+#git <stdlib.sh/4c8490f>
+#nix <1661710606>
+#hbc <9f64be6>
 #src <ask.sh>
 #src <color.sh>
-#src <const.sh>
 #src <crypto.sh>
 #src <date.sh>
 #src <debug.sh>
@@ -41,7 +40,6 @@
 #src <readonly.sh>
 #src <safety.sh>
 #src <trace.sh>
-#src <type.sh>
 
 #-------------------------------------------------------------------------------- BEGIN SRC
 ask::yes() {
@@ -90,62 +88,6 @@ color::iwhite()  { builtin printf "\e[0;97m"; }
 color::bold()    { builtin printf "\e[1m"; }
 color::italic()  { builtin printf "\e[3m"; }
 color::off()     { builtin printf "\e[0m"; }
-const::char() {
-	[[ $# = 0 ]] && return 11
-	local i || return 22
-	for i in "$@"; do
-		declare -p "$i" &>/dev/null || { STD_TRACE_RETURN="char not found: $i"; return 33; }
-		declare -r -g "$i" || return 44
-	done
-	return 0
-}
-const::array() {
-	[[ $# = 0 ]] && return 11
-	local i || return 22
-	for i in "$@"; do
-		declare -p "$i" &>/dev/null || { STD_TRACE_RETURN="array not found: $i"; return 33; }
-		declare -r -g -a "$i" || return 44
-	done
-	return 0
-}
-const::map() {
-	[[ $# = 0 ]] && return 11
-	local i || return 22
-	for i in "$@"; do
-		declare -p "$i" &>/dev/null || { STD_TRACE_RETURN="map not found: $i"; return 33; }
-		declare -r -g -A "$i" || return 44
-	done
-	return 0
-}
-const::int() {
-	[[ $# = 0 ]] && return 11
-	local i || return 22
-	for i in "$@"; do
-		case "$i" in
-			''|*[!0-9]*) { STD_TRACE_RETURN="not integer: $i"; return 33; } ;;
-		esac
-		declare -p "$i" &>/dev/null || { STD_TRACE_RETURN="integer not found: $i"; return 44; }
-		declare -r -g -i "$i" || return 55
-	done
-	return 0
-}
-const::bool() {
-	[[ $# = 0 ]] && return 11
-	local i || return 22
-	for i in "$@"; do
-		declare -p "$i" &>/dev/null || { STD_TRACE_RETURN="bool not found: $i"; return 33; }
-		declare -r -g "$i" || return 44
-	done
-}
-const::ref() {
-	[[ $# = 0 ]] && return 11
-	local i || return 22
-	for i in "$@"; do
-		declare -p "$i" &>/dev/null || { STD_TRACE_RETURN="ref not found: $i"; return 33; }
-		declare -r -g -n "$i" || return 44
-	done
-	return 0
-}
 crypto::bytes() (
 	[[ $# = 0 ]] && return 1
 	set -o pipefail || return 2
@@ -461,7 +403,7 @@ log::danger() { printf "\r\e[2K\e[1;31m[DANGER]\e[0m %s\n" "$@"; }
 log::tab() { printf "\r\e[2K\e[0m         %s\n" "$@"; }
 log::prog() { printf "\r\e[2K\e[1;37m[ \e[0m....\e[1;37m ]\e[0m %s " "$@"; }
 log::debug() {
-	[[ $STD_LOG_DEBUG != true ]] && return 0
+	[[ $STD_LOG_DEBUG = true ]] || return 0
 	if [[ $STD_LOG_DEBUG_LAST_FUNC != "${FUNCNAME[1]}" ]]; then
 		declare -g STD_LOG_DEBUG_LAST_FUNC="${FUNCNAME[1]}"
 		case "$STD_LOG_DEBUG_FUNC_COLOR" in
@@ -474,24 +416,13 @@ log::debug() {
 			*) STD_LOG_DEBUG_FUNC_COLOR="\e[1;91m";;
 		esac
 	fi
+	local STD_LOG_DEBUG_DATE=$(printf "%(%F %T)T" "-1")
 	if [[ -z $STD_LOG_DEBUG_INIT ]]; then
 		declare -gr STD_LOG_DEBUG_INIT=${EPOCHREALTIME//[!0-9]/}
-		printf "\r\e[2K\e[1;90m[%(%F %T)T 0.000000] ${STD_LOG_DEBUG_FUNC_COLOR}%s\e[0m%s" "-1" "${FUNCNAME[1]}() " "$* "
-		if [[ $STD_LOG_DEBUG_VERBOSE = true ]]; then
-			printf "\e[1;93m%s" "-> "
-			local f i
-			i=1
-			for f in ${BASH_LINENO[@]}; do
-				[[ $f = 0 ]] && break
-				printf "\e[1;91m%s\e[1;92m%s" "${f}: " "${FUNCNAME[${i}]}() "
-				((i++))
-			done
-		fi
-		printf "\e[0m\n"
+		printf "\r\e[2K\e[1;90m[${STD_LOG_DEBUG_DATE} 0.000000] ${STD_LOG_DEBUG_FUNC_COLOR}${FUNCNAME[1]}()\e[0m %s\n" "$@"
 		return
 	fi
-	local STD_LOG_DEBUG_ADJUSTED STD_LOG_DEBUG_DOT
-	STD_LOG_DEBUG_ADJUSTED=$((${EPOCHREALTIME//[!0-9]/}-STD_LOG_DEBUG_INIT))
+	local STD_LOG_DEBUG_ADJUSTED=$((${EPOCHREALTIME//[!0-9]/}-STD_LOG_DEBUG_INIT))
 	case ${#STD_LOG_DEBUG_ADJUSTED} in
 		1) STD_LOG_DEBUG_ADJUSTED=00000${STD_LOG_DEBUG_ADJUSTED};;
 		2) STD_LOG_DEBUG_ADJUSTED=0000${STD_LOG_DEBUG_ADJUSTED};;
@@ -499,24 +430,12 @@ log::debug() {
 		4) STD_LOG_DEBUG_ADJUSTED=00${STD_LOG_DEBUG_ADJUSTED};;
 		5) STD_LOG_DEBUG_ADJUSTED=0${STD_LOG_DEBUG_ADJUSTED};;
 	esac
-	STD_LOG_DEBUG_DOT=$((${#STD_LOG_DEBUG_ADJUSTED}-6))
-	if [[ $STD_LOG_DEBUG_DOT -eq 0 ]]; then
-		printf "\r\e[2K\e[1;90m[%(%F %T)T %s] ${STD_LOG_DEBUG_FUNC_COLOR}%s\e[0m%s" "-1" "${STD_LOG_DEBUG_ADJUSTED}" "${FUNCNAME[1]}() " "$* "
+	local STD_LOG_DEBUG_DOT=$((${#STD_LOG_DEBUG_ADJUSTED}-6))
+	if [[ $STD_LOG_DEBUG_DOT = 0 ]]; then
+		printf "\r\e[2K\e[1;90m[${STD_LOG_DEBUG_DATE} 0.${STD_LOG_DEBUG_ADJUSTED}] ${STD_LOG_DEBUG_FUNC_COLOR}${FUNCNAME[1]}()\e[0m %s\n" "$@"
 	else
-		printf "\r\e[2K\e[1;90m[%(%F %T)T %s] ${STD_LOG_DEBUG_FUNC_COLOR}%s\e[0m%s" "-1" \
-			"${STD_LOG_DEBUG_ADJUSTED:0:${STD_LOG_DEBUG_DOT}}.${STD_LOG_DEBUG_ADJUSTED:${STD_LOG_DEBUG_DOT}}" "${FUNCNAME[1]}() " "$* "
+		printf "\r\e[2K\e[1;90m[${STD_LOG_DEBUG_DATE} ${STD_LOG_DEBUG_ADJUSTED:0:${STD_LOG_DEBUG_DOT}}.${STD_LOG_DEBUG_ADJUSTED:${STD_LOG_DEBUG_DOT}}] ${STD_LOG_DEBUG_FUNC_COLOR}${FUNCNAME[1]}()\e[0m %s\n" "$@"
 	fi
-	if [[ $STD_LOG_DEBUG_VERBOSE = true ]]; then
-		printf "\e[1;93m%s" "-> "
-		local f i
-		i=1
-		for f in ${BASH_LINENO[@]}; do
-			[[ $f = 0 ]] && break
-			printf "\e[1;91m%s\e[1;92m%s" "${f}: " "${FUNCNAME[${i}]}() "
-			((i++))
-		done
-	fi
-	printf "\e[0m\n"
 }
 short::sum() {
 	if [[ -p /dev/stdin ]]; then
@@ -613,41 +532,7 @@ panic() {
 	builtin kill -s KILL 0
 	[[ $1 =~ ^[0-9]+$ ]] && exit $1 || exit 99
 }
-readonly BLACK="\e[0;30m"
-readonly RED="\e[0;31m"
-readonly GREEN="\e[0;32m"
-readonly YELLOW="\e[0;33m"
-readonly BLUE="\e[0;34m"
-readonly PURPLE="\e[0;35m"
-readonly CYAN="\e[0;36m"
-readonly WHITE="\e[0;37m"
-readonly BBLACK="\e[1;90m"
-readonly BRED="\e[1;91m"
-readonly BGREEN="\e[1;92m"
-readonly BYELLOW="\e[1;93m"
-readonly BBLUE="\e[1;94m"
-readonly BPURPLE="\e[1;95m"
-readonly BCYAN="\e[1;96m"
-readonly BWHITE="\e[1;97m"
-readonly UBLACK="\e[4;30m"
-readonly URED="\e[4;31m"
-readonly UGREEN="\e[4;32m"
-readonly UYELLOW="\e[4;33m"
-readonly UBLUE="\e[4;34m"
-readonly UPURPLE="\e[4;35m"
-readonly UCYAN="\e[4;36m"
-readonly UWHITE="\e[4;37m"
-readonly IBLACK="\e[0;90m"
-readonly IRED="\e[0;91m"
-readonly IGREEN="\e[0;92m"
-readonly IYELLOW="\e[0;93m"
-readonly IBLUE="\e[0;94m"
-readonly IPURPLE="\e[0;95m"
-readonly ICYAN="\e[0;96m"
-readonly IWHITE="\e[0;97m"
-readonly BOLD="\e[1m"
-readonly ITALIC="\e[3m"
-readonly OFF="\e[0m"
+readonly BLACK="\e[0;30m" RED="\e[0;31m" GREEN="\e[0;32m" YELLOW="\e[0;33m" BLUE="\e[0;34m" PURPLE="\e[0;35m" CYAN="\e[0;36m" WHITE="\e[0;37m" BBLACK="\e[1;90m" BRED="\e[1;91m" BGREEN="\e[1;92m" BYELLOW="\e[1;93m" BBLUE="\e[1;94m" BPURPLE="\e[1;95m" BCYAN="\e[1;96m" BWHITE="\e[1;97m" UBLACK="\e[4;30m" URED="\e[4;31m" UGREEN="\e[4;32m" UYELLOW="\e[4;33m" UBLUE="\e[4;34m" UPURPLE="\e[4;35m" UCYAN="\e[4;36m" UWHITE="\e[4;37m" IBLACK="\e[0;90m" IRED="\e[0;91m" IGREEN="\e[0;92m" IYELLOW="\e[0;93m" IBLUE="\e[0;94m" IPURPLE="\e[0;95m" ICYAN="\e[0;96m" IWHITE="\e[0;97m" BOLD="\e[1m" ITALIC="\e[3m" OFF="\e[0m"
 safety::builtin() {
 	POSIXLY_CORRECT= || exit 11
 	\unset -f "$@" || exit 22
@@ -748,86 +633,6 @@ ___ENDOF___ERROR___TRACE___() {
 	while true; do read -s -r; done
 	while true; do false; done
 	while :; do :; done
-}
-char() {
-	[[ $# = 0 ]] && return 11
-	local i || return 22
-	for i in "$@"; do
-		declare -p ${i%=*} &>/dev/null && { STD_TRACE_RETURN="char already found: $i"; return 33; }
-		declare -g "$i" || return 44
-	done
-	return 0
-}
-array() {
-	[[ $# = 0 ]] && return 11
-	local i || return 22
-	for i in "$@"; do
-		{ declare -p ${i%=*} &>/dev/null || [[ -v ${i%=*} ]]; } && { STD_TRACE_RETURN="array already found: $i"; return 33; }
-		declare -g -a "$i" || return 44
-	done
-	return 0
-}
-map() {
-	[[ $# = 0 ]] && return 11
-	local i || return 22
-	for i in "$@"; do
-		{ declare -p ${i%=*} &>/dev/null || [[ -v ${i%=*} ]]; } && { STD_TRACE_RETURN="map already found: $i"; return 33; }
-		declare -g -A "$i" || return 44
-	done
-	return 0
-}
-int() {
-	[[ $# = 0 ]] && return 11
-	local i || return 22
-	for i in "$@"; do
-		if [[ $i = *=* ]]; then
-			case ${i/*=} in
-				''|*[!0-9]*) { STD_TRACE_RETURN="not integer: $i"; return 33; } ;;
-			esac
-		fi
-		declare -p ${i%=*} &>/dev/null && { STD_TRACE_RETURN="integer already found: $i"; return 44; }
-		declare -g -i "$i" || return 55
-	done
-	return 0
-}
-bool() {
-	[[ $# = 0 ]] && return 11
-	local i || return 22
-	for i in "$@"; do
-		declare -p ${i%=*} &>/dev/null && { STD_TRACE_RETURN="bool already found: $i"; return 33; }
-		case $i in
-			*=true) declare -g ${i%=*}=true || return 44 ;;
-			*=false) declare -g ${i%=*}=false || return 55 ;;
-			*) return 66 ;;
-		esac
-	done
-}
-ref() {
-	[[ $# = 0 ]] && return 11
-	local i || return 22
-	for i in "$@"; do
-		declare -p ${i%=*} &>/dev/null && { STD_TRACE_RETURN="ref already found: $i"; return 33; }
-		declare -g -n "$i" || return 44
-	done
-	return 0
-}
-free() {
-	[[ $# = 0 ]] && return 11
-	local i || return 22
-	for i in "$@"; do
-		{ declare -p ${i%=*} &>/dev/null || [[ -v ${i%=*} ]]; } || { STD_TRACE_RETURN="no var found: $i"; return 33; }
-		unset -v "$i" || { STD_TRACE_RETURN="could not free: $i"; return 44; }
-	done
-	return 0
-}
-free::func() {
-	[[ $# = 0 ]] && return 11
-	local i || return 22
-	for i in "$@"; do
-		declare -F "$i" &>/dev/null || { STD_TRACE_RETURN="no func found: $i"; return 33; }
-		unset -f "$i" || { STD_TRACE_RETURN="could not free: $i"; return 44; }
-	done
-	return 0
 }
 
 #-------------------------------------------------------------------------------- BEGIN MAIN
